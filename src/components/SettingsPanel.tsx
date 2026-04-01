@@ -7,7 +7,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { IngredientType, Client, RecipeIngredient } from "@/types";
 
 const CLIENTS: Client[] = [
-  "MFC",
+  "Myatt's Fields",
   "Fortnum & Mason",
   "Cripps",
   "Bailey & Sage",

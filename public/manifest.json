@@ -1,0 +1,16 @@
+{
+  "name": "The Back Bar — Myatt's Fields",
+  "short_name": "The Back Bar",
+  "description": "Internal operations hub for Myatt's Fields Cocktails",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

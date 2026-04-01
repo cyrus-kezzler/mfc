@@ -12,31 +12,71 @@ export default function BatchOutput({ result }: Props) {
   const hasHouseMade = result.houseMade.length > 0;
   const hasDashes = result.dashes.length > 0;
 
+  // Collect all ingredient notes with their ingredient name
+  const allNotes: { ingredientName: string; note: string }[] = [
+    ...result.jerryCans,
+    ...result.bottles,
+    ...result.houseMade,
+    ...result.dashes,
+  ]
+    .filter((item) => item.note)
+    .map((item) => ({ ingredientName: item.ingredientName, note: item.note! }));
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div
-        className="rounded-xl p-5 border"
+        className="rounded-xl border overflow-hidden"
         style={{ background: "#1e1e1e", borderColor: "#2d2d2d" }}
       >
-        <h2 className="text-xl font-semibold" style={{ color: "#c9a227" }}>
-          {result.recipeName}
-        </h2>
-        <p className="text-sm mt-1" style={{ color: "#9ca3af" }}>
-          {result.targetLitres}L batch — {result.targetMl.toLocaleString()}ml total
-        </p>
+        <div className="p-5">
+          <h2 className="text-xl font-semibold" style={{ color: "#c9a227" }}>
+            {result.recipeName}
+          </h2>
+          <p className="text-sm mt-1" style={{ color: "#9ca3af" }}>
+            {result.targetLitres}L batch — {result.targetMl.toLocaleString()}ml total
+          </p>
+        </div>
+
+        {/* Production notes — prominently below the title */}
+        {allNotes.length > 0 && (
+          <div
+            className="px-5 py-4 border-t"
+            style={{ background: "#1a1408", borderColor: "#3d2e0a" }}
+          >
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#c9a227" }}
+            >
+              Before you start
+            </p>
+            <ul className="space-y-2">
+              {allNotes.map(({ ingredientName, note }) => (
+                <li key={ingredientName} className="flex gap-2 items-start">
+                  <span className="mt-0.5 text-sm" style={{ color: "#c9a227" }}>⚠</span>
+                  <p className="text-sm leading-snug" style={{ color: "#e5c97a" }}>
+                    <span className="font-semibold">{ingredientName}:</span>{" "}
+                    {note}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Jerry Cans */}
       {hasJerryCans && (
         <Section title="Jerry Cans" color="#52b788" icon="🧃">
           {result.jerryCans.map((item) => (
-            <Row key={item.ingredientName}>
-              <span className="font-medium text-white">{item.ingredientName}</span>
-              <span style={{ color: "#52b788" }} className="font-mono font-semibold">
-                {item.ml.toLocaleString()} ml
-              </span>
-            </Row>
+            <div key={item.ingredientName} className="py-3 border-b last:border-b-0" style={{ borderColor: "#2d2d2d" }}>
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-medium text-white">{item.ingredientName}</span>
+                <span style={{ color: "#52b788" }} className="font-mono font-semibold">
+                  {item.ml.toLocaleString()} ml
+                </span>
+              </div>
+            </div>
           ))}
         </Section>
       )}
@@ -144,12 +184,14 @@ export default function BatchOutput({ result }: Props) {
       {hasDashes && (
         <Section title="Bitters / Dashes" color="#c9a227" icon="💧">
           {result.dashes.map((item) => (
-            <Row key={item.ingredientName}>
-              <span className="font-medium text-white">{item.ingredientName}</span>
-              <span style={{ color: "#c9a227" }} className="font-mono font-semibold">
-                {item.totalDashes} dashes
-              </span>
-            </Row>
+            <div key={item.ingredientName} className="py-3 border-b last:border-b-0" style={{ borderColor: "#2d2d2d" }}>
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-medium text-white">{item.ingredientName}</span>
+                <span style={{ color: "#c9a227" }} className="font-mono font-semibold">
+                  {item.totalDashes} dashes
+                </span>
+              </div>
+            </div>
           ))}
         </Section>
       )}
@@ -183,10 +225,3 @@ function Section({
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b last:border-b-0" style={{ borderColor: "#2d2d2d" }}>
-      {children}
-    </div>
-  );
-}

@@ -1,4 +1,4 @@
-export type Client = 'MFC' | 'Fortnum & Mason' | 'Cripps' | 'Bailey & Sage' | 'Macknade' | 'Liberty';
+export type Client = "Myatt's Fields" | 'Fortnum & Mason' | 'Cripps' | 'Bailey & Sage' | 'Macknade' | 'Liberty';
 
 export type IngredientType = 'jerry-can' | 'bottle' | 'house-made' | 'dashes';
 
@@ -27,6 +27,7 @@ export interface RecipeIngredient {
   ingredientName: string;
   parts?: number; // ratio parts (will be normalised to 100)
   dashesPerLitre?: number; // for dashes type — fixed rate, not a ratio
+  note?: string; // production note shown alongside this ingredient in output
 }
 
 export interface Recipe {
@@ -42,6 +43,7 @@ export interface Recipe {
 export interface JerryCanResult {
   ingredientName: string;
   ml: number;
+  note?: string;
 }
 
 export interface BottleResult {
@@ -50,6 +52,7 @@ export interface BottleResult {
   fullBottles: number;
   remainderMl: number;
   bottleSize: number;
+  note?: string;
 }
 
 export interface SubRecipeScaled {
@@ -67,11 +70,13 @@ export interface HouseMadeResult {
   ingredientName: string;
   ml: number;
   subRecipeItems?: SubRecipeScaled[];
+  note?: string;
 }
 
 export interface DashesResult {
   ingredientName: string;
   totalDashes: number;
+  note?: string;
 }
 
 export interface BatchCalculation {

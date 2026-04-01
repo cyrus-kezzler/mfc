@@ -8,9 +8,14 @@ export default function LoginPage({
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
       <div className="w-full max-w-sm px-6">
-        <h1 className="text-2xl font-semibold text-center mb-8" style={{ color: '#f0f0f0' }}>
-          MFC Batch Calculator
-        </h1>
+        <div className="text-center mb-10">
+          <p className="text-xs uppercase tracking-[0.3em] font-medium mb-2" style={{ color: '#c9a227' }}>
+            Myatt&apos;s Fields Cocktails
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#f0f0f0', letterSpacing: '-0.02em' }}>
+            The Back Bar
+          </h1>
+        </div>
         <form action={login} className="flex flex-col gap-4">
           <input
             type="password"

@@ -6,36 +6,25 @@ export const RECIPES: Recipe[] = [
   // ═══════════════════════════════════════
   {
     name: 'Baby Otis',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Havana Club', parts: 50 },
-      { ingredientName: 'Cocchi Torino', parts: 25 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 25 },
       { ingredientName: 'Cocchi Americano', parts: 25 },
     ],
   },
   {
-    name: 'Clementini',
-    clients: ['MFC'],
-    ingredients: [
-      { ingredientName: 'Peel Infused Gin', parts: 45 },
-      { ingredientName: 'Conotto', parts: 25 },
-      { ingredientName: 'Sours', parts: 25 },
-      { ingredientName: 'Agave', parts: 5 },
-    ],
-  },
-  {
     name: 'Cold Brew Negroni',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
-      { ingredientName: 'Gin', parts: 33 },
-      { ingredientName: 'Sweet Vermouth', parts: 33 },
-      { ingredientName: 'Campari', parts: 33 },
-      { ingredientName: 'Water', parts: 1 },
+      { ingredientName: 'Gin', parts: 33.3 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 33.3 },
+      { ingredientName: 'Campari', parts: 33.3, note: 'Infuse with 3 coffee beans per 700ml for 20 minutes before production' },
     ],
   },
   {
     name: 'Corpse Reviver',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 25 },
       { ingredientName: 'Lillet', parts: 25 },
@@ -45,7 +34,7 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Dempsey',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 48 },
       { ingredientName: 'Calvados', parts: 48 },
@@ -55,16 +44,16 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Desert Negroni',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Tequila', parts: 33.3 },
-      { ingredientName: 'Cocchi Torino', parts: 33.3 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 33.3 },
       { ingredientName: 'Campari', parts: 33.3 },
     ],
   },
   {
     name: 'Espresso Martini',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Vodka', parts: 33.3 },
       { ingredientName: 'Kahlua', parts: 33.3 },
@@ -72,36 +61,17 @@ export const RECIPES: Recipe[] = [
     ],
   },
   {
-    name: 'Cherry Espresso Martini',
-    clients: ['MFC'],
-    ingredients: [
-      { ingredientName: 'Vodka', parts: 30 },
-      { ingredientName: 'Kahlua', parts: 30 },
-      { ingredientName: 'Coffee', parts: 30 },
-      { ingredientName: 'Cherry', parts: 10 },
-    ],
-  },
-  {
     name: 'Gibson Martini',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
-      { ingredientName: 'Gin', parts: 80 },
+      { ingredientName: 'Gin', parts: 80, note: 'Infuse with one silverskin pickled onion per 700ml for two hours before production' },
       { ingredientName: 'Noilly Prat', parts: 10 },
       { ingredientName: 'Water', parts: 10 },
     ],
   },
   {
-    name: 'Gin & It',
-    clients: ['MFC'],
-    ingredients: [
-      { ingredientName: 'Gin', parts: 60 },
-      { ingredientName: 'Sweet Vermouth', parts: 30 },
-      { ingredientName: 'Water', parts: 10 },
-    ],
-  },
-  {
     name: 'Lychee Martini',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 52.2 },
       { ingredientName: 'Lychee', parts: 26.1 },
@@ -111,16 +81,16 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Manhattan',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Rye', parts: 66 },
-      { ingredientName: 'Antica', parts: 17 },
-      { ingredientName: 'Cocchi Torino', parts: 17 },
+      { ingredientName: 'Carpano Antica Formula Vermouth', parts: 17 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 17 },
     ],
   },
   {
     name: 'Margarita',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Tequila', parts: 50 },
       { ingredientName: 'Sours', parts: 22.5 },
@@ -130,37 +100,37 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Naked & Famous',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Mezcal', parts: 25 },
-      { ingredientName: 'Chartreuse', parts: 25 },
+      { ingredientName: 'Yellow Chartreuse', parts: 25 },
       { ingredientName: 'Aperol', parts: 25 },
       { ingredientName: 'Sours', parts: 25 },
     ],
   },
   {
     name: 'Negroni',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 33.3 },
-      { ingredientName: 'Antica', parts: 16.5 },
-      { ingredientName: 'Cocchi Torino', parts: 16.5 },
+      { ingredientName: 'Carpano Antica Formula Vermouth', parts: 16.5 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 16.5 },
       { ingredientName: 'Campari', parts: 33.3 },
     ],
   },
   {
     name: 'Pisco Martini',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 25 },
       { ingredientName: 'Pisco', parts: 25 },
       { ingredientName: 'Noilly Prat', parts: 25 },
-      { ingredientName: 'Cocchi Torino', parts: 25 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 25 },
     ],
   },
   {
     name: 'Red Hook',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Rye', parts: 61 },
       { ingredientName: 'Punt e Mes', parts: 17 },
@@ -170,7 +140,7 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Rum Old Fashioned',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Rum', parts: 88 },
       { ingredientName: 'Simple Syrup', parts: 12 },
@@ -179,7 +149,7 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Trident',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Akvavit', parts: 33.3 },
       { ingredientName: 'Manzanilla', parts: 33.3 },
@@ -188,7 +158,7 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Tuxedo',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Old Tom', parts: 60 },
       { ingredientName: 'Dry Vermouth', parts: 15 },
@@ -199,34 +169,12 @@ export const RECIPES: Recipe[] = [
   },
   {
     name: 'Vesper Martini',
-    clients: ['MFC'],
+    clients: ["Myatt's Fields"],
     ingredients: [
       { ingredientName: 'Gin', parts: 60 },
       { ingredientName: 'Vodka', parts: 20 },
       { ingredientName: 'Lillet', parts: 11.1 },
       { ingredientName: 'Cocchi Americano', parts: 8.9 },
-    ],
-  },
-  {
-    name: 'Yuzu Negroni',
-    clients: ['MFC'],
-    ingredients: [
-      { ingredientName: 'Gin', parts: 29 },
-      { ingredientName: 'Yuzu Sake', parts: 29 },
-      { ingredientName: 'Campari', parts: 29 },
-      { ingredientName: 'Punt e Mes', parts: 14 },
-      { ingredientName: 'Water', parts: 1 },
-    ],
-  },
-  {
-    name: 'Cosmopolitan',
-    clients: ['MFC'],
-    ingredients: [
-      { ingredientName: 'Vodka', parts: 27 },
-      { ingredientName: 'Kecello', parts: 27 },
-      { ingredientName: 'Verjus', parts: 18 },
-      { ingredientName: 'Cranberry', parts: 9 },
-      { ingredientName: 'Water', parts: 18 },
     ],
   },
 
@@ -258,7 +206,7 @@ export const RECIPES: Recipe[] = [
     clients: ['Fortnum & Mason'],
     ingredients: [
       { ingredientName: 'English Whisky', parts: 56 },
-      { ingredientName: 'Cocchi Torino', parts: 28 },
+      { ingredientName: 'Cocchi Vermouth di Torino', parts: 28 },
       { ingredientName: 'Water', parts: 16 },
     ],
   },
@@ -323,7 +271,7 @@ export const RECIPES: Recipe[] = [
     clients: ['Cripps'],
     ingredients: [
       { ingredientName: 'Gin', parts: 33.3 },
-      { ingredientName: 'Antica', parts: 16.5 },
+      { ingredientName: 'Carpano Antica Formula Vermouth', parts: 16.5 },
       { ingredientName: 'Punt e Mes', parts: 16.5 },
       { ingredientName: 'Campari', parts: 33.3 },
     ],

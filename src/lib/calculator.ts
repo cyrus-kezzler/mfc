@@ -53,7 +53,7 @@ export function calculateBatch(
 
     switch (ingredient.type) {
       case 'jerry-can':
-        result.jerryCans.push({ ingredientName: ri.ingredientName, ml });
+        result.jerryCans.push({ ingredientName: ri.ingredientName, ml, note: ri.note });
         break;
 
       case 'bottle': {
@@ -66,6 +66,7 @@ export function calculateBatch(
           fullBottles,
           remainderMl,
           bottleSize: size,
+          note: ri.note,
         });
         break;
       }
@@ -74,6 +75,7 @@ export function calculateBatch(
         const hmResult: typeof result.houseMade[0] = {
           ingredientName: ri.ingredientName,
           ml,
+          note: ri.note,
         };
         if (ingredient.subRecipe) {
           const scaleFactor = ml / ingredient.subRecipe.baseBatchMl;
@@ -113,7 +115,7 @@ export function calculateBatch(
     const ingredient = resolveIngredient(di.ingredientName, settings);
     const dashesPerLitre = di.dashesPerLitre ?? ingredient.dashesPerLitre ?? 0;
     const totalDashes = Math.round(dashesPerLitre * targetLitres);
-    result.dashes.push({ ingredientName: di.ingredientName, totalDashes });
+    result.dashes.push({ ingredientName: di.ingredientName, totalDashes, note: di.note });
   }
 
   return result;
