@@ -438,6 +438,51 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Sub-nav */}
+      <div style={{
+        borderBottom: '1px solid #1a1a1a',
+        padding: '0 48px',
+        display: 'flex',
+        gap: 24,
+      }}>
+        <a href="/dashboard" style={{
+          padding: '10px 0',
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#C9A84C',
+          borderBottom: '2px solid #C9A84C',
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          textDecoration: 'none',
+        }}>
+          Dashboard
+        </a>
+        <a href="/dashboard/wholesale" style={{
+          padding: '10px 0',
+          fontSize: 12,
+          fontWeight: 500,
+          color: '#555',
+          borderBottom: '2px solid transparent',
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          textDecoration: 'none',
+        }}>
+          £ Wholesale Pricing
+        </a>
+        <a href="/strategy" style={{
+          padding: '10px 0',
+          fontSize: 12,
+          fontWeight: 500,
+          color: '#555',
+          borderBottom: '2px solid transparent',
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          textDecoration: 'none',
+        }}>
+          Strategy &amp; Targets
+        </a>
+      </div>
+
       <div style={{ padding: '32px 48px', maxWidth: 1400 }}>
 
         {/* Alerts */}
