@@ -4,6 +4,14 @@ import Image from "next/image";
 
 const MODULES = [
   {
+    href: "/strategy",
+    label: "Strategy & Targets",
+    sublabel: "Direction & Goals",
+    description:
+      "Where we are going and how we plan to get there. Pricing, growth, wholesale, and the 2027 rebrand.",
+    status: "live" as const,
+  },
+  {
     href: "/dashboard",
     label: "Dashboard",
     sublabel: "Financial overview",
@@ -61,10 +69,10 @@ export default function Home() {
             className="text-4xl sm:text-5xl font-bold tracking-tight mb-4"
             style={{ color: "#f0f0f0", letterSpacing: "-0.02em", lineHeight: 1.1 }}
           >
-            Operations
+            The Ledger
           </h1>
           <p className="text-base max-w-md" style={{ color: "#4a4a4a" }}>
-            Internal tools for batch preparation, recipe management, and event planning.
+            The operational and strategic hub for Myatt&apos;s Fields Cocktails.
           </p>
         </div>
 

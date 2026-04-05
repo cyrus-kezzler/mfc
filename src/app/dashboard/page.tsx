@@ -449,6 +449,7 @@ export default async function DashboardPage() {
         {[
           { href: '/dashboard', label: 'Overview' },
           { href: '/dashboard/pricing', label: '£ Wholesale Pricing' },
+          { href: '/strategy', label: 'Strategy & Targets' },
         ].map(({ href, label }) => (
           <Link
             key={href}
