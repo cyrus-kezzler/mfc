@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getShopifyRevenueData, getRecentShopifyOrders } from '@/lib/shopify'
 import { getQBRevenueData } from '@/lib/quickbooks'
 import {
@@ -436,6 +437,36 @@ export default async function DashboardPage() {
             {isQBLive ? '● QUICKBOOKS LIVE' : '○ QUICKBOOKS OFFLINE'}
           </span>
         </div>
+      </div>
+
+      {/* Navigation */}
+      <div style={{
+        borderBottom: '1px solid #1a1a1a',
+        padding: '0 48px',
+        display: 'flex',
+        gap: 0,
+      }}>
+        {[
+          { href: '/dashboard', label: 'Overview' },
+          { href: '/dashboard/pricing', label: '£ Wholesale Pricing' },
+        ].map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            style={{
+              display: 'inline-block',
+              padding: '10px 16px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#888',
+              textDecoration: 'none',
+              letterSpacing: 0.5,
+              borderBottom: '2px solid transparent',
+            }}
+          >
+            {label}
+          </Link>
+        ))}
       </div>
 
       <div style={{ padding: '32px 48px', maxWidth: 1400 }}>
