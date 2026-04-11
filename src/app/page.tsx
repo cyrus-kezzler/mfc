@@ -5,35 +5,38 @@ import Image from "next/image";
 const MODULES = [
   {
     href: "/strategy",
-    label: "Strategy & Targets",
+    label: "Strategy",
     sublabel: "Direction & Goals",
     description:
       "Where we are going and how we plan to get there. Pricing, growth, wholesale, and the 2027 rebrand.",
-    status: "live" as const,
   },
   {
-    href: "/dashboard",
-    label: "Dashboard",
-    sublabel: "Financial overview",
+    href: "/finances",
+    label: "Finances",
+    sublabel: "Money in, money out",
     description:
-      "Revenue, wholesale invoices, customer concentration, and live Shopify and QuickBooks data.",
-    status: "live" as const,
+      "Revenue, wholesale invoices, channel profitability, audit, and live Shopify and QuickBooks data.",
   },
   {
-    href: "/calculator",
-    label: "Batch Calculator",
-    sublabel: "Volumes for Production",
+    href: "/production",
+    label: "Production",
+    sublabel: "Kitchen & fulfilment",
     description:
-      "Select a client, choose a recipe, and get precise ingredient volumes for any batch size.",
-    status: "live" as const,
+      "Batching, recipe ratios, inventory, and stock audits — the operational side of making cocktails.",
   },
   {
-    href: "/recipes",
-    label: "Recipes",
-    sublabel: "Cocktail specifications",
+    href: "/sales",
+    label: "Sales",
+    sublabel: "Customers & pipeline",
     description:
-      "Browse and manage cocktail recipes, ingredient ratios, and production notes.",
-    status: "live" as const,
+      "Wholesale accounts, caterers, Amazon, and the CRM we are about to build.",
+  },
+  {
+    href: "/drinks",
+    label: "Drinks",
+    sublabel: "Range & content",
+    description:
+      "Recipes, the cocktail master list, photo assets, content plan, and new product development.",
   },
 ];
 
@@ -77,7 +80,7 @@ export default function Home() {
         </div>
 
         {/* Module grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {MODULES.map((mod) => (
             <ModuleCard key={mod.href} {...mod} />
           ))}
@@ -97,7 +100,6 @@ function ModuleCard({
   label: string;
   sublabel: string;
   description: string;
-  status: "live" | "soon";
 }) {
   return (
     <Link
@@ -108,11 +110,7 @@ function ModuleCard({
         border: "1px solid #1c1c1c",
       }}
     >
-      {/* Gold accent line */}
-      <div
-        className="w-8 h-px mb-8"
-        style={{ background: "#c9a227" }}
-      />
+      <div className="w-8 h-px mb-8" style={{ background: "#c9a227" }} />
 
       <p
         className="text-xs uppercase tracking-[0.15em] mb-1 font-medium"
