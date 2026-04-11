@@ -63,7 +63,7 @@ export default function Home() {
             className="text-xs uppercase tracking-[0.6em] mb-3 font-medium"
             style={{ color: "#c9a227" }}
           >
-            Myatt&apos;s Fields Cocktails
+            Myatt&apos;s Fields
           </p>
           <h1
             className="text-4xl sm:text-5xl font-bold tracking-tight mb-4"
