@@ -30,7 +30,7 @@ export default function Nav() {
             className="font-bold tracking-[0.18em] text-xs uppercase"
             style={{ color: "#f0f0f0", letterSpacing: "0.18em" }}
           >
-            Myatt&apos;s Fields
+            The Back Bar
           </span>
         </Link>
 

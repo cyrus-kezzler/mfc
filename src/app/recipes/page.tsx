@@ -7,7 +7,7 @@ export default function RecipesPage() {
       <main className="max-w-5xl mx-auto px-6 py-16">
         <div className="mb-10">
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-3 font-medium"
+            className="text-xs uppercase tracking-[0.6em] mb-3 font-medium"
             style={{ color: "#c9a227" }}
           >
             Myatt&apos;s Fields Cocktails

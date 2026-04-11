@@ -60,7 +60,7 @@ export default function Home() {
           </div>
 
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-3 font-medium"
+            className="text-xs uppercase tracking-[0.6em] mb-3 font-medium"
             style={{ color: "#c9a227" }}
           >
             Myatt&apos;s Fields Cocktails
@@ -69,7 +69,7 @@ export default function Home() {
             className="text-4xl sm:text-5xl font-bold tracking-tight mb-4"
             style={{ color: "#f0f0f0", letterSpacing: "-0.02em", lineHeight: 1.1 }}
           >
-            The Ledger
+            The Back Bar
           </h1>
           <p className="text-base max-w-md" style={{ color: "#4a4a4a" }}>
             The operational and strategic hub for Myatt&apos;s Fields Cocktails.
