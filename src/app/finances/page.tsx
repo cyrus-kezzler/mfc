@@ -2,6 +2,14 @@ import HubPage, { HubModule } from "@/components/HubPage";
 
 const MODULES: HubModule[] = [
   {
+    href: "/finances/ingredients",
+    label: "Ingredients",
+    sublabel: "Master list & unit cost",
+    description:
+      "Every ingredient we buy, its current unit cost, and a dated history of every price change. Model an ingredient price rise and see which drinks it hits.",
+    status: "live",
+  },
+  {
     href: "/dashboard",
     label: "Dashboard",
     sublabel: "Live financial overview",
@@ -14,15 +22,15 @@ const MODULES: HubModule[] = [
     label: "Profitability",
     sublabel: "COGS & margin",
     description:
-      "Per-SKU cost of goods, margin, and retail pricing across 500ml and 250ml formats.",
+      "Per-SKU cost of goods, margin, and retail pricing across 500ml and 250ml formats. Wires into ingredient master.",
     status: "soon",
   },
   {
-    href: "/finances/channels",
+    href: "/finances/channel-pnl",
     label: "Channel P&L",
-    sublabel: "Margin by sales channel",
+    sublabel: "Every partner × every drink",
     description:
-      "Compare returns across Shopify, Amazon, Fortnum & Mason, Cripps, BA, Apple Crumble, and caterer pricing.",
+      "Pivot by partner, drink or ingredient to see what you sell to whom, the current deal, and the impact of any cost change.",
     status: "soon",
   },
   {
