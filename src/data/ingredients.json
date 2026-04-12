@@ -1,48 +1,375 @@
 [
-  { "id": "gin", "name": "Gin", "spreadsheetName": "GIN", "bottleSizeMl": 1000, "currentPrice": 22.50, "currentPriceSetAt": "2026-04-11" },
-  { "id": "vodka", "name": "Vodka", "spreadsheetName": "VODKA", "bottleSizeMl": 1000, "currentPrice": 18.50, "currentPriceSetAt": "2026-04-11" },
-  { "id": "rye", "name": "Rye", "spreadsheetName": "RYE", "bottleSizeMl": 700, "currentPrice": 28.02, "currentPriceSetAt": "2026-04-11" },
-  { "id": "campari", "name": "Campari", "spreadsheetName": "CAMPARI", "bottleSizeMl": 700, "currentPrice": 15.17, "currentPriceSetAt": "2026-04-11" },
-  { "id": "cocchi-americano", "name": "Cocchi Americano", "spreadsheetName": "COCCHI A", "bottleSizeMl": 750, "currentPrice": 19.80, "currentPriceSetAt": "2026-04-11" },
-  { "id": "cocchi-torino", "name": "Cocchi Vermouth di Torino", "spreadsheetName": "COCCHI TORINO", "bottleSizeMl": 750, "currentPrice": 18.05, "currentPriceSetAt": "2026-04-11" },
-  { "id": "carpano-antica", "name": "Carpano Antica Formula Vermouth", "spreadsheetName": "CARPANO ANTICA", "bottleSizeMl": 1000, "currentPrice": 24.70, "currentPriceSetAt": "2026-04-11" },
-  { "id": "kahlua", "name": "Kahlua", "spreadsheetName": "KAHLUA", "bottleSizeMl": 700, "currentPrice": 13.43, "currentPriceSetAt": "2026-04-11" },
-  { "id": "cynar", "name": "Cynar", "spreadsheetName": "CYNAR", "bottleSizeMl": 700, "currentPrice": 12.85, "currentPriceSetAt": "2026-04-11" },
-  { "id": "akvavit", "name": "Akvavit", "spreadsheetName": "AKVAVIT", "bottleSizeMl": 700, "currentPrice": 27.93, "currentPriceSetAt": "2026-04-11" },
-  { "id": "tequila-rep", "name": "Tequila Reposado", "spreadsheetName": "TEQUILA REP", "bottleSizeMl": 700, "currentPrice": 26.88, "currentPriceSetAt": "2026-04-11" },
-  { "id": "calvados", "name": "Calvados", "spreadsheetName": "CALVADOS", "bottleSizeMl": 700, "currentPrice": 18.95, "currentPriceSetAt": "2026-04-11" },
-  { "id": "havana-club-7", "name": "Havana Club 7", "spreadsheetName": "HAVANA CLUB 7", "bottleSizeMl": 700, "currentPrice": 21.05, "currentPriceSetAt": "2026-04-11" },
-  { "id": "noilly-prat", "name": "Noilly Prat", "spreadsheetName": "NOILLY PRAT", "bottleSizeMl": 700, "currentPrice": 12.77, "currentPriceSetAt": "2026-04-11" },
-  { "id": "manzanilla", "name": "Manzanilla", "spreadsheetName": "MANZANILLA", "bottleSizeMl": 750, "currentPrice": 9.75, "currentPriceSetAt": "2026-04-11" },
-  { "id": "lillet-blanc", "name": "Lillet Blanc", "spreadsheetName": "LILLET BLANC", "bottleSizeMl": 750, "currentPrice": 14.42, "currentPriceSetAt": "2026-04-11" },
-  { "id": "mount-gay", "name": "Mount Gay Rum", "spreadsheetName": "MOUNT GAY", "bottleSizeMl": 700, "currentPrice": 17.46, "currentPriceSetAt": "2026-04-11" },
-  { "id": "pisco-aba", "name": "Pisco Aba", "spreadsheetName": "PISCO ABA", "bottleSizeMl": 500, "currentPrice": 14.78, "currentPriceSetAt": "2026-04-11" },
-  { "id": "bimber-rum", "name": "Bimber Rum", "spreadsheetName": "BIMBER RUM", "bottleSizeMl": 1000, "currentPrice": 23.67, "currentPriceSetAt": "2026-04-11" },
-  { "id": "bimber-vodka", "name": "Bimber Vodka", "spreadsheetName": "BIMBER VODKA", "bottleSizeMl": 1000, "currentPrice": 27.80, "currentPriceSetAt": "2026-04-11" },
-  { "id": "cotswold-whisky", "name": "Cotswold Whisky", "spreadsheetName": "COTSWOLD WHISKY", "bottleSizeMl": 1000, "currentPrice": 20.00, "currentPriceSetAt": "2026-04-11" },
-  { "id": "fusion-fm-gin", "name": "Fusion F&M Gin", "spreadsheetName": "FUSION F&M GIN", "bottleSizeMl": 1000, "currentPrice": 16.634, "currentPriceSetAt": "2026-04-11" },
-  { "id": "yuzu-sake", "name": "Yuzu Sake", "spreadsheetName": "YUZU SAKE", "bottleSizeMl": 500, "currentPrice": 21.94, "currentPriceSetAt": "2026-04-11" },
-  { "id": "triple-sec", "name": "Triple Sec", "spreadsheetName": "TRIPLE SEC", "bottleSizeMl": 500, "currentPrice": 21.62, "currentPriceSetAt": "2026-04-11" },
-  { "id": "triple-dist-vodka", "name": "Triple Distilled Vodka", "spreadsheetName": "TRIPLE DIST VODKA", "bottleSizeMl": 700, "currentPrice": 20.00, "currentPriceSetAt": "2026-04-11" },
-  { "id": "old-tom-gin", "name": "Old Tom Gin", "spreadsheetName": "OLD TOM GIN", "bottleSizeMl": 700, "currentPrice": 20.74, "currentPriceSetAt": "2026-04-11" },
-  { "id": "fino-sherry", "name": "Fino Sherry", "spreadsheetName": "FINO SHERRY", "bottleSizeMl": 700, "currentPrice": 9.64, "currentPriceSetAt": "2026-04-11" },
-  { "id": "punt-e-mes", "name": "Punt e Mes", "spreadsheetName": "PUNT E MES", "bottleSizeMl": 700, "currentPrice": 10.96, "currentPriceSetAt": "2026-04-11" },
-  { "id": "lychee", "name": "Lychee Liqueur", "spreadsheetName": "LYCHEE", "bottleSizeMl": 700, "currentPrice": 17.85, "currentPriceSetAt": "2026-04-11" },
-  { "id": "epsolon-blanco", "name": "Epsolon Blanco Tequila", "spreadsheetName": "EPSOLON BLANCO", "bottleSizeMl": 700, "currentPrice": 23.80, "currentPriceSetAt": "2026-04-11" },
-  { "id": "agave-syrup", "name": "Agave Syrup", "spreadsheetName": "AGAVE SYRUP", "bottleSizeMl": 250, "currentPrice": 6.00, "currentPriceSetAt": "2026-04-11" },
-  { "id": "la-fee-absinthe", "name": "La Fée Absinthe", "spreadsheetName": "LA FEE ABSINTHE", "bottleSizeMl": 700, "currentPrice": 45.99, "currentPriceSetAt": "2026-04-11" },
-  { "id": "heering-cherry", "name": "Heering Cherry", "spreadsheetName": "HERRING CHERRY", "bottleSizeMl": 700, "currentPrice": 22.25, "currentPriceSetAt": "2026-04-11" },
-  { "id": "luxardo-maraschino", "name": "Luxardo Maraschino", "spreadsheetName": "LUXARDO MARASCHINO", "bottleSizeMl": 700, "currentPrice": 27.03, "currentPriceSetAt": "2026-04-11" },
-  { "id": "mezcal", "name": "Mezcal", "spreadsheetName": "MEZCAL", "bottleSizeMl": 700, "currentPrice": 35.80, "currentPriceSetAt": "2026-04-11" },
-  { "id": "aperol", "name": "Aperol", "spreadsheetName": "APEROL", "bottleSizeMl": 700, "currentPrice": 13.10, "currentPriceSetAt": "2026-04-11" },
-  { "id": "yellow-chartreuse", "name": "Yellow Chartreuse", "spreadsheetName": "CHARTREUSE", "bottleSizeMl": 700, "currentPrice": 36.68, "currentPriceSetAt": "2026-04-11" },
-  { "id": "chinotto-nero", "name": "Chinotto Nero", "spreadsheetName": "CHINOTTO NERO", "bottleSizeMl": 500, "currentPrice": 22.57, "currentPriceSetAt": "2026-04-11" },
-  { "id": "blue-curacao", "name": "Blue Curaçao", "spreadsheetName": "BLUE CURACAO", "bottleSizeMl": 500, "currentPrice": 11.73, "currentPriceSetAt": "2026-04-11" },
-  { "id": "ginjo-sake", "name": "Ginjo Sake", "spreadsheetName": "GINJO SAKE", "bottleSizeMl": 300, "currentPrice": 9.98, "currentPriceSetAt": "2026-04-11" },
-  { "id": "sours", "name": "Sours (house-made)", "spreadsheetName": "SOURS", "bottleSizeMl": 1000, "currentPrice": 5.00, "currentPriceSetAt": "2026-04-11", "notes": "House-made — price reflects flat ingredient cost per litre" },
-  { "id": "monin-grenadine", "name": "Monin Grenadine", "spreadsheetName": "MONIN GRENADINE", "bottleSizeMl": 700, "currentPrice": 9.35, "currentPriceSetAt": "2026-04-11" },
-  { "id": "lemons", "name": "Lemons", "spreadsheetName": "LEMONS", "bottleSizeMl": 1000, "currentPrice": 1.25, "currentPriceSetAt": "2026-04-11", "notes": "Fresh, priced per litre of juice yield" },
-  { "id": "limes", "name": "Limes", "spreadsheetName": "LIMES", "bottleSizeMl": 1000, "currentPrice": 10.00, "currentPriceSetAt": "2026-04-11", "notes": "Fresh, priced per litre of juice yield" },
-  { "id": "grapefruit", "name": "Grapefruit", "spreadsheetName": "GRAPEFRUIT", "bottleSizeMl": 1000, "currentPrice": 4.00, "currentPriceSetAt": "2026-04-11", "notes": "Fresh, priced per litre of juice yield" },
-  { "id": "coffee", "name": "Coffee", "spreadsheetName": "COFFEE", "bottleSizeMl": 1000, "currentPrice": 4.00, "currentPriceSetAt": "2026-04-11", "notes": "Cold brew, priced per litre" }
+  {
+    "id": "gin",
+    "name": "Gin",
+    "spreadsheetName": "GIN",
+    "bottleSizeMl": 1000,
+    "currentPrice": 22.5,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "vodka",
+    "name": "Vodka",
+    "spreadsheetName": "VODKA",
+    "bottleSizeMl": 1000,
+    "currentPrice": 18.5,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "rye",
+    "name": "Rye",
+    "spreadsheetName": "RYE",
+    "bottleSizeMl": 700,
+    "currentPrice": 28.02,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "campari",
+    "name": "Campari",
+    "spreadsheetName": "CAMPARI",
+    "bottleSizeMl": 700,
+    "currentPrice": 16,
+    "currentPriceSetAt": "2026-04-12"
+  },
+  {
+    "id": "cocchi-americano",
+    "name": "Cocchi Americano",
+    "spreadsheetName": "COCCHI A",
+    "bottleSizeMl": 750,
+    "currentPrice": 19.8,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "cocchi-torino",
+    "name": "Cocchi Vermouth di Torino",
+    "spreadsheetName": "COCCHI TORINO",
+    "bottleSizeMl": 750,
+    "currentPrice": 18.05,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "carpano-antica",
+    "name": "Carpano Antica Formula Vermouth",
+    "spreadsheetName": "CARPANO ANTICA",
+    "bottleSizeMl": 1000,
+    "currentPrice": 24.7,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "kahlua",
+    "name": "Kahlua",
+    "spreadsheetName": "KAHLUA",
+    "bottleSizeMl": 700,
+    "currentPrice": 13.43,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "cynar",
+    "name": "Cynar",
+    "spreadsheetName": "CYNAR",
+    "bottleSizeMl": 700,
+    "currentPrice": 12.85,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "akvavit",
+    "name": "Akvavit",
+    "spreadsheetName": "AKVAVIT",
+    "bottleSizeMl": 700,
+    "currentPrice": 27.93,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "tequila-rep",
+    "name": "Tequila Reposado",
+    "spreadsheetName": "TEQUILA REP",
+    "bottleSizeMl": 700,
+    "currentPrice": 26.88,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "calvados",
+    "name": "Calvados",
+    "spreadsheetName": "CALVADOS",
+    "bottleSizeMl": 700,
+    "currentPrice": 18.95,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "havana-club-7",
+    "name": "Havana Club 7",
+    "spreadsheetName": "HAVANA CLUB 7",
+    "bottleSizeMl": 700,
+    "currentPrice": 21.05,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "noilly-prat",
+    "name": "Noilly Prat",
+    "spreadsheetName": "NOILLY PRAT",
+    "bottleSizeMl": 700,
+    "currentPrice": 12.77,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "manzanilla",
+    "name": "Manzanilla",
+    "spreadsheetName": "MANZANILLA",
+    "bottleSizeMl": 750,
+    "currentPrice": 9.75,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "lillet-blanc",
+    "name": "Lillet Blanc",
+    "spreadsheetName": "LILLET BLANC",
+    "bottleSizeMl": 750,
+    "currentPrice": 14.42,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "mount-gay",
+    "name": "Mount Gay Rum",
+    "spreadsheetName": "MOUNT GAY",
+    "bottleSizeMl": 700,
+    "currentPrice": 17.46,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "pisco-aba",
+    "name": "Pisco Aba",
+    "spreadsheetName": "PISCO ABA",
+    "bottleSizeMl": 500,
+    "currentPrice": 14.78,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "bimber-rum",
+    "name": "Bimber Rum",
+    "spreadsheetName": "BIMBER RUM",
+    "bottleSizeMl": 1000,
+    "currentPrice": 23.67,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "bimber-vodka",
+    "name": "Bimber Vodka",
+    "spreadsheetName": "BIMBER VODKA",
+    "bottleSizeMl": 1000,
+    "currentPrice": 27.8,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "cotswold-whisky",
+    "name": "Cotswold Whisky",
+    "spreadsheetName": "COTSWOLD WHISKY",
+    "bottleSizeMl": 1000,
+    "currentPrice": 20,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "fusion-fm-gin",
+    "name": "Fusion F&M Gin",
+    "spreadsheetName": "FUSION F&M GIN",
+    "bottleSizeMl": 1000,
+    "currentPrice": 16.634,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "yuzu-sake",
+    "name": "Yuzu Sake",
+    "spreadsheetName": "YUZU SAKE",
+    "bottleSizeMl": 500,
+    "currentPrice": 21.94,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "triple-sec",
+    "name": "Triple Sec",
+    "spreadsheetName": "TRIPLE SEC",
+    "bottleSizeMl": 500,
+    "currentPrice": 21.62,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "triple-dist-vodka",
+    "name": "Triple Distilled Vodka",
+    "spreadsheetName": "TRIPLE DIST VODKA",
+    "bottleSizeMl": 700,
+    "currentPrice": 20,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "old-tom-gin",
+    "name": "Old Tom Gin",
+    "spreadsheetName": "OLD TOM GIN",
+    "bottleSizeMl": 700,
+    "currentPrice": 20.74,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "fino-sherry",
+    "name": "Fino Sherry",
+    "spreadsheetName": "FINO SHERRY",
+    "bottleSizeMl": 700,
+    "currentPrice": 9.64,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "punt-e-mes",
+    "name": "Punt e Mes",
+    "spreadsheetName": "PUNT E MES",
+    "bottleSizeMl": 700,
+    "currentPrice": 10.96,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "lychee",
+    "name": "Lychee Liqueur",
+    "spreadsheetName": "LYCHEE",
+    "bottleSizeMl": 700,
+    "currentPrice": 17.85,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "epsolon-blanco",
+    "name": "Epsolon Blanco Tequila",
+    "spreadsheetName": "EPSOLON BLANCO",
+    "bottleSizeMl": 700,
+    "currentPrice": 23.8,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "agave-syrup",
+    "name": "Agave Syrup",
+    "spreadsheetName": "AGAVE SYRUP",
+    "bottleSizeMl": 250,
+    "currentPrice": 6,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "la-fee-absinthe",
+    "name": "La Fée Absinthe",
+    "spreadsheetName": "LA FEE ABSINTHE",
+    "bottleSizeMl": 700,
+    "currentPrice": 45.99,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "heering-cherry",
+    "name": "Heering Cherry",
+    "spreadsheetName": "HERRING CHERRY",
+    "bottleSizeMl": 700,
+    "currentPrice": 22.25,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "luxardo-maraschino",
+    "name": "Luxardo Maraschino",
+    "spreadsheetName": "LUXARDO MARASCHINO",
+    "bottleSizeMl": 700,
+    "currentPrice": 27.03,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "mezcal",
+    "name": "Mezcal",
+    "spreadsheetName": "MEZCAL",
+    "bottleSizeMl": 700,
+    "currentPrice": 35.8,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "aperol",
+    "name": "Aperol",
+    "spreadsheetName": "APEROL",
+    "bottleSizeMl": 700,
+    "currentPrice": 13.1,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "yellow-chartreuse",
+    "name": "Yellow Chartreuse",
+    "spreadsheetName": "CHARTREUSE",
+    "bottleSizeMl": 700,
+    "currentPrice": 36.68,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "chinotto-nero",
+    "name": "Chinotto Nero",
+    "spreadsheetName": "CHINOTTO NERO",
+    "bottleSizeMl": 500,
+    "currentPrice": 22.57,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "blue-curacao",
+    "name": "Blue Curaçao",
+    "spreadsheetName": "BLUE CURACAO",
+    "bottleSizeMl": 500,
+    "currentPrice": 11.73,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "ginjo-sake",
+    "name": "Ginjo Sake",
+    "spreadsheetName": "GINJO SAKE",
+    "bottleSizeMl": 300,
+    "currentPrice": 9.98,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "sours",
+    "name": "Sours (house-made)",
+    "spreadsheetName": "SOURS",
+    "bottleSizeMl": 1000,
+    "currentPrice": 5,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "House-made — price reflects flat ingredient cost per litre"
+  },
+  {
+    "id": "monin-grenadine",
+    "name": "Monin Grenadine",
+    "spreadsheetName": "MONIN GRENADINE",
+    "bottleSizeMl": 700,
+    "currentPrice": 9.35,
+    "currentPriceSetAt": "2026-04-11"
+  },
+  {
+    "id": "lemons",
+    "name": "Lemons",
+    "spreadsheetName": "LEMONS",
+    "bottleSizeMl": 1000,
+    "currentPrice": 1.25,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "Fresh, priced per litre of juice yield"
+  },
+  {
+    "id": "limes",
+    "name": "Limes",
+    "spreadsheetName": "LIMES",
+    "bottleSizeMl": 1000,
+    "currentPrice": 10,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "Fresh, priced per litre of juice yield"
+  },
+  {
+    "id": "grapefruit",
+    "name": "Grapefruit",
+    "spreadsheetName": "GRAPEFRUIT",
+    "bottleSizeMl": 1000,
+    "currentPrice": 4,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "Fresh, priced per litre of juice yield"
+  },
+  {
+    "id": "coffee",
+    "name": "Coffee",
+    "spreadsheetName": "COFFEE",
+    "bottleSizeMl": 1000,
+    "currentPrice": 4,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "Cold brew, priced per litre"
+  }
 ]
