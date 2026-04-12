@@ -21,6 +21,12 @@
     { "id": "cripps", "group": "Cripps & Co.", "cost": 0.15, "costSetAt": "2026-04-12" }
   ],
 
+  "labour": {
+    "perBottleCost": 1.00,
+    "costSetAt": "2026-04-12",
+    "notes": "Per-bottle filling/labour charge. Dates from when third-party help was used. Could be zeroed out — margin already covers this."
+  },
+
   "shippingPackaging": [
     {
       "id": "b2b-case-12",

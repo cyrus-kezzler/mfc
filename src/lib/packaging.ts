@@ -109,10 +109,19 @@ export function getHygieneLabelCost(partnerGroup: string): number {
 
 // ─── Total per-bottle packaging cost ────────────────────────────────────────
 
+export interface LabourCost {
+  perBottleCost: number;
+  costSetAt: string;
+  notes?: string;
+}
+
+export const LABOUR: LabourCost = packagingData.labour as LabourCost;
+
 export interface PackagingCostBreakdown {
   bottle: number;
   label: number;
   hygieneLabel: number;
+  labour: number;
   total: number;
   bottleSpec: BottleSpec | null;
   labelSource: "override" | "default" | "none";
@@ -139,12 +148,14 @@ export function getPackagingCost(
     : (LABEL_DEFAULTS.find((d) => d.group === partnerGroup)?.cost ?? 0);
 
   const hygieneCost = getHygieneLabelCost(partnerGroup);
+  const labourCost = LABOUR.perBottleCost;
 
   return {
     bottle: bottleCost,
     label: labelCost,
     hygieneLabel: hygieneCost,
-    total: bottleCost + labelCost + hygieneCost,
+    labour: labourCost,
+    total: bottleCost + labelCost + hygieneCost + labourCost,
     bottleSpec,
     labelSource: labelOverride ? "override" : labelCost > 0 ? "default" : "none",
   };

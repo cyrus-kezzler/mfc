@@ -250,7 +250,7 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
           <StatCard
             label="Packaging"
             value={fmt(b.packaging.total)}
-            sub={`Bottle ${fmt(b.packaging.bottle)} · Label ${fmt(b.packaging.label)} · Hygiene ${fmt(b.packaging.hygieneLabel)}`}
+            sub={`Bottle ${fmt(b.packaging.bottle)} · Label ${fmt(b.packaging.label)} · Hygiene ${fmt(b.packaging.hygieneLabel)} · Labour ${fmt(b.packaging.labour)}`}
           />
           <StatCard
             label="Derived total"
@@ -393,6 +393,14 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
             <span className="pl-4">+ Hygiene label</span>
             <span /><span /><span />
             <span className="text-right">{fmt(b.packaging.hygieneLabel)}</span>
+          </div>
+          <div
+            className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-2 text-xs"
+            style={{ color: "#666" }}
+          >
+            <span className="pl-4">+ Labour</span>
+            <span /><span /><span />
+            <span className="text-right">{fmt(b.packaging.labour)}</span>
           </div>
           <div
             className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-4 text-sm font-semibold"
