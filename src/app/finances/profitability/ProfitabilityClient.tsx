@@ -60,9 +60,9 @@ export default function ProfitabilityClient({ breakdowns, summary }: Props) {
           sub="sum of all SKU COGS"
         />
         <SummaryCard
-          label="Derived (liquid + pkg)"
+          label="Derived COGS"
           value={fmt(summary.totalDerivedCogs)}
-          sub={`Liquid ${fmt(summary.totalDerivedLiquidCogs)} + Pkg ${fmt(summary.totalPackagingCogs)}`}
+          sub={`Liquid ${fmt(summary.totalDerivedLiquidCogs)} + Labour ${fmt(summary.totalLabour)}`}
           color="#c9a227"
         />
         <SummaryCard
@@ -132,7 +132,7 @@ export default function ProfitabilityClient({ breakdowns, summary }: Props) {
               <span>SKU</span>
               <span className="text-right">Size</span>
               <span className="text-right">Hardcoded</span>
-              <span className="text-right">Liq + Pkg</span>
+              <span className="text-right">Derived</span>
               <span className="text-right">Delta</span>
               <span className="text-center">Status</span>
             </div>
@@ -160,7 +160,7 @@ export default function ProfitabilityClient({ breakdowns, summary }: Props) {
                         className="text-right tabular-nums"
                         style={{ color: b.status === "no-recipe" ? "#555" : "#cfcfcf" }}
                       >
-                        {b.status === "no-recipe" ? "—" : fmt(b.derivedTotalCogs)}
+                        {b.status === "no-recipe" ? "—" : fmt(b.derivedCogs)}
                       </span>
                       <span
                         className="text-right tabular-nums font-semibold"
@@ -244,17 +244,17 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard label="Hardcoded COGS" value={fmt(b.hardcodedCogs)} />
           <StatCard
-            label="Liquid cost"
+            label="Liquid"
             value={b.status === "no-recipe" ? "—" : fmt(b.derivedLiquidCogs)}
           />
           <StatCard
-            label="Packaging"
-            value={fmt(b.packaging.total)}
-            sub={`Bottle ${fmt(b.packaging.bottle)} · Label ${fmt(b.packaging.label)} · Hygiene ${fmt(b.packaging.hygieneLabel)} · Labour ${fmt(b.packaging.labour)}`}
+            label="Labour"
+            value={fmt(b.labour)}
           />
           <StatCard
-            label="Derived total"
-            value={b.status === "no-recipe" ? "—" : fmt(b.derivedTotalCogs)}
+            label="Derived COGS"
+            value={b.status === "no-recipe" ? "—" : fmt(b.derivedCogs)}
+            sub="Liquid + labour"
             color={b.status === "match" ? "#4fae8f" : b.status === "close" ? "#c9a227" : "#e07a5f"}
           />
         </div>
@@ -274,9 +274,9 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
             }
           />
           <StatCard
-            label="Label source"
-            value={b.packaging.labelSource === "override" ? "Per-drink override" : b.packaging.labelSource === "default" ? "Group default" : "None"}
-            sub={b.packaging.bottleSpec ? b.packaging.bottleSpec.name : "No bottle matched"}
+            label="Packaging (not in COGS)"
+            value={fmt(b.packaging.packagingTotal)}
+            sub={`Bottle ${fmt(b.packaging.bottle)} · Label ${fmt(b.packaging.label)} · Hygiene ${fmt(b.packaging.hygieneLabel)}`}
           />
         </div>
 
@@ -359,7 +359,7 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
             ))}
           </ul>
 
-          {/* Subtotal + packaging rows */}
+          {/* Subtotal + labour → COGS total */}
           <div
             className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-3 text-sm"
             style={{ borderTop: "1px solid #1c1c1c", color: "#999" }}
@@ -374,41 +374,17 @@ function SkuDetail({ breakdown: b }: { breakdown: SkuCostBreakdown }) {
             className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-2 text-xs"
             style={{ color: "#666" }}
           >
-            <span className="pl-4">+ Bottle ({b.packaging.bottleSpec?.name ?? "?"})</span>
+            <span className="pl-4">+ Labour (per bottle)</span>
             <span /><span /><span />
-            <span className="text-right">{fmt(b.packaging.bottle)}</span>
-          </div>
-          <div
-            className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-2 text-xs"
-            style={{ color: "#666" }}
-          >
-            <span className="pl-4">+ Label ({b.packaging.labelSource})</span>
-            <span /><span /><span />
-            <span className="text-right">{fmt(b.packaging.label)}</span>
-          </div>
-          <div
-            className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-2 text-xs"
-            style={{ color: "#666" }}
-          >
-            <span className="pl-4">+ Hygiene label</span>
-            <span /><span /><span />
-            <span className="text-right">{fmt(b.packaging.hygieneLabel)}</span>
-          </div>
-          <div
-            className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-2 text-xs"
-            style={{ color: "#666" }}
-          >
-            <span className="pl-4">+ Labour</span>
-            <span /><span /><span />
-            <span className="text-right">{fmt(b.packaging.labour)}</span>
+            <span className="text-right">{fmt(b.labour)}</span>
           </div>
           <div
             className="grid grid-cols-[1.4fr_0.5fr_0.5fr_0.5fr_0.5fr] gap-2 px-6 py-4 text-sm font-semibold"
             style={{ borderTop: "1px solid #1c1c1c", color: "#f0f0f0" }}
           >
-            <span>Total derived COGS</span>
+            <span>Derived COGS</span>
             <span /><span /><span />
-            <span className="text-right">{fmt(b.derivedTotalCogs)}</span>
+            <span className="text-right">{fmt(b.derivedCogs)}</span>
           </div>
         </div>
       )}

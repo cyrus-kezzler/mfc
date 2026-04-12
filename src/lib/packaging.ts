@@ -122,7 +122,10 @@ export interface PackagingCostBreakdown {
   label: number;
   hygieneLabel: number;
   labour: number;
-  total: number;
+  /** Packaging total: bottle + label + hygiene (NOT in COGS — separate cost line for Channel P&L). */
+  packagingTotal: number;
+  /** Labour: per-bottle filling cost (IS in COGS). */
+  labourTotal: number;
   bottleSpec: BottleSpec | null;
   labelSource: "override" | "default" | "none";
 }
@@ -155,7 +158,8 @@ export function getPackagingCost(
     label: labelCost,
     hygieneLabel: hygieneCost,
     labour: labourCost,
-    total: bottleCost + labelCost + hygieneCost + labourCost,
+    packagingTotal: bottleCost + labelCost + hygieneCost,
+    labourTotal: labourCost,
     bottleSpec,
     labelSource: labelOverride ? "override" : labelCost > 0 ? "default" : "none",
   };

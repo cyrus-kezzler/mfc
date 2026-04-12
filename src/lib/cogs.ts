@@ -59,14 +59,16 @@ export interface SkuCostBreakdown {
   bottleSizeMl: number;
   recipeName: string | null;
   hardcodedCogs: number;
-  // Derived costs
+  // Derived COGS = liquid + labour (what it costs to MAKE the bottle)
   derivedLiquidCogs: number;
+  labour: number;
+  derivedCogs: number; // liquid + labour
+  // Packaging is tracked but NOT in COGS — belongs in Channel P&L
   packaging: PackagingCostBreakdown;
-  derivedTotalCogs: number; // liquid + packaging
-  // Comparison
-  delta: number; // derivedTotal - hardcoded
-  deltaPct: number; // as percentage of hardcoded
-  unmappedPct: number; // % of parts that are unmapped
+  // Comparison: derived COGS vs hardcoded
+  delta: number;
+  deltaPct: number;
+  unmappedPct: number;
   unmappedIngredients: string[];
   lines: IngredientCostLine[];
   status: "match" | "close" | "gap" | "no-recipe";
@@ -93,9 +95,10 @@ export function computeSkuBreakdown(product: PricingProduct): SkuCostBreakdown {
       recipeName: null,
       hardcodedCogs: product.cogs,
       derivedLiquidCogs: 0,
+      labour: pkg.labourTotal,
+      derivedCogs: pkg.labourTotal,
       packaging: pkg,
-      derivedTotalCogs: pkg.total,
-      delta: pkg.total - product.cogs,
+      delta: pkg.labourTotal - product.cogs,
       deltaPct: -100,
       unmappedPct: 100,
       unmappedIngredients: [],
@@ -114,9 +117,10 @@ export function computeSkuBreakdown(product: PricingProduct): SkuCostBreakdown {
       recipeName: recipe.name,
       hardcodedCogs: product.cogs,
       derivedLiquidCogs: 0,
+      labour: pkg.labourTotal,
+      derivedCogs: pkg.labourTotal,
       packaging: pkg,
-      derivedTotalCogs: pkg.total,
-      delta: pkg.total - product.cogs,
+      delta: pkg.labourTotal - product.cogs,
       deltaPct: -100,
       unmappedPct: 100,
       unmappedIngredients: [],
@@ -162,8 +166,9 @@ export function computeSkuBreakdown(product: PricingProduct): SkuCostBreakdown {
   }
 
   const unmappedPct = (unmappedParts / totalParts) * 100;
-  const derivedTotal = Math.round((derivedLiquid + pkg.total) * 100) / 100;
-  const delta = Math.round((derivedTotal - product.cogs) * 100) / 100;
+  const labour = pkg.labourTotal;
+  const derivedCogs = Math.round((derivedLiquid + labour) * 100) / 100;
+  const delta = Math.round((derivedCogs - product.cogs) * 100) / 100;
   const deltaPct = product.cogs > 0 ? Math.round((delta / product.cogs) * 1000) / 10 : 0;
 
   // Status thresholds
@@ -186,8 +191,9 @@ export function computeSkuBreakdown(product: PricingProduct): SkuCostBreakdown {
     recipeName: recipe.name,
     hardcodedCogs: product.cogs,
     derivedLiquidCogs: Math.round(derivedLiquid * 100) / 100,
+    labour,
+    derivedCogs,
     packaging: pkg,
-    derivedTotalCogs: derivedTotal,
     delta,
     deltaPct,
     unmappedPct,
@@ -216,10 +222,10 @@ export interface CogsSummary {
   noRecipe: number;
   totalHardcodedCogs: number;
   totalDerivedLiquidCogs: number;
-  totalPackagingCogs: number;
-  totalDerivedCogs: number;
+  totalLabour: number;
+  totalDerivedCogs: number; // liquid + labour
   totalDelta: number;
-  unmappedIngredients: string[]; // deduplicated
+  unmappedIngredients: string[];
 }
 
 export function computeSummary(breakdowns: SkuCostBreakdown[]): CogsSummary {
@@ -230,12 +236,12 @@ export function computeSummary(breakdowns: SkuCostBreakdown[]): CogsSummary {
     noRecipe = 0;
   let totalHC = 0,
     totalLiquid = 0,
-    totalPkg = 0;
+    totalLabour = 0;
 
   for (const b of breakdowns) {
     totalHC += b.hardcodedCogs;
     totalLiquid += b.derivedLiquidCogs;
-    totalPkg += b.packaging.total;
+    totalLabour += b.labour;
     b.unmappedIngredients.forEach((n) => unmappedSet.add(n));
     if (b.status === "match") matched++;
     else if (b.status === "close") close++;
@@ -251,9 +257,9 @@ export function computeSummary(breakdowns: SkuCostBreakdown[]): CogsSummary {
     noRecipe,
     totalHardcodedCogs: Math.round(totalHC * 100) / 100,
     totalDerivedLiquidCogs: Math.round(totalLiquid * 100) / 100,
-    totalPackagingCogs: Math.round(totalPkg * 100) / 100,
-    totalDerivedCogs: Math.round((totalLiquid + totalPkg) * 100) / 100,
-    totalDelta: Math.round((totalLiquid + totalPkg - totalHC) * 100) / 100,
+    totalLabour: Math.round(totalLabour * 100) / 100,
+    totalDerivedCogs: Math.round((totalLiquid + totalLabour) * 100) / 100,
+    totalDelta: Math.round((totalLiquid + totalLabour - totalHC) * 100) / 100,
     unmappedIngredients: Array.from(unmappedSet).sort(),
   };
 }

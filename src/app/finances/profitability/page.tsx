@@ -23,9 +23,10 @@ export default function ProfitabilityPage() {
             COGS Reconciliation
           </h1>
           <p className="text-sm max-w-2xl" style={{ color: "#4a4a4a" }}>
-            Derived COGS (liquid from ingredient master × recipe ratios, plus packaging: bottle,
-            label, hygiene label) compared to the hardcoded values in the wholesale pricing model.
-            Click any SKU for the full ingredient-level and packaging breakdown.
+            Derived COGS (liquid from ingredient master × recipe ratios + labour) compared to the
+            hardcoded values in the wholesale pricing model. Packaging (bottle, label, hygiene) is
+            tracked separately — it belongs in Channel P&L, not COGS, because it varies by delivery
+            method. Click any SKU for the full ingredient-level breakdown.
           </p>
         </div>
 
