@@ -53,7 +53,7 @@ export const RECIPE_INGREDIENT_MAP: Record<string, string | null> = {
   Kahlua: "kahlua",
   Cynar: "cynar",
   Akvavit: "akvavit",
-  Tequila: "tequila-rep",
+  Tequila: "epsolon-blanco",
   Calvados: "calvados",
   "Havana Club": "havana-club-7",
   "Noilly Prat": "noilly-prat",

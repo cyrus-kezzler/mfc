@@ -3,31 +3,78 @@
 /**
  * Server Action for updating ingredient prices.
  *
- * Writes directly to src/data/ingredients.json and appends to
- * src/data/ingredient-price-history.json.
+ * Persistence strategy: commits the updated JSON files to GitHub via the
+ * Contents API. Vercel picks up the commit and redeploys within ~30-60s,
+ * so every computer sees the new prices.
  *
- * IMPORTANT — production persistence caveat:
- * Vercel's runtime filesystem is read-only, so this action will only succeed
- * in local development (`npm run dev`). On production the fs.writeFile call
- * will throw; we catch, report the error, and instruct the user to run
- * locally or wire up a GitHub-API commit path in a later phase.
- *
- * Given price changes happen ~2× per year, local-only editing is an
- * acceptable Phase 1 trade-off: edit at your desk, commit, push, Vercel
- * redeploys with the new prices.
+ * Requires GITHUB_PAT in environment (a fine-grained PAT with Contents
+ * read+write scoped to cyrus-kezzler/mfc).
  */
 
-import { promises as fs } from "fs";
-import path from "path";
 import { revalidatePath } from "next/cache";
-import { IngredientMaster, IngredientPriceHistoryEntry } from "@/lib/ingredients";
+import type { IngredientMaster, IngredientPriceHistoryEntry } from "@/lib/ingredients";
 
-const INGREDIENTS_PATH = path.join(process.cwd(), "src/data/ingredients.json");
-const HISTORY_PATH = path.join(process.cwd(), "src/data/ingredient-price-history.json");
+const OWNER = "cyrus-kezzler";
+const REPO = "mfc";
+const BRANCH = "main";
+const INGREDIENTS_PATH = "src/data/ingredients.json";
+const HISTORY_PATH = "src/data/ingredient-price-history.json";
 
 export type UpdatePriceResult =
   | { ok: true; ingredient: IngredientMaster }
   | { ok: false; error: string };
+
+// ─── GitHub Contents API helpers ────────────────────────────────────────────
+
+async function ghHeaders(): Promise<Record<string, string>> {
+  const pat = process.env.GITHUB_PAT;
+  if (!pat) throw new Error("GITHUB_PAT is not set — add it to Vercel environment variables.");
+  return {
+    Authorization: `Bearer ${pat}`,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+}
+
+interface GhFile {
+  content: string; // JSON string (decoded from base64)
+  sha: string;     // needed for the PUT to update
+}
+
+async function ghGet(filePath: string): Promise<GhFile> {
+  const headers = await ghHeaders();
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}?ref=${BRANCH}`,
+    { headers, cache: "no-store" },
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`GitHub GET ${filePath} failed (${res.status}): ${body}`);
+  }
+  const data = await res.json();
+  const decoded = Buffer.from(data.content, "base64").toString("utf8");
+  return { content: decoded, sha: data.sha };
+}
+
+async function ghPut(filePath: string, content: string, sha: string, message: string) {
+  const headers = await ghHeaders();
+  const encoded = Buffer.from(content, "utf8").toString("base64");
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
+    {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ message, content: encoded, sha, branch: BRANCH }),
+    },
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`GitHub PUT ${filePath} failed (${res.status}): ${body}`);
+  }
+  return res.json();
+}
+
+// ─── Public action ──────────────────────────────────────────────────────────
 
 export async function updateIngredientPrice(
   ingredientId: string,
@@ -39,20 +86,19 @@ export async function updateIngredientPrice(
   }
 
   try {
-    const [ingRaw, histRaw] = await Promise.all([
-      fs.readFile(INGREDIENTS_PATH, "utf8"),
-      fs.readFile(HISTORY_PATH, "utf8"),
-    ]);
+    // 1. Read both files from GitHub (latest committed versions)
+    const [ingFile, histFile] = await Promise.all([ghGet(INGREDIENTS_PATH), ghGet(HISTORY_PATH)]);
 
-    const ingredients: IngredientMaster[] = JSON.parse(ingRaw);
-    const history: IngredientPriceHistoryEntry[] = JSON.parse(histRaw);
+    const ingredients: IngredientMaster[] = JSON.parse(ingFile.content);
+    const history: IngredientPriceHistoryEntry[] = JSON.parse(histFile.content);
 
+    // 2. Apply the change
     const idx = ingredients.findIndex((i) => i.id === ingredientId);
-    if (idx < 0) {
-      return { ok: false, error: `Ingredient "${ingredientId}" not found.` };
-    }
+    if (idx < 0) return { ok: false, error: `Ingredient "${ingredientId}" not found.` };
 
+    const oldPrice = ingredients[idx].currentPrice;
     const today = new Date().toISOString().slice(0, 10);
+
     const updated: IngredientMaster = {
       ...ingredients[idx],
       currentPrice: Math.round(newPrice * 10000) / 10000,
@@ -68,22 +114,38 @@ export async function updateIngredientPrice(
     };
     history.push(historyEntry);
 
-    await Promise.all([
-      fs.writeFile(INGREDIENTS_PATH, JSON.stringify(ingredients, null, 2) + "\n", "utf8"),
-      fs.writeFile(HISTORY_PATH, JSON.stringify(history, null, 2) + "\n", "utf8"),
-    ]);
+    // 3. Format commit message
+    const arrow = newPrice > oldPrice ? "↑" : newPrice < oldPrice ? "↓" : "→";
+    const trimmedNote = note?.trim();
+    const commitMsg = [
+      `Update ${updated.name} price: £${oldPrice.toFixed(2)} ${arrow} £${updated.currentPrice.toFixed(2)}`,
+      "",
+      trimmedNote ? trimmedNote : undefined,
+      `Ingredient: ${updated.name} (${updated.bottleSizeMl}ml)`,
+      `Source: Back Bar ingredient editor`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    // 4. Commit ingredients.json first, then history (needs the new SHA)
+    await ghPut(
+      INGREDIENTS_PATH,
+      JSON.stringify(ingredients, null, 2) + "\n",
+      ingFile.sha,
+      commitMsg,
+    );
+
+    await ghPut(
+      HISTORY_PATH,
+      JSON.stringify(history, null, 2) + "\n",
+      histFile.sha,
+      commitMsg,
+    );
 
     revalidatePath("/finances/ingredients");
     return { ok: true, ingredient: updated };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes("EROFS") || msg.includes("read-only")) {
-      return {
-        ok: false,
-        error:
-          "Production filesystem is read-only. Edit prices in local dev (`npm run dev`), commit, and push.",
-      };
-    }
-    return { ok: false, error: `Failed to save: ${msg}` };
+    return { ok: false, error: msg };
   }
 }

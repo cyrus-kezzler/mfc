@@ -189,7 +189,7 @@ function IngredientDetail({
     startTransition(async () => {
       const res = await updateIngredientPrice(ingredient.id, newPrice, note);
       if (res.ok) {
-        setFeedback({ kind: "ok", msg: "Saved. Commit and push to make it live on the app." });
+        setFeedback({ kind: "ok", msg: "Saved to git. The site will redeploy in ~30s with the new price." });
         setNote("");
       } else {
         setFeedback({ kind: "err", msg: res.error });
