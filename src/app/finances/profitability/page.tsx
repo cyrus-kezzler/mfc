@@ -23,11 +23,9 @@ export default function ProfitabilityPage() {
             COGS Reconciliation
           </h1>
           <p className="text-sm max-w-2xl" style={{ color: "#4a4a4a" }}>
-            Derived <strong style={{ color: "#777" }}>liquid-only</strong> COGS (ingredient master ×
-            recipe ratios) compared to the hardcoded values in the wholesale pricing model. The
-            hardcoded COGS may include packaging (bottle, cap, label) which the derived figure
-            does not — so a consistent gap of ~£1–2 per bottle is expected until we add a
-            packaging cost layer. Click any SKU for the full ingredient-level breakdown.
+            Derived COGS (liquid from ingredient master × recipe ratios, plus packaging: bottle,
+            label, hygiene label) compared to the hardcoded values in the wholesale pricing model.
+            Click any SKU for the full ingredient-level and packaging breakdown.
           </p>
         </div>
 

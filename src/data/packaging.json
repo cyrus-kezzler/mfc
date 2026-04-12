@@ -1,0 +1,62 @@
+{
+  "bottles": [
+    { "id": "500ml", "name": "500ml bottle + stopper", "sizeMl": 500, "cost": 0.54, "costSetAt": "2026-04-12", "notes": "Standard MFC range" },
+    { "id": "250ml", "name": "250ml bottle + stopper", "sizeMl": 250, "cost": 0.62, "costSetAt": "2026-04-12", "notes": "Standard MFC range" },
+    { "id": "50ml", "name": "50ml bottle + stopper", "sizeMl": 50, "cost": 0.21, "costSetAt": "2026-04-12", "notes": "Miniatures" },
+    { "id": "350ml-fm", "name": "350ml F&M bottle + stopper", "sizeMl": 350, "cost": 1.08, "costSetAt": "2026-04-12", "notes": "Fortnum & Mason only" },
+    { "id": "700ml-cripps", "name": "700ml Cripps bottle + stopper", "sizeMl": 700, "cost": 1.39, "costSetAt": "2026-04-12", "notes": "Cripps & Co. only" }
+  ],
+
+  "labelDefaults": [
+    { "id": "mfc", "group": "Myatt's Fields", "cost": 0.09, "costSetAt": "2026-04-12" },
+    { "id": "fortnum", "group": "Fortnum & Mason", "cost": 0.34, "costSetAt": "2026-04-12" },
+    { "id": "cripps", "group": "Cripps & Co.", "cost": 0.60, "costSetAt": "2026-04-12" }
+  ],
+
+  "labelOverrides": [],
+
+  "hygieneLabels": [
+    { "id": "mfc", "group": "Myatt's Fields", "cost": 0.06, "costSetAt": "2026-04-12" },
+    { "id": "fortnum", "group": "Fortnum & Mason", "cost": 0.06, "costSetAt": "2026-04-12" },
+    { "id": "cripps", "group": "Cripps & Co.", "cost": 0.15, "costSetAt": "2026-04-12" }
+  ],
+
+  "shippingPackaging": [
+    {
+      "id": "b2b-case-12",
+      "name": "B2B case of 12",
+      "perBottleCost": 0.167,
+      "costSetAt": "2026-04-12",
+      "notes": "2× 6-cell dividers (£0.50 each) + 1× outer (£1.00) = £2.00 / 12"
+    },
+    {
+      "id": "dtc-single",
+      "name": "DTC single bottle",
+      "perBottleCost": 1.08,
+      "costSetAt": "2026-04-12",
+      "notes": "Inner holder (£0.30) + outer mailer (£0.78). Sunk cost from Jan 2025 stock."
+    },
+    {
+      "id": "dtc-pair",
+      "name": "DTC pair (2 bottles)",
+      "perBottleCost": 0.575,
+      "costSetAt": "2026-04-12",
+      "notes": "2× inner (£0.60) + outer (£0.55) / 2. Overordered 2021 stock."
+    }
+  ],
+
+  "shipping": [
+    { "id": "dtc-single", "name": "Royal Mail single (250ml or 500ml)", "cost": 2.95, "costSetAt": "2026-04-12" },
+    { "id": "dtc-pair", "name": "Royal Mail pair (2× 500ml)", "perBottleCost": 2.23, "costSetAt": "2026-04-12" },
+    {
+      "id": "b2b-pallet",
+      "name": "B2B pallet (28 cases of 12)",
+      "palletCost": 62.30,
+      "casesPerPallet": 28,
+      "bottlesPerCase": 12,
+      "perBottleCost": 0.185,
+      "costSetAt": "2026-04-12",
+      "notes": "£62.30 flat rate pallet to customer warehouse. 28 × 12 = 336 bottles."
+    }
+  ]
+}
