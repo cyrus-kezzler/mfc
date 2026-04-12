@@ -1,11 +1,5 @@
-import { Metadata } from 'next'
-import PricingClient from './PricingClient'
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Wholesale Pricing — MFC Admin",
-  description: "Single source of truth for MFC ingredient costs, COGS, and wholesale prices",
-}
-
-export default function PricingPage() {
-  return <PricingClient />
+export default function LegacyPricingRedirect() {
+  redirect("/finances/pricing");
 }

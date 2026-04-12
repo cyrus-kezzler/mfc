@@ -18,11 +18,19 @@ const MODULES: HubModule[] = [
     status: "live",
   },
   {
-    href: "/finances/profitability",
-    label: "Profitability",
-    sublabel: "COGS reconciliation",
+    href: "/finances/pricing",
+    label: "Wholesale Pricing",
+    sublabel: "Live COGS → wholesale",
     description:
-      "Derived liquid COGS from the ingredient master vs hardcoded values. Click any SKU for the full ingredient-level breakdown.",
+      "COGS derived from the ingredient master, markup and retailer test applied. The opening position for any new or existing wholesale partner.",
+    status: "live",
+  },
+  {
+    href: "/finances/profitability",
+    label: "COGS Reconciliation",
+    sublabel: "Derived vs legacy",
+    description:
+      "Derived COGS (liquid + labour) compared to legacy hardcoded values. Use this to audit and validate the model.",
     status: "live",
   },
   {

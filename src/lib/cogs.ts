@@ -212,6 +212,20 @@ export function computeAllSkuBreakdowns(): SkuCostBreakdown[] {
   });
 }
 
+/**
+ * Return all pricing products with COGS derived from the ingredient model
+ * (liquid + labour). Falls back to the hardcoded cogs field only for
+ * products without a matching recipe (e.g. Martini Flight).
+ */
+export function getPricingProductsWithLiveCogs(): PricingProduct[] {
+  return PRICING_PRODUCTS.map((p) => {
+    const recipe = getRecipeForProduct(p);
+    if (!recipe) return p;
+    const breakdown = computeSkuBreakdown(p);
+    return { ...p, cogs: breakdown.derivedCogs };
+  });
+}
+
 // ─── Summary stats ──────────────────────────────────────────────────────────
 
 export interface CogsSummary {
