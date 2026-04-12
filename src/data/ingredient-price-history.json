@@ -280,5 +280,11 @@
     "date": "2026-04-12",
     "price": 16,
     "note": "Test price change"
+  },
+  {
+    "ingredientId": "campari",
+    "date": "2026-04-12",
+    "price": 15.17,
+    "note": "Return to real price / end of test"
   }
 ]
