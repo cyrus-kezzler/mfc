@@ -1,10 +1,10 @@
 import Nav from "@/components/Nav";
 import { getShopifyRevenueData, getRecentShopifyOrders } from "@/lib/shopify";
 import {
-  STATIC_ANNUAL_REVENUE,
   STATIC_TOP_CUSTOMERS,
   STATIC_ALERTS,
 } from "@/lib/static-data";
+import qbRevenue from "@/data/qb-revenue.json";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -36,11 +36,21 @@ export default async function RevenuePage() {
   const isShopifyLive = !!shopifyData;
 
   const currentYear = new Date().getFullYear();
-  const staticCurrent = STATIC_ANNUAL_REVENUE.find((r) => r.year === String(currentYear));
+  const qbCurrentYear = (qbRevenue.years as Record<string, { totalIncome: number; netIncome: number; grossProfit: number; incomeByAccount: Record<string, number> }>)[String(currentYear)];
 
-  const dtcYTD = shopifyData?.totalRevenue ?? staticCurrent?.dtc ?? 0;
-  const wholesaleYTD = staticCurrent?.wholesale ?? 0;
-  const totalYTD = dtcYTD + wholesaleYTD;
+  // Revenue from QB (covers everything — wholesale, DTC, Amazon)
+  const qbTotalYTD = qbCurrentYear?.totalIncome ?? 0;
+  const qbAmazon = qbCurrentYear?.incomeByAccount?.["Amazon Sales"] ?? 0;
+  const qbShopify = qbCurrentYear?.incomeByAccount?.["Shopify Sales"] ?? 0;
+  const qbWholesale = (qbCurrentYear?.incomeByAccount?.["Sales - wholesale"] ?? 0)
+    + (qbCurrentYear?.incomeByAccount?.["Sales of Product Income"] ?? 0)
+    + (qbCurrentYear?.incomeByAccount?.["Sales - channel"] ?? 0)
+    + (qbCurrentYear?.incomeByAccount?.["Sales - retail"] ?? 0);
+  const qbNetIncome = qbCurrentYear?.netIncome ?? 0;
+
+  // Prefer live Shopify if available, otherwise use QB figure
+  const dtcYTD = shopifyData?.totalRevenue ?? (qbShopify + qbAmazon);
+  const totalYTD = qbTotalYTD;
 
   // Concentration
   const topTwoRevenue =
@@ -68,15 +78,15 @@ export default async function RevenuePage() {
             Revenue Overview
           </h1>
           <p className="text-sm max-w-2xl" style={{ color: "#4a4a4a" }}>
-            {currentYear} financial overview. Shopify data is live when connected; wholesale
-            figures are from QuickBooks exports until we wire the API.
+            {currentYear} financial overview. Revenue data pulled from QuickBooks via
+            Claude — refreshes automatically every Monday. Last updated {qbRevenue.lastUpdated}.
           </p>
         </div>
 
         {/* Connection status */}
         <div className="flex gap-2 mb-8">
           <StatusBadge label="Shopify" live={isShopifyLive} />
-          <StatusBadge label="QuickBooks" live={false} note="Manual export" />
+          <StatusBadge label="QuickBooks" live={true} note={`Updated ${qbRevenue.lastUpdated}`} />
         </div>
 
         {/* Alerts */}
@@ -87,32 +97,33 @@ export default async function RevenuePage() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-10">
           <KpiCard
             label={`${currentYear} Total YTD`}
             value={fmtShort(totalYTD)}
-            sub={isShopifyLive ? "DTC live, wholesale static" : "Based on historical data"}
+            sub={`From QuickBooks · Updated ${qbRevenue.lastUpdated}`}
             accent
           />
           <KpiCard
-            label="DTC (Shopify)"
-            value={fmtShort(dtcYTD)}
-            sub={
-              isShopifyLive
-                ? `${shopifyData?.orderCount} orders`
-                : "Connect Shopify for live data"
-            }
-          />
-          <KpiCard
             label="Wholesale"
-            value={fmtShort(wholesaleYTD)}
-            sub="From QuickBooks export"
+            value={fmtShort(qbWholesale)}
+            sub="Product + channel + retail"
           />
           <KpiCard
-            label="Concentration"
-            value={`${Math.round(concentrationPct)}%`}
-            sub="Cripps + F&M of wholesale"
-            warning={concentrationPct > 60}
+            label="Amazon"
+            value={fmtShort(qbAmazon)}
+            sub="FBA sales"
+          />
+          <KpiCard
+            label="Shopify"
+            value={fmtShort(dtcYTD)}
+            sub={isShopifyLive ? `${shopifyData?.orderCount} orders (live)` : "From QB"}
+          />
+          <KpiCard
+            label="Net Income"
+            value={fmtShort(qbNetIncome)}
+            sub="After all expenses"
+            warning={qbNetIncome < 0}
           />
         </div>
 
@@ -152,9 +163,9 @@ export default async function RevenuePage() {
           <LiveOrdersTable orders={shopifyOrders} />
         </Section>
 
-        {/* Annual Revenue History */}
-        <Section title="Annual Revenue" badge="Static">
-          <RevenueHistoryTable />
+        {/* Annual Revenue History — from QB */}
+        <Section title="Annual Revenue (QuickBooks)" badge="QB">
+          <QBRevenueTable />
         </Section>
       </main>
     </div>
@@ -325,13 +336,19 @@ function TopCustomersTable() {
   );
 }
 
-function RevenueHistoryTable() {
-  const rows = [...STATIC_ANNUAL_REVENUE].reverse();
+function QBRevenueTable() {
+  const years = qbRevenue.years as Record<string, { totalIncome: number; grossProfit: number; netIncome: number; totalExpenses: number }>;
+  const rows = Object.entries(years)
+    .map(([year, d]) => ({ year, ...d }))
+    .sort((a, b) => b.year.localeCompare(a.year));
+
+  const currentYear = String(new Date().getFullYear());
+
   return (
     <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
       <thead>
         <tr>
-          {["Year", "DTC (Shopify)", "Wholesale", "Total", "YoY"].map((col) => (
+          {["Year", "Total Income", "Gross Profit", "Expenses", "Net Income", "YoY"].map((col) => (
             <th
               key={col}
               className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold"
@@ -348,36 +365,27 @@ function RevenueHistoryTable() {
       </thead>
       <tbody>
         {rows.map((row, i) => {
-          const prevTotal = rows[i + 1]?.total ?? null;
-          const yoyPct = prevTotal ? ((row.total - prevTotal) / prevTotal) * 100 : null;
-          const isCurrentYear = row.year === String(new Date().getFullYear());
+          const prev = rows[i + 1]?.totalIncome ?? null;
+          const yoyPct = prev ? ((row.totalIncome - prev) / prev) * 100 : null;
+          const isCurrent = row.year === currentYear;
           return (
-            <tr
-              key={row.year}
-              style={{ borderBottom: "1px solid #141414" }}
-            >
-              <td
-                className="px-3 py-3"
-                style={{ color: isCurrentYear ? "#c9a227" : "#cfcfcf", fontWeight: isCurrentYear ? 600 : 400 }}
-              >
-                {row.year}
-                {isCurrentYear ? " YTD" : ""}
-              </td>
-              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#777" }}>
-                {fmt(row.dtc)}
-              </td>
-              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#cfcfcf" }}>
-                {fmt(row.wholesale)}
+            <tr key={row.year} style={{ borderBottom: "1px solid #141414" }}>
+              <td className="px-3 py-3" style={{ color: isCurrent ? "#c9a227" : "#cfcfcf", fontWeight: isCurrent ? 600 : 400 }}>
+                {row.year}{isCurrent ? " YTD" : ""}
               </td>
               <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: "#f0f0f0" }}>
-                {fmt(row.total)}
+                {fmt(row.totalIncome)}
               </td>
-              <td
-                className="px-3 py-3 text-right tabular-nums text-xs"
-                style={{
-                  color: yoyPct === null ? "#333" : yoyPct >= 0 ? "#4fae8f" : "#e07a5f",
-                }}
-              >
+              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#cfcfcf" }}>
+                {fmt(row.grossProfit)}
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#777" }}>
+                {fmt(row.totalExpenses)}
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums" style={{ color: row.netIncome >= 0 ? "#4fae8f" : "#e07a5f", fontWeight: 600 }}>
+                {fmt(row.netIncome)}
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums text-xs" style={{ color: yoyPct === null ? "#333" : yoyPct >= 0 ? "#4fae8f" : "#e07a5f" }}>
                 {yoyPct === null ? "—" : pct(yoyPct)}
               </td>
             </tr>

@@ -1,0 +1,818 @@
+{
+  "lastUpdated": "2026-04-12",
+  "years": {
+    "2022": {
+      "totalIncome": 250367.94,
+      "totalExpenses": 78173.98,
+      "grossProfit": 229475.89,
+      "netIncome": 150622.26,
+      "incomeByAccount": {
+        "Amazon Sales": 6421.68,
+        "Discounts given": -439.11,
+        "Refund": 318.04,
+        "Sales - channel": 44599.93,
+        "Sales of Product Income": 113104.21,
+        "Sales - retail": 10050.42,
+        "Sales - wholesale": 76312.77
+      },
+      "cogsByAccount": {
+        "Cost of sales": 142072.52,
+        "Purchases - bottles": -1620.22,
+        "Purchases - labels": 111.65,
+        "Purchases - packaging": 183.29,
+        "Recycling": 181.75,
+        "Stock Shrinkage": -120036.94
+      },
+      "expenseByAccount": {
+        "Accounting Services": 2033.49,
+        "Advertising": 15024.09,
+        "Bank charges": 738.71,
+        "Charity": 73.55,
+        "Computer running costs": 85,
+        "Courier and delivery charges": 190,
+        "Directors' remuneration": 12209.28,
+        "Entertaining": 320.83,
+        "Insurance": 554.17,
+        "Legal and professional fees": 29.17,
+        "Light and heat": 20000,
+        "Office expenses, repairs & maintenance": 5572.64,
+        "Printing, postage and stationery": 6716,
+        "Rent": 3844.16,
+        "Shopify Fees": 95.91,
+        "Subscriptions": 2.91,
+        "Sundry expenses": 2736.3,
+        "Uncategorised Expense": 6459.76,
+        "Web Hosting": 1488.01
+      },
+      "monthlyBreakdown": {
+        "2022-01": {
+          "income": 18181.47,
+          "cogs": 18139.67,
+          "grossProfit": 41.8,
+          "expenses": 4080.71,
+          "netIncome": -4038.91,
+          "incomeByAccount": {
+            "Amazon Sales": 412.27,
+            "Sales - channel": 3913.87,
+            "Sales of Product Income": 457.5,
+            "Sales - retail": 729.76,
+            "Sales - wholesale": 13113.57,
+            "Bank interest - received": 12
+          }
+        },
+        "2022-02": {
+          "income": 4635.81,
+          "cogs": -56909.04,
+          "grossProfit": 61544.85,
+          "expenses": 24023.61,
+          "netIncome": 37521.24,
+          "incomeByAccount": {
+            "Amazon Sales": 204.9,
+            "Refund": 87.91,
+            "Sales - channel": 2806.02,
+            "Sales of Product Income": 3897.83,
+            "Sales - retail": 710.46,
+            "Sales - wholesale": 824.52,
+            "Bank interest - received": 2
+          }
+        },
+        "2022-03": {
+          "income": 4341.23,
+          "cogs": 12249.2,
+          "grossProfit": -7907.97,
+          "expenses": 2717.32,
+          "netIncome": -10625.29,
+          "incomeByAccount": {
+            "Amazon Sales": 321.83,
+            "Discounts given": -420,
+            "Sales - channel": 2830.03,
+            "Sales of Product Income": 12999.5,
+            "Sales - retail": 611.8,
+            "Sales - wholesale": 997.57
+          }
+        },
+        "2022-04": {
+          "income": 6223.61,
+          "cogs": 7912.28,
+          "grossProfit": -1688.67,
+          "expenses": 2173.69,
+          "netIncome": -3862.36,
+          "incomeByAccount": {
+            "Amazon Sales": 523.1,
+            "Sales - channel": 3429.78,
+            "Sales of Product Income": 15680,
+            "Sales - retail": 297.68,
+            "Sales - wholesale": 1973.05
+          }
+        },
+        "2022-05": {
+          "income": 7176.94,
+          "cogs": 17636.53,
+          "grossProfit": -10459.59,
+          "expenses": 4105.25,
+          "netIncome": -14564.84,
+          "incomeByAccount": {
+            "Amazon Sales": 477.39,
+            "Refund": 29.9,
+            "Sales - channel": 3428.81,
+            "Sales of Product Income": 3618,
+            "Sales - retail": 520.22,
+            "Sales - wholesale": 2710.62,
+            "Bank interest - received": 10
+          }
+        },
+        "2022-06": {
+          "income": 5824.12,
+          "cogs": 22937.85,
+          "grossProfit": -17113.73,
+          "expenses": 3188.72,
+          "netIncome": -20302.45,
+          "incomeByAccount": {
+            "Amazon Sales": 424.86,
+            "Refund": 183.48,
+            "Sales - channel": 4141.9,
+            "Sales of Product Income": 20922.5,
+            "Sales - retail": 333.23,
+            "Sales - wholesale": 739.65,
+            "Bank interest - received": 1
+          }
+        },
+        "2022-07": {
+          "income": 9208.15,
+          "cogs": 13319.84,
+          "grossProfit": -4111.69,
+          "expenses": 4727.79,
+          "netIncome": -8839.48,
+          "incomeByAccount": {
+            "Amazon Sales": 280.75,
+            "Sales - channel": 2834.99,
+            "Sales of Product Income": 8106.67,
+            "Sales - retail": 951.21,
+            "Sales - wholesale": 5128.2,
+            "Bank interest - received": 13
+          }
+        },
+        "2022-08": {
+          "income": 15140.69,
+          "cogs": 18427.58,
+          "grossProfit": -3286.89,
+          "expenses": 5232.07,
+          "netIncome": -8518.96,
+          "incomeByAccount": {
+            "Amazon Sales": 516.92,
+            "Refund": 14.75,
+            "Sales - channel": 3017.11,
+            "Sales of Product Income": 12215,
+            "Sales - retail": 864.22,
+            "Sales - wholesale": 10713.69,
+            "Bank interest - received": 14
+          }
+        },
+        "2022-09": {
+          "income": 4214.51,
+          "cogs": 17837.29,
+          "grossProfit": -13622.78,
+          "expenses": 3754.82,
+          "netIncome": -17377.6,
+          "incomeByAccount": {
+            "Amazon Sales": 410.13,
+            "Sales - channel": 1961.5,
+            "Sales of Product Income": 7645.5,
+            "Sales - retail": 470.69,
+            "Sales - wholesale": 1356.19,
+            "Bank interest - received": 16
+          }
+        },
+        "2022-10": {
+          "income": 20696.45,
+          "cogs": -48087.9,
+          "grossProfit": 68784.35,
+          "expenses": 9457.7,
+          "netIncome": 59326.65,
+          "incomeByAccount": {
+            "Amazon Sales": 323.21,
+            "Discounts given": -19.11,
+            "Sales - channel": 2635.29,
+            "Sales of Product Income": 13095.67,
+            "Sales - retail": 1380.03,
+            "Sales - wholesale": 16363.03,
+            "Bank interest - received": 14
+          }
+        },
+        "2022-11": {
+          "income": 18307.93,
+          "cogs": 21461.2,
+          "grossProfit": -3153.27,
+          "expenses": 3690.51,
+          "netIncome": -6843.78,
+          "incomeByAccount": {
+            "Amazon Sales": 810.21,
+            "Refund": 1,
+            "Sales - channel": 4657.56,
+            "Sales of Product Income": 6558.5,
+            "Sales - retail": 820.27,
+            "Sales - wholesale": 12003.89,
+            "Bank interest - received": 15
+          }
+        },
+        "2022-12": {
+          "income": 23433.82,
+          "cogs": -24032.45,
+          "grossProfit": 47466.27,
+          "expenses": 3513.5,
+          "netIncome": 43952.77,
+          "incomeByAccount": {
+            "Amazon Sales": 1716.11,
+            "Refund": 1,
+            "Sales - channel": 8943.07,
+            "Sales of Product Income": 7907.54,
+            "Sales - retail": 2360.85,
+            "Sales - wholesale": 10388.79,
+            "Bank interest - received": 24
+          }
+        }
+      }
+    },
+    "2024": {
+      "totalIncome": 162078.89,
+      "totalExpenses": 50791.51,
+      "grossProfit": 73673.1,
+      "netIncome": 22888.59,
+      "incomeByAccount": {
+        "Amazon Refunds": -133.78,
+        "Amazon Reimbursement": 21.29,
+        "Amazon Sales": 9858.08,
+        "Amazon Shipping": 116.6,
+        "Discounts given": -375,
+        "Sales - channel": 11610.82,
+        "Sales of Product Income": 97804.7,
+        "Sales - retail": 2218,
+        "Sales - wholesale": 38998.86,
+        "Shopify Refunds": -381.73,
+        "Shopify Sales": 2251.25,
+        "Shopify Shipping": 89.8
+      },
+      "cogsByAccount": {
+        "Amazon FBA Fees": 2670.23,
+        "Cost of sales": 85276.12,
+        "Purchases - bottles": 49.96,
+        "Purchases - packaging": 70,
+        "Recycling": 603.48,
+        "Stock Shrinkage": -264
+      },
+      "expenseByAccount": {
+        "Accounting Services": 2845.56,
+        "Advertising": 414.24,
+        "Amazon Advertising": 1283.23,
+        "Amazon Promotions": 73.42,
+        "Amazon Seller Fees and Charges": 1531.66,
+        "Amazon Shipping Fees": 80.09,
+        "Bank charges": 272.46,
+        "Charity": 533.11,
+        "Directors' remuneration": 17209.28,
+        "Insurance": 320.83,
+        "Legal and professional fees": 540.69,
+        "Office expenses, repairs & maintenance": 5294.7,
+        "Packaging": 521.69,
+        "Printing, postage and stationery": 3200.0,
+        "Purchases": 39.62,
+        "Rent": 4213.15,
+        "Repairs and maintenance": 3710.5,
+        "Shopify Fees": 174.95,
+        "Subscriptions": 202.32,
+        "Sundry expenses": 5022.89,
+        "Telephone": 673.32,
+        "Travelling expenses": 1984.73,
+        "Web Hosting": 649.07
+      },
+      "monthlyBreakdown": {
+        "2024-01": {
+          "income": 5319.74,
+          "cogs": 3138.24,
+          "grossProfit": 2181.5,
+          "expenses": 2591.56,
+          "netIncome": -410.06,
+          "incomeByAccount": {
+            "Sales - channel": 4426.51,
+            "Sales of Product Income": 23.95,
+            "Sales - retail": 55.23,
+            "Sales - wholesale": 838
+          }
+        },
+        "2024-02": {
+          "income": 1419.79,
+          "cogs": 205.2,
+          "grossProfit": 1214.59,
+          "expenses": 1878.16,
+          "netIncome": -663.57,
+          "incomeByAccount": {
+            "Sales - channel": 872.58,
+            "Sales - retail": 223.21,
+            "Sales - wholesale": 324
+          }
+        },
+        "2024-03": {
+          "income": 1807.9,
+          "cogs": 10079.39,
+          "grossProfit": -8271.49,
+          "expenses": 2995.23,
+          "netIncome": -11266.72,
+          "incomeByAccount": {
+            "Sales - channel": 549.01,
+            "Sales of Product Income": 14421.73,
+            "Sales - retail": 277.85,
+            "Sales - wholesale": 974.04,
+            "Bank interest - received": 7
+          }
+        },
+        "2024-04": {
+          "income": 4738.95,
+          "cogs": 7479.83,
+          "grossProfit": -2740.88,
+          "expenses": 7976.31,
+          "netIncome": -10717.19,
+          "incomeByAccount": {
+            "Discounts given": -375,
+            "Sales - channel": 910.44,
+            "Sales of Product Income": 11634.06,
+            "Sales - retail": 354.55,
+            "Sales - wholesale": 3848.96
+          }
+        },
+        "2024-05": {
+          "income": 1898.36,
+          "cogs": 11033.82,
+          "grossProfit": -9135.46,
+          "expenses": 2122.83,
+          "netIncome": -11258.29,
+          "incomeByAccount": {
+            "Sales - channel": 321.96,
+            "Sales of Product Income": 18768.67,
+            "Sales - retail": 492.34,
+            "Sales - wholesale": 1084.06
+          }
+        },
+        "2024-06": {
+          "income": 1531.97,
+          "cogs": 4618.09,
+          "grossProfit": -3086.12,
+          "expenses": 2095.66,
+          "netIncome": -5181.78,
+          "incomeByAccount": {
+            "Sales - channel": 698,
+            "Sales of Product Income": 4963.49,
+            "Sales - retail": 27.55,
+            "Sales - wholesale": 757.08,
+            "Shopify Refunds": -208.33,
+            "Shopify Sales": 251.03,
+            "Shopify Shipping": 6.64
+          }
+        },
+        "2024-07": {
+          "income": 10874.62,
+          "cogs": 13067.35,
+          "grossProfit": -2192.73,
+          "expenses": 2150.52,
+          "netIncome": -4343.25,
+          "incomeByAccount": {
+            "Sales - channel": 1007.5,
+            "Sales of Product Income": 11831.55,
+            "Sales - retail": 195.12,
+            "Sales - wholesale": 9672
+          }
+        },
+        "2024-08": {
+          "income": 929.89,
+          "cogs": 3178.66,
+          "grossProfit": -2248.77,
+          "expenses": 1933.99,
+          "netIncome": -4182.76,
+          "incomeByAccount": {
+            "Amazon Sales": 112.5,
+            "Amazon Shipping": 2.08,
+            "Sales - channel": 415.14,
+            "Sales of Product Income": 6717.95,
+            "Sales - retail": 89.87,
+            "Sales - wholesale": 224,
+            "Shopify Sales": 82.98,
+            "Shopify Shipping": 3.32
+          }
+        },
+        "2024-09": {
+          "income": 2188.52,
+          "cogs": 6489.11,
+          "grossProfit": -4300.59,
+          "expenses": 2283.77,
+          "netIncome": -6584.36,
+          "incomeByAccount": {
+            "Amazon Refunds": -51.04,
+            "Amazon Reimbursement": 21.29,
+            "Amazon Sales": 783.16,
+            "Amazon Shipping": 7.63,
+            "Sales - channel": 394,
+            "Sales of Product Income": 13184.64,
+            "Sales - wholesale": 815.42,
+            "Shopify Sales": 218.06
+          }
+        },
+        "2024-10": {
+          "income": 6237.75,
+          "cogs": 7930.76,
+          "grossProfit": -1693.01,
+          "expenses": 2221.7,
+          "netIncome": -3914.71,
+          "incomeByAccount": {
+            "Amazon Refunds": -51.03,
+            "Amazon Sales": 1513.01,
+            "Amazon Shipping": 28.87,
+            "Sales - wholesale": 4502.9,
+            "Shopify Sales": 234.03,
+            "Shopify Shipping": 9.97
+          }
+        },
+        "2024-11": {
+          "income": 14670.7,
+          "cogs": 14483.45,
+          "grossProfit": 187.25,
+          "expenses": 3438.46,
+          "netIncome": -3251.21,
+          "incomeByAccount": {
+            "Amazon Refunds": -31.94,
+            "Amazon Sales": 1917.23,
+            "Amazon Shipping": 20.89,
+            "Sales of Product Income": 14826.44,
+            "Sales - retail": 215.97,
+            "Sales - wholesale": 12206.72,
+            "Shopify Sales": 325.19,
+            "Shopify Shipping": 16.64
+          }
+        },
+        "2024-12": {
+          "income": 12663,
+          "cogs": 6701.89,
+          "grossProfit": 5961.11,
+          "expenses": 6801,
+          "netIncome": -839.89,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.23,
+            "Amazon Sales": 5532.18,
+            "Amazon Shipping": 57.13,
+            "Sales - channel": 2015.68,
+            "Sales of Product Income": 1432.22,
+            "Sales - retail": 286.31,
+            "Sales - wholesale": 3751.68,
+            "Shopify Refunds": -173.4,
+            "Shopify Sales": 1139.96,
+            "Shopify Shipping": 53.23
+          }
+        }
+      }
+    },
+    "2025": {
+      "totalIncome": 143513.32,
+      "totalExpenses": 41027.84,
+      "grossProfit": 21105.52,
+      "netIncome": -19922.32,
+      "incomeByAccount": {
+        "Amazon Refunds": 1.08,
+        "Amazon Reimbursement": 14,
+        "Amazon Sales": 11655,
+        "Amazon Shipping": 110.69,
+        "Discounts given": -91,
+        "Sales - channel": 5412.6,
+        "Sales of Product Income": 92401.32,
+        "Sales - retail": 1620.84,
+        "Sales - wholesale": 24628.6,
+        "Shopify Refunds": -4.16,
+        "Shopify Sales": 7523.06,
+        "Shopify Shipping": 241.29
+      },
+      "cogsByAccount": {
+        "Amazon FBA Fees": 2004.8,
+        "Cost of sales": 115984.12,
+        "Inventory Shrinkage": 0,
+        "Purchases - bottles": 3315.55,
+        "Purchases - ingredients": 267.83,
+        "Purchases - labels": 494.6,
+        "Purchases - packaging": 120.46,
+        "Recycling": 220.44
+      },
+      "expenseByAccount": {
+        "Accounting Services": 2066.47,
+        "Advertising": 5079.65,
+        "Amazon Advertising": 1560.6,
+        "Amazon Promotions": 114.4,
+        "Amazon Seller Fees and Charges": 1497.49,
+        "Amazon Shipping Fees": 183.71,
+        "Bank charges": 245.56,
+        "Computer running costs": 1115.97,
+        "Directors' remuneration": 10513.58,
+        "Entertaining": 391.85,
+        "Insurance": 332,
+        "Legal and professional fees": 244.5,
+        "Office expenses, repairs & maintenance": 2501.57,
+        "Packaging": 2827.4,
+        "Printing, postage and stationery": 3747.37,
+        "Purchases": 19.17,
+        "Rent": 3778.19,
+        "Shopify Fees": 36.1,
+        "Subscriptions": 213.32,
+        "Sundry expenses": 562.06,
+        "Telephone": 709.6,
+        "Travelling expenses": 1739.66,
+        "Web Hosting": 1547.62
+      },
+      "monthlyBreakdown": {
+        "2025-01": {
+          "income": 5366.78,
+          "cogs": 5325.71,
+          "grossProfit": 41.07,
+          "expenses": 3467.83,
+          "netIncome": -3426.76,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.18,
+            "Amazon Sales": 607.8,
+            "Amazon Shipping": 2.63,
+            "Sales - channel": 4386.71,
+            "Sales of Product Income": 271.23,
+            "Sales - wholesale": 253,
+            "Shopify Sales": 109.8,
+            "Shopify Shipping": 6.66
+          }
+        },
+        "2025-02": {
+          "income": 2604.51,
+          "cogs": 2995.87,
+          "grossProfit": -391.36,
+          "expenses": 3054.1,
+          "netIncome": -3445.46,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.07,
+            "Amazon Sales": 1401.78,
+            "Amazon Shipping": 36,
+            "Sales - channel": 338.59,
+            "Sales of Product Income": 3.99,
+            "Sales - retail": 19.16,
+            "Sales - wholesale": 726,
+            "Shopify Sales": 72.92,
+            "Shopify Shipping": 9.99
+          }
+        },
+        "2025-03": {
+          "income": 2244.12,
+          "cogs": 1823.22,
+          "grossProfit": 420.9,
+          "expenses": 2481.83,
+          "netIncome": -2060.93,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.05,
+            "Amazon Sales": 976.82,
+            "Amazon Shipping": 0.69,
+            "Sales - retail": 648.22,
+            "Sales - wholesale": 499.2,
+            "Shopify Sales": 119.14
+          }
+        },
+        "2025-04": {
+          "income": 1870.32,
+          "cogs": 3883.82,
+          "grossProfit": -2013.5,
+          "expenses": 3727.74,
+          "netIncome": -5741.24,
+          "incomeByAccount": {
+            "Amazon Sales": 904.46,
+            "Amazon Shipping": 5.2,
+            "Discounts given": -91,
+            "Sales of Product Income": 7448.22,
+            "Sales - retail": 32.86,
+            "Sales - wholesale": 1018.8
+          }
+        },
+        "2025-05": {
+          "income": 2044.19,
+          "cogs": 23960.33,
+          "grossProfit": -21916.14,
+          "expenses": 3630.39,
+          "netIncome": -25546.53,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.2,
+            "Amazon Reimbursement": 14,
+            "Amazon Sales": 1293.04,
+            "Amazon Shipping": 18.79,
+            "Sales of Product Income": 17369.19,
+            "Sales - retail": 268.16,
+            "Sales - wholesale": 450
+          }
+        },
+        "2025-06": {
+          "income": 3114.53,
+          "cogs": 19107.97,
+          "grossProfit": -15993.44,
+          "expenses": 2304.54,
+          "netIncome": -18297.98,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.08,
+            "Amazon Sales": 1307.47,
+            "Amazon Shipping": 11.02,
+            "Sales of Product Income": 18209.52,
+            "Sales - retail": 468.41,
+            "Sales - wholesale": 1248,
+            "Shopify Sales": 79.55
+          }
+        },
+        "2025-07": {
+          "income": 2073.06,
+          "cogs": 16095.21,
+          "grossProfit": -14022.15,
+          "expenses": 2320.67,
+          "netIncome": -16342.82,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.08,
+            "Amazon Sales": 1037.65,
+            "Amazon Shipping": 6.57,
+            "Sales of Product Income": 15018.03,
+            "Sales - retail": 184.03,
+            "Sales - wholesale": 612.24,
+            "Shopify Sales": 232.49
+          }
+        },
+        "2025-08": {
+          "income": 2260.84,
+          "cogs": 16659.59,
+          "grossProfit": -14398.75,
+          "expenses": 2788.13,
+          "netIncome": -17186.88,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.26,
+            "Amazon Sales": 918.26,
+            "Amazon Shipping": 10.49,
+            "Sales of Product Income": 20688.1,
+            "Sales - wholesale": 454.56,
+            "Shopify Refunds": -4.16,
+            "Shopify Sales": 856.47,
+            "Shopify Shipping": 24.96
+          }
+        },
+        "2025-09": {
+          "income": 5230.4,
+          "cogs": 8923.17,
+          "grossProfit": -3692.77,
+          "expenses": 3081.23,
+          "netIncome": -6774,
+          "incomeByAccount": {
+            "Amazon Refunds": 0.16,
+            "Amazon Sales": 1018.38,
+            "Amazon Shipping": 17.52,
+            "Sales of Product Income": 8209.35,
+            "Sales - wholesale": 3277.58,
+            "Shopify Sales": 775.32,
+            "Shopify Shipping": 141.44
+          }
+        },
+        "2025-10": {
+          "income": 4512.34,
+          "cogs": 4869.5,
+          "grossProfit": -357.16,
+          "expenses": 2893.76,
+          "netIncome": -3250.92,
+          "incomeByAccount": {
+            "Amazon Sales": 643.5,
+            "Amazon Shipping": 1.78,
+            "Sales - wholesale": 3126.24,
+            "Shopify Sales": 682.58,
+            "Shopify Shipping": 58.24
+          }
+        },
+        "2025-11": {
+          "income": 7790.42,
+          "cogs": 8142.66,
+          "grossProfit": -352.24,
+          "expenses": 2994.45,
+          "netIncome": -3346.69,
+          "incomeByAccount": {
+            "Sales - channel": 687.3,
+            "Sales of Product Income": 778.16,
+            "Sales - wholesale": 5977.06,
+            "Shopify Sales": 1126.06
+          }
+        },
+        "2025-12": {
+          "income": 12000.49,
+          "cogs": 10620.75,
+          "grossProfit": 1379.74,
+          "expenses": 3479.88,
+          "netIncome": -2100.14,
+          "incomeByAccount": {
+            "Amazon Sales": 1545.84,
+            "Sales of Product Income": 4405.53,
+            "Sales - wholesale": 6985.92,
+            "Shopify Sales": 3468.73
+          }
+        }
+      }
+    },
+    "2023": {
+      "totalIncome": 166946.91,
+      "totalExpenses": 48537.87,
+      "grossProfit": 40102.95,
+      "netIncome": -8384.92,
+      "incomeByAccount": {
+        "Amazon Sales": 2200.86,
+        "Discounts given": -515.58,
+        "Refund": 36.0,
+        "Sales - channel": 22606.65,
+        "Sales of Product Income": 99174.32,
+        "Sales - retail": 6586.03,
+        "Sales - wholesale": 39819.63,
+        "Uncategorised Income": -2961.0
+      },
+      "cogsByAccount": {
+        "Cost of sales": 122360.45,
+        "Purchases - bottles": 78.51,
+        "Stock Shrinkage": 4405.0
+      },
+      "expenseByAccount": {},
+      "monthlyBreakdown": {}
+    },
+    "2026": {
+      "totalIncome": 29418.53,
+      "totalExpenses": 13490.84,
+      "grossProfit": 14032.08,
+      "netIncome": 541.24,
+      "incomeByAccount": {
+        "Amazon Sales": 1691.09,
+        "Sales of Product Income": 18345.54,
+        "Sales - wholesale": 8017.5,
+        "Shopify Sales": 1364.4
+      },
+      "cogsByAccount": {
+        "Cost of sales": 13644.39,
+        "Purchases - ingredients": 1708.27,
+        "Purchases - packaging": 6.79,
+        "Recycling": 27.0
+      },
+      "expenseByAccount": {
+        "Accounting Services": 479.2,
+        "Advertising": 1167.34,
+        "Directors' remuneration": 4147.29,
+        "Office expenses, repairs & maintenance": 2948.38,
+        "Packaging": 1073.55,
+        "Printing, postage and stationery": 1119.64,
+        "Rent": 763.56,
+        "Sundry expenses": 1138.25,
+        "Web Hosting": 335.41
+      },
+      "monthlyBreakdown": {
+        "2026-01": {
+          "income": 1546.61,
+          "cogs": 1121.02,
+          "grossProfit": 425.59,
+          "expenses": 2607.48,
+          "netIncome": -2181.89,
+          "incomeByAccount": {
+            "Amazon Sales": 1055.99,
+            "Sales of Product Income": 8515.94,
+            "Shopify Sales": 490.62
+          }
+        },
+        "2026-02": {
+          "income": 1807.17,
+          "cogs": 3485.75,
+          "grossProfit": -1678.58,
+          "expenses": 2566.49,
+          "netIncome": -4245.07,
+          "incomeByAccount": {
+            "Amazon Sales": 228.32,
+            "Sales of Product Income": 307.68,
+            "Sales - wholesale": 1248.0,
+            "Shopify Sales": 330.85
+          }
+        },
+        "2026-03": {
+          "income": 7540.71,
+          "cogs": 10686.26,
+          "grossProfit": -3145.55,
+          "expenses": 3086.03,
+          "netIncome": -6231.58,
+          "incomeByAccount": {
+            "Amazon Sales": 406.78,
+            "Sales of Product Income": 9356.16,
+            "Sales - wholesale": 6591.0,
+            "Shopify Sales": 542.93
+          }
+        },
+        "2026-04": {
+          "income": 178.5,
+          "cogs": 93.42,
+          "grossProfit": 85.08,
+          "expenses": 1144.21,
+          "netIncome": -1059.13,
+          "incomeByAccount": {
+            "Sales of Product Income": 165.76,
+            "Sales - wholesale": 178.5
+          }
+        }
+      }
+    }
+  }
+}
