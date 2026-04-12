@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useTransition } from "react";
 import {
   PricingConfig,
   PricingProduct,
@@ -9,6 +9,7 @@ import {
   passesRetailerTest,
   calcMargin,
 } from "@/lib/pricing-data";
+import { updateRrpOverride, resetRrpOverrides } from "@/app/actions/pricing";
 
 const GBP = (n: number) =>
   new Intl.NumberFormat("en-GB", {
@@ -18,35 +19,35 @@ const GBP = (n: number) =>
   }).format(n);
 
 const STORAGE_CONFIG_KEY = "mfc_pricing_config";
-const STORAGE_RRP_KEY = "mfc_pricing_rrp_overrides";
 
 type Props = {
   products: PricingProduct[];
   defaultConfig: PricingConfig;
+  rrpOverrides: Record<string, number>;
 };
 
-export default function PricingClient({ products: serverProducts, defaultConfig }: Props) {
+export default function PricingClient({ products: serverProducts, defaultConfig, rrpOverrides: serverRrpOverrides }: Props) {
   const [config, setConfig] = useState<PricingConfig>(defaultConfig);
-  const [rrpOverrides, setRrpOverrides] = useState<Record<string, number>>({});
+  const [localRrpEdits, setLocalRrpEdits] = useState<Record<string, number>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [filterFails, setFilterFails] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
   useEffect(() => {
     try {
       const sc = localStorage.getItem(STORAGE_CONFIG_KEY);
       if (sc) setConfig({ ...defaultConfig, ...JSON.parse(sc) });
-      const sr = localStorage.getItem(STORAGE_RRP_KEY);
-      if (sr) setRrpOverrides(JSON.parse(sr));
     } catch {}
     setHydrated(true);
   }, [defaultConfig]);
 
-  // Merge RRP overrides — COGS comes from server (ingredient model)
+  // Products with any unsaved local RRP edits layered on top
   const products: PricingProduct[] = serverProducts.map((p) => ({
     ...p,
-    rrp: rrpOverrides[p.id] ?? p.rrp,
+    rrp: localRrpEdits[p.id] ?? p.rrp,
   }));
 
   const allPass = products.every((p) => passesRetailerTest(p, config));
@@ -54,6 +55,8 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
   const displayed = filterFails
     ? products.filter((p) => !passesRetailerTest(p, config))
     : products;
+
+  const hasUnsavedRrpEdits = Object.keys(localRrpEdits).length > 0;
 
   const startEdit = (id: string, val: number) => {
     setEditingId(id);
@@ -67,24 +70,51 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
       setEditingId(null);
       return;
     }
-    setRrpOverrides((prev) => {
-      const next = { ...prev, [editingId]: val };
-      localStorage.setItem(STORAGE_RRP_KEY, JSON.stringify(next));
-      return next;
-    });
+    // Stage locally — user clicks Save to persist to git
+    setLocalRrpEdits((prev) => ({ ...prev, [editingId]: val }));
     setEditingId(null);
+    setFeedback(null);
   }, [editingId, editValue]);
+
+  const saveAllRrpEdits = () => {
+    setFeedback(null);
+    const edits = { ...localRrpEdits };
+    const entries = Object.entries(edits);
+    if (entries.length === 0) return;
+
+    startTransition(async () => {
+      for (const [id, rrp] of entries) {
+        const product = serverProducts.find((p) => p.id === id);
+        if (!product) continue;
+        const res = await updateRrpOverride(id, product.name, product.size, rrp);
+        if (!res.ok) {
+          setFeedback({ kind: "err", msg: res.error });
+          return;
+        }
+      }
+      setLocalRrpEdits({});
+      setFeedback({
+        kind: "ok",
+        msg: `${entries.length} RRP change${entries.length > 1 ? "s" : ""} saved to git. Site will redeploy in ~30s.`,
+      });
+    });
+  };
+
+  const handleReset = () => {
+    startTransition(async () => {
+      const res = await resetRrpOverrides();
+      if (res.ok) {
+        setLocalRrpEdits({});
+        setFeedback({ kind: "ok", msg: "All RRP overrides cleared. Defaults restored." });
+      } else {
+        setFeedback({ kind: "err", msg: res.error });
+      }
+    });
+  };
 
   const saveConfig = (c: PricingConfig) => {
     setConfig(c);
     localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(c));
-  };
-
-  const resetAll = () => {
-    localStorage.removeItem(STORAGE_CONFIG_KEY);
-    localStorage.removeItem(STORAGE_RRP_KEY);
-    setConfig(defaultConfig);
-    setRrpOverrides({});
   };
 
   if (!hydrated)
@@ -113,7 +143,7 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
         <p className="text-sm max-w-2xl" style={{ color: "#4a4a4a" }}>
           COGS is derived live from the ingredient master (liquid + labour). The wholesale
           price is COGS × markup + shipping. Adjust the markup, retailer margin, and VAT
-          assumptions below. RRP is click-to-edit.
+          assumptions below. RRP is click-to-edit — changes persist to git across all devices.
         </p>
       </div>
 
@@ -139,13 +169,32 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
         >
           {filterFails ? "Show all" : "Show fails only"}
         </button>
-        <button
-          onClick={resetAll}
-          className="px-3 py-1.5 rounded text-xs font-medium uppercase tracking-[0.1em] ml-auto"
-          style={{ background: "#1a1a1a", color: "#555", border: "1px solid #222" }}
-        >
-          Reset overrides
-        </button>
+
+        <div className="flex items-center gap-3 ml-auto">
+          {feedback && (
+            <span className="text-xs" style={{ color: feedback.kind === "ok" ? "#4fae8f" : "#e07a5f" }}>
+              {feedback.msg}
+            </span>
+          )}
+          {hasUnsavedRrpEdits && (
+            <button
+              onClick={saveAllRrpEdits}
+              disabled={isPending}
+              className="px-4 py-1.5 rounded text-xs font-semibold uppercase tracking-[0.1em] disabled:opacity-50"
+              style={{ background: "#c9a227", color: "#080808" }}
+            >
+              {isPending ? "Saving…" : `Save ${Object.keys(localRrpEdits).length} RRP change${Object.keys(localRrpEdits).length > 1 ? "s" : ""}`}
+            </button>
+          )}
+          <button
+            onClick={handleReset}
+            disabled={isPending}
+            className="px-3 py-1.5 rounded text-xs font-medium uppercase tracking-[0.1em] disabled:opacity-50"
+            style={{ background: "#1a1a1a", color: "#555", border: "1px solid #222" }}
+          >
+            Reset RRP
+          </button>
+        </div>
       </div>
 
       {/* Assumptions */}
@@ -223,7 +272,7 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
                 const headroom = Math.round((p.rrp - rp) * 100) / 100;
                 const margin = calcMargin(p, config);
                 const isEditing = editingId === p.id;
-                const hasRrpOverride = rrpOverrides[p.id] !== undefined;
+                const hasOverride = localRrpEdits[p.id] !== undefined || serverRrpOverrides[p.id] !== undefined;
 
                 return (
                   <tr key={p.id} style={{ borderBottom: "1px solid #141414" }}>
@@ -237,7 +286,10 @@ export default function PricingClient({ products: serverProducts, defaultConfig 
                     {/* RRP — click to edit */}
                     <td
                       className="px-3 py-3 text-right tabular-nums cursor-pointer"
-                      style={{ color: hasRrpOverride ? "#c9a227" : "#4FC3F7", fontWeight: hasRrpOverride ? 700 : 400 }}
+                      style={{
+                        color: localRrpEdits[p.id] !== undefined ? "#FFC107" : hasOverride ? "#c9a227" : "#4FC3F7",
+                        fontWeight: hasOverride || localRrpEdits[p.id] !== undefined ? 700 : 400,
+                      }}
                       onClick={() => !isEditing && startEdit(p.id, p.rrp)}
                     >
                       {isEditing ? (

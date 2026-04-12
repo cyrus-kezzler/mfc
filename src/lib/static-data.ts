@@ -17,11 +17,13 @@ export const STATIC_ANNUAL_REVENUE = [
 ]
 
 export const STATIC_TOP_CUSTOMERS = [
-  { name: 'Cripps',               revenue2024: 68400, revenue2023: 71200, revenue2022: 98000, concentration: 0.48 },
-  { name: 'Fortnum & Mason',      revenue2024: 22100, revenue2023: 19800, revenue2022: 28000, concentration: 0.16 },
-  { name: 'Bailey & Sage',        revenue2024: 3200,  revenue2023: 4100,  revenue2022: 5200,  concentration: 0.02 },
-  { name: 'Macknade',             revenue2024: 2800,  revenue2023: 3600,  revenue2022: 3100,  concentration: 0.02 },
-  { name: 'Liberty',              revenue2024: 900,   revenue2023: 2100,  revenue2022: 1800,  concentration: 0.01 },
+  { name: 'Cripps & Co.',          revenue2024: 68400, revenue2023: 71200, revenue2022: 98000 },
+  { name: 'Fortnum & Mason',       revenue2024: 22100, revenue2023: 19800, revenue2022: 28000 },
+  { name: 'Bayley & Sage',         revenue2024: 3200,  revenue2023: 4100,  revenue2022: 5200  },
+  { name: 'Macknade',              revenue2024: 2800,  revenue2023: 3600,  revenue2022: 3100  },
+  { name: 'Italo',                 revenue2024: 0,     revenue2023: 0,     revenue2022: 0     },
+  { name: 'Dugard & Daughters',    revenue2024: 0,     revenue2023: 0,     revenue2022: 0     },
+  { name: 'Mother Superior',       revenue2024: 0,     revenue2023: 0,     revenue2022: 0     },
 ]
 
 export const STATIC_TOP_PRODUCTS_DTC = [

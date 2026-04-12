@@ -11,10 +11,10 @@ const MODULES: HubModule[] = [
   },
   {
     href: "/dashboard",
-    label: "Dashboard",
-    sublabel: "Live financial overview",
+    label: "Revenue Overview",
+    sublabel: "YTD revenue & partners",
     description:
-      "Revenue, wholesale invoices, customer concentration, and live Shopify and QuickBooks data.",
+      "Total revenue, DTC vs wholesale split, partner revenue boxes, concentration risk, and Shopify live orders.",
     status: "live",
   },
   {
