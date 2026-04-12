@@ -1,48 +1,284 @@
 [
-  { "ingredientId": "gin", "date": "2026-04-11", "price": 22.50, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "vodka", "date": "2026-04-11", "price": 18.50, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "rye", "date": "2026-04-11", "price": 28.02, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "campari", "date": "2026-04-11", "price": 15.17, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "cocchi-americano", "date": "2026-04-11", "price": 19.80, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "cocchi-torino", "date": "2026-04-11", "price": 18.05, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "carpano-antica", "date": "2026-04-11", "price": 24.70, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "kahlua", "date": "2026-04-11", "price": 13.43, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "cynar", "date": "2026-04-11", "price": 12.85, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "akvavit", "date": "2026-04-11", "price": 27.93, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "tequila-rep", "date": "2026-04-11", "price": 26.88, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "calvados", "date": "2026-04-11", "price": 18.95, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "havana-club-7", "date": "2026-04-11", "price": 21.05, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "noilly-prat", "date": "2026-04-11", "price": 12.77, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "manzanilla", "date": "2026-04-11", "price": 9.75, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "lillet-blanc", "date": "2026-04-11", "price": 14.42, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "mount-gay", "date": "2026-04-11", "price": 17.46, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "pisco-aba", "date": "2026-04-11", "price": 14.78, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "bimber-rum", "date": "2026-04-11", "price": 23.67, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "bimber-vodka", "date": "2026-04-11", "price": 27.80, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "cotswold-whisky", "date": "2026-04-11", "price": 20.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "fusion-fm-gin", "date": "2026-04-11", "price": 16.634, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "yuzu-sake", "date": "2026-04-11", "price": 21.94, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "triple-sec", "date": "2026-04-11", "price": 21.62, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "triple-dist-vodka", "date": "2026-04-11", "price": 20.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "old-tom-gin", "date": "2026-04-11", "price": 20.74, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "fino-sherry", "date": "2026-04-11", "price": 9.64, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "punt-e-mes", "date": "2026-04-11", "price": 10.96, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "lychee", "date": "2026-04-11", "price": 17.85, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "epsolon-blanco", "date": "2026-04-11", "price": 23.80, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "agave-syrup", "date": "2026-04-11", "price": 6.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "la-fee-absinthe", "date": "2026-04-11", "price": 45.99, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "heering-cherry", "date": "2026-04-11", "price": 22.25, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "luxardo-maraschino", "date": "2026-04-11", "price": 27.03, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "mezcal", "date": "2026-04-11", "price": 35.80, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "aperol", "date": "2026-04-11", "price": 13.10, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "yellow-chartreuse", "date": "2026-04-11", "price": 36.68, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "chinotto-nero", "date": "2026-04-11", "price": 22.57, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "blue-curacao", "date": "2026-04-11", "price": 11.73, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "ginjo-sake", "date": "2026-04-11", "price": 9.98, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "sours", "date": "2026-04-11", "price": 5.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "monin-grenadine", "date": "2026-04-11", "price": 9.35, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "lemons", "date": "2026-04-11", "price": 1.25, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "limes", "date": "2026-04-11", "price": 10.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "grapefruit", "date": "2026-04-11", "price": 4.00, "note": "Initial import from buying spreadsheet" },
-  { "ingredientId": "coffee", "date": "2026-04-11", "price": 4.00, "note": "Initial import from buying spreadsheet" }
+  {
+    "ingredientId": "gin",
+    "date": "2026-04-11",
+    "price": 22.5,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "vodka",
+    "date": "2026-04-11",
+    "price": 18.5,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "rye",
+    "date": "2026-04-11",
+    "price": 28.02,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "campari",
+    "date": "2026-04-11",
+    "price": 15.17,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "cocchi-americano",
+    "date": "2026-04-11",
+    "price": 19.8,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "cocchi-torino",
+    "date": "2026-04-11",
+    "price": 18.05,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "carpano-antica",
+    "date": "2026-04-11",
+    "price": 24.7,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "kahlua",
+    "date": "2026-04-11",
+    "price": 13.43,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "cynar",
+    "date": "2026-04-11",
+    "price": 12.85,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "akvavit",
+    "date": "2026-04-11",
+    "price": 27.93,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "tequila-rep",
+    "date": "2026-04-11",
+    "price": 26.88,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "calvados",
+    "date": "2026-04-11",
+    "price": 18.95,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "havana-club-7",
+    "date": "2026-04-11",
+    "price": 21.05,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "noilly-prat",
+    "date": "2026-04-11",
+    "price": 12.77,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "manzanilla",
+    "date": "2026-04-11",
+    "price": 9.75,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "lillet-blanc",
+    "date": "2026-04-11",
+    "price": 14.42,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "mount-gay",
+    "date": "2026-04-11",
+    "price": 17.46,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "pisco-aba",
+    "date": "2026-04-11",
+    "price": 14.78,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "bimber-rum",
+    "date": "2026-04-11",
+    "price": 23.67,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "bimber-vodka",
+    "date": "2026-04-11",
+    "price": 27.8,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "cotswold-whisky",
+    "date": "2026-04-11",
+    "price": 20,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "fusion-fm-gin",
+    "date": "2026-04-11",
+    "price": 16.634,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "yuzu-sake",
+    "date": "2026-04-11",
+    "price": 21.94,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "triple-sec",
+    "date": "2026-04-11",
+    "price": 21.62,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "triple-dist-vodka",
+    "date": "2026-04-11",
+    "price": 20,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "old-tom-gin",
+    "date": "2026-04-11",
+    "price": 20.74,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "fino-sherry",
+    "date": "2026-04-11",
+    "price": 9.64,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "punt-e-mes",
+    "date": "2026-04-11",
+    "price": 10.96,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "lychee",
+    "date": "2026-04-11",
+    "price": 17.85,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "epsolon-blanco",
+    "date": "2026-04-11",
+    "price": 23.8,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "agave-syrup",
+    "date": "2026-04-11",
+    "price": 6,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "la-fee-absinthe",
+    "date": "2026-04-11",
+    "price": 45.99,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "heering-cherry",
+    "date": "2026-04-11",
+    "price": 22.25,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "luxardo-maraschino",
+    "date": "2026-04-11",
+    "price": 27.03,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "mezcal",
+    "date": "2026-04-11",
+    "price": 35.8,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "aperol",
+    "date": "2026-04-11",
+    "price": 13.1,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "yellow-chartreuse",
+    "date": "2026-04-11",
+    "price": 36.68,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "chinotto-nero",
+    "date": "2026-04-11",
+    "price": 22.57,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "blue-curacao",
+    "date": "2026-04-11",
+    "price": 11.73,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "ginjo-sake",
+    "date": "2026-04-11",
+    "price": 9.98,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "sours",
+    "date": "2026-04-11",
+    "price": 5,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "monin-grenadine",
+    "date": "2026-04-11",
+    "price": 9.35,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "lemons",
+    "date": "2026-04-11",
+    "price": 1.25,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "limes",
+    "date": "2026-04-11",
+    "price": 10,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "grapefruit",
+    "date": "2026-04-11",
+    "price": 4,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "coffee",
+    "date": "2026-04-11",
+    "price": 4,
+    "note": "Initial import from buying spreadsheet"
+  },
+  {
+    "ingredientId": "campari",
+    "date": "2026-04-12",
+    "price": 16,
+    "note": "Test price change"
+  }
 ]
