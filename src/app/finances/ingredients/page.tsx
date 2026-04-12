@@ -30,9 +30,17 @@ export default function IngredientsPage() {
             Ingredient Master
           </h1>
           <p className="text-sm max-w-2xl" style={{ color: "#4a4a4a" }}>
-            The canonical list of everything we buy. Every price change is stamped with a date and stored
-            in an append-only history. Click any ingredient to model a price change and see which drinks
-            it affects before you save.
+            The canonical list of everything we buy. Every price change is stamped with a date and
+            stored in an append-only history. Click any ingredient to model a price change and see
+            which drinks it affects before you save. See also{" "}
+            <a
+              href="/finances/profitability"
+              className="underline transition-colors hover:text-[#c9a227]"
+              style={{ color: "#777" }}
+            >
+              COGS Reconciliation
+            </a>{" "}
+            for the full SKU-level view.
           </p>
         </div>
 

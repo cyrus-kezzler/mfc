@@ -20,10 +20,10 @@ const MODULES: HubModule[] = [
   {
     href: "/finances/profitability",
     label: "Profitability",
-    sublabel: "COGS & margin",
+    sublabel: "COGS reconciliation",
     description:
-      "Per-SKU cost of goods, margin, and retail pricing across 500ml and 250ml formats. Wires into ingredient master.",
-    status: "soon",
+      "Derived liquid COGS from the ingredient master vs hardcoded values. Click any SKU for the full ingredient-level breakdown.",
+    status: "live",
   },
   {
     href: "/finances/channel-pnl",
