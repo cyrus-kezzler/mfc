@@ -1,10 +1,8 @@
 import Nav from "@/components/Nav";
 import { getShopifyRevenueData, getRecentShopifyOrders } from "@/lib/shopify";
-import {
-  STATIC_TOP_CUSTOMERS,
-  STATIC_ALERTS,
-} from "@/lib/static-data";
+import { STATIC_ALERTS } from "@/lib/static-data";
 import qbRevenue from "@/data/qb-revenue.json";
+import qbCustomers from "@/data/qb-customers.json";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -52,12 +50,16 @@ export default async function RevenuePage() {
   const dtcYTD = shopifyData?.totalRevenue ?? (qbShopify + qbAmazon);
   const totalYTD = qbTotalYTD;
 
-  // Concentration
-  const topTwoRevenue =
-    STATIC_TOP_CUSTOMERS[0].revenue2024 + STATIC_TOP_CUSTOMERS[1].revenue2024;
-  const totalWholesale2024 = STATIC_TOP_CUSTOMERS.reduce((s, c) => s + c.revenue2024, 0);
-  const concentrationPct =
-    totalWholesale2024 > 0 ? (topTwoRevenue / totalWholesale2024) * 100 : 0;
+  // Partner data from QB Sales by Customer Summary
+  const partners = qbCustomers.partners as Record<string, { revenue: Record<string, number>; total: number; subEntities?: Record<string, Record<string, number>> }>;
+  const partnerOrder = ["Cripps & Co.", "Fortnum & Mason", "Bayley & Sage", "Dugard & Daughters", "Italo", "Mother Superior", "Macknade"];
+  const latestPeriod = "2025-26"; // current fiscal period
+  const prevPeriod = "2024-25";
+
+  // Concentration: Cripps + F&M as % of all partner revenue in latest period
+  const allPartnerRevLatest = partnerOrder.reduce((s, p) => s + (partners[p]?.revenue?.[latestPeriod] ?? 0), 0);
+  const topTwoLatest = (partners["Cripps & Co."]?.revenue?.[latestPeriod] ?? 0) + (partners["Fortnum & Mason"]?.revenue?.[latestPeriod] ?? 0);
+  const concentrationPct = allPartnerRevLatest > 0 ? (topTwoLatest / allPartnerRevLatest) * 100 : 0;
 
   return (
     <div className="min-h-screen" style={{ background: "#080808" }}>
@@ -128,34 +130,34 @@ export default async function RevenuePage() {
         </div>
 
         {/* Wholesale Partners */}
-        <Section title="Wholesale Partners" badge="Static">
+        <Section title="Wholesale Partners" badge="QB">
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
-            {STATIC_TOP_CUSTOMERS.map((c) => (
-              <div
-                key={c.name}
-                className="rounded-lg p-4"
-                style={{ background: "#111", border: "1px solid #1a1a1a" }}
-              >
-                <p
-                  className="text-[9px] uppercase tracking-[0.12em] mb-1 truncate"
-                  style={{ color: "#555" }}
+            {partnerOrder.map((pName) => {
+              const p = partners[pName];
+              const latest = p?.revenue?.[latestPeriod] ?? 0;
+              const prev = p?.revenue?.[prevPeriod] ?? 0;
+              const trend = prev > 0 ? ((latest - prev) / prev) * 100 : null;
+              return (
+                <div
+                  key={pName}
+                  className="rounded-lg p-4"
+                  style={{ background: "#111", border: "1px solid #1a1a1a" }}
                 >
-                  {c.name}
-                </p>
-                <p
-                  className="text-lg font-bold tabular-nums"
-                  style={{ color: c.revenue2024 > 0 ? "#f0f0f0" : "#333" }}
-                >
-                  {c.revenue2024 > 0 ? fmtShort(c.revenue2024) : "—"}
-                </p>
-                <p className="text-[10px] tabular-nums mt-1" style={{ color: "#555" }}>
-                  {c.revenue2024 > 0 ? "2024" : "No data yet"}
-                </p>
-              </div>
-            ))}
+                  <p className="text-[9px] uppercase tracking-[0.12em] mb-1 truncate" style={{ color: "#555" }}>
+                    {pName}
+                  </p>
+                  <p className="text-lg font-bold tabular-nums" style={{ color: latest > 0 ? "#f0f0f0" : "#333" }}>
+                    {latest > 0 ? fmtShort(latest) : "—"}
+                  </p>
+                  <p className="text-[10px] tabular-nums mt-1" style={{ color: trend === null ? "#555" : (trend ?? 0) >= 0 ? "#4fae8f" : "#e07a5f" }}>
+                    {latest > 0 ? "2025-26 YTD" : "No orders"}{trend !== null ? ` · ${pct(trend)}` : ""}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
-          <TopCustomersTable />
+          <PartnerHistoryTable partners={partners} partnerOrder={partnerOrder} periods={qbCustomers.periods as string[]} />
         </Section>
 
         {/* Recent Shopify Orders */}
@@ -279,60 +281,59 @@ function AlertBanner({ type, title, message }: { type: "warning" | "info"; title
 
 // ─── Tables ─────────────────────────────────────────────────────────────────
 
-function TopCustomersTable() {
+function PartnerHistoryTable({
+  partners,
+  partnerOrder,
+  periods,
+}: {
+  partners: Record<string, { revenue: Record<string, number>; total: number }>;
+  partnerOrder: string[];
+  periods: string[];
+}) {
+  // Show most recent 5 periods + all-time total
+  const displayPeriods = periods.slice(-5);
+
   return (
-    <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
-      <thead>
-        <tr>
-          {["Customer", "2024", "2023", "2022", "Trend"].map((col) => (
-            <th
-              key={col}
-              className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold"
-              style={{
-                textAlign: col === "Customer" ? "left" : "right",
-                color: "#555",
-                borderBottom: "1px solid #1c1c1c",
-              }}
-            >
-              {col}
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold text-left" style={{ color: "#555", borderBottom: "1px solid #1c1c1c" }}>
+              Partner
             </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {STATIC_TOP_CUSTOMERS.map((c) => {
-          const trend =
-            c.revenue2023 > 0
-              ? ((c.revenue2024 - c.revenue2023) / c.revenue2023) * 100
-              : null;
-          return (
-            <tr key={c.name} style={{ borderBottom: "1px solid #141414" }}>
-              <td className="px-3 py-3" style={{ color: "#cfcfcf" }}>
-                {c.name}
-              </td>
-              <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: c.revenue2024 > 0 ? "#f0f0f0" : "#333" }}>
-                {c.revenue2024 > 0 ? fmt(c.revenue2024) : "—"}
-              </td>
-              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#777" }}>
-                {c.revenue2023 > 0 ? fmt(c.revenue2023) : "—"}
-              </td>
-              <td className="px-3 py-3 text-right tabular-nums" style={{ color: "#555" }}>
-                {c.revenue2022 > 0 ? fmt(c.revenue2022) : "—"}
-              </td>
-              <td
-                className="px-3 py-3 text-right tabular-nums text-xs"
-                style={{
-                  color:
-                    trend === null ? "#333" : trend >= 0 ? "#4fae8f" : "#e07a5f",
-                }}
-              >
-                {trend === null ? "—" : pct(trend)}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+            {displayPeriods.map((p) => (
+              <th key={p} className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold text-right whitespace-nowrap" style={{ color: "#555", borderBottom: "1px solid #1c1c1c" }}>
+                {p}
+              </th>
+            ))}
+            <th className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold text-right" style={{ color: "#c9a227", borderBottom: "1px solid #1c1c1c" }}>
+              All-time
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {partnerOrder.map((pName) => {
+            const p = partners[pName];
+            return (
+              <tr key={pName} style={{ borderBottom: "1px solid #141414" }}>
+                <td className="px-3 py-3" style={{ color: "#cfcfcf" }}>{pName}</td>
+                {displayPeriods.map((period) => {
+                  const val = p?.revenue?.[period] ?? 0;
+                  return (
+                    <td key={period} className="px-3 py-3 text-right tabular-nums" style={{ color: val > 0 ? "#f0f0f0" : "#333" }}>
+                      {val > 0 ? fmt(val) : "—"}
+                    </td>
+                  );
+                })}
+                <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: "#c9a227" }}>
+                  {fmt(p?.total ?? 0)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
