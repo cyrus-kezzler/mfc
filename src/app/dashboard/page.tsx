@@ -414,7 +414,7 @@ function LiveOrdersTable({
     <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
       <thead>
         <tr>
-          {["Order", "Date", "Customer", "Total", "Status"].map((col) => (
+          {["Order", "Date", "Items", "Total", "Status"].map((col) => (
             <th
               key={col}
               className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-semibold"
@@ -430,39 +430,43 @@ function LiveOrdersTable({
         </tr>
       </thead>
       <tbody>
-        {orders.map((order) => (
-          <tr key={order.id} style={{ borderBottom: "1px solid #141414" }}>
-            <td className="px-3 py-3 font-mono" style={{ color: "#c9a227" }}>
-              {order.name}
-            </td>
-            <td className="px-3 py-3" style={{ color: "#777" }}>
-              {new Date(order.created_at).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-              })}
-            </td>
-            <td className="px-3 py-3" style={{ color: "#cfcfcf" }}>
-              {order.email?.split("@")[0] ?? "—"}
-            </td>
-            <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: "#f0f0f0" }}>
-              {fmt(parseFloat(order.total_price))}
-            </td>
-            <td className="px-3 py-3">
-              <span
-                className="px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase"
-                style={{
-                  background:
-                    order.financial_status === "paid"
-                      ? "rgba(79,174,143,0.1)"
-                      : "rgba(85,85,85,0.1)",
-                  color: order.financial_status === "paid" ? "#4fae8f" : "#888",
-                }}
-              >
-                {order.financial_status?.toUpperCase()}
-              </span>
-            </td>
-          </tr>
-        ))}
+        {orders.map((order) => {
+          const items = (order as unknown as { line_items?: Array<{ title: string; quantity: number }> }).line_items ?? [];
+          const itemSummary = items.map((i) => `${i.quantity > 1 ? `${i.quantity}× ` : ""}${i.title}`).join(", ");
+          return (
+            <tr key={order.id} style={{ borderBottom: "1px solid #141414" }}>
+              <td className="px-3 py-3 font-mono" style={{ color: "#c9a227" }}>
+                {order.name}
+              </td>
+              <td className="px-3 py-3 whitespace-nowrap" style={{ color: "#777" }}>
+                {new Date(order.created_at).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                })}
+              </td>
+              <td className="px-3 py-3 text-xs" style={{ color: "#cfcfcf", maxWidth: 300 }}>
+                <span className="line-clamp-2">{itemSummary || "—"}</span>
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums font-semibold whitespace-nowrap" style={{ color: "#f0f0f0" }}>
+                {fmt(parseFloat(order.total_price))}
+              </td>
+              <td className="px-3 py-3">
+                <span
+                  className="px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase"
+                  style={{
+                    background:
+                      order.financial_status === "paid"
+                        ? "rgba(79,174,143,0.1)"
+                        : "rgba(85,85,85,0.1)",
+                    color: order.financial_status === "paid" ? "#4fae8f" : "#888",
+                  }}
+                >
+                  {order.financial_status?.toUpperCase()}
+                </span>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
