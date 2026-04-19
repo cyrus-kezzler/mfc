@@ -121,10 +121,6 @@ URL: mfc.london/products/rumoldfashioned
 
 LIQUEURS
 
-**Kecello Grapefruit Liqueur** | From £5 (50ml) / £16 (250ml) / £26.50 (500ml)
-A bright grapefruit liqueur, first made in 2017. Beautiful on its own or with soda. A Myatt's Fields original.
-URL: mfc.london/products/kecello
-
 **Limoncello** | From £3.50 (50ml) / £10.85 (250ml) / £17.85 (500ml)
 10 times the lemons, half the sugar of the traditional recipe. Proper Limoncello.
 URL: mfc.london/products/limoncello
