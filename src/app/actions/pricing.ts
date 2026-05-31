@@ -85,6 +85,7 @@ export async function updateRrpOverride(
     );
 
     revalidatePath("/finances/pricing");
+    revalidatePath("/finances/rrp");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
@@ -99,6 +100,7 @@ export async function resetRrpOverrides(): Promise<UpdateRrpResult> {
     const file = await ghGet(RRP_PATH);
     await ghPut(RRP_PATH, "{}\n", file.sha, "Reset all RRP overrides to defaults\n\nSource: Back Bar pricing editor");
     revalidatePath("/finances/pricing");
+    revalidatePath("/finances/rrp");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
@@ -135,6 +137,7 @@ export async function updateWholesaleOverride(
     );
 
     revalidatePath("/finances/pricing");
+    revalidatePath("/finances/rrp");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
@@ -154,6 +157,7 @@ export async function resetWholesaleOverrides(): Promise<UpdateRrpResult> {
       "Reset all wholesale overrides to defaults\n\nSource: Back Bar pricing editor",
     );
     revalidatePath("/finances/pricing");
+    revalidatePath("/finances/rrp");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
