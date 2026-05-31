@@ -34,6 +34,22 @@ const MODULES: HubModule[] = [
     status: "live",
   },
   {
+    href: "/finances/rrp",
+    label: "RRP",
+    sublabel: "What we charge",
+    description:
+      "The canonical recommended retail price across our own channels. Position-led, click-to-edit, with the wholesale floor, retailer test, headroom, and Amazon price all derived automatically.",
+    status: "live",
+  },
+  {
+    href: "/finances/pnl",
+    label: "Per-drink P&L",
+    sublabel: "What we earn",
+    description:
+      "Contribution margin per drink by channel under three cost scenarios — D2C Shopify vs B2B Wholesale, with basket, density, and the free-shipping hurdle. Scenario-aware so sunk-inventory effects don't hide.",
+    status: "live",
+  },
+  {
     href: "/finances/channel-pnl",
     label: "Channel P&L",
     sublabel: "Every partner × every drink",

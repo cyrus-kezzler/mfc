@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useTransition } from "react";
+import Link from "next/link";
 import {
   PricingConfig,
   PricingProduct,
@@ -220,10 +221,14 @@ export default function PricingClient({
             fontWeight: 300,
           }}
         >
-          COGS derived live from the ingredient master (liquid plus labour); wholesale is COGS
-          times markup, plus shipping. Adjust the assumptions inline. Both RRP and wholesale are
-          click-to-edit — overrides persist to git across every device, and the retailer test runs
-          against whatever wholesale is shown.
+          What stockists pay. COGS derived live from the ingredient master (liquid plus labour);
+          wholesale is COGS times markup, plus shipping. Both RRP and wholesale are click-to-edit —
+          overrides persist to git across every device, and the retailer test runs against whatever
+          wholesale is shown. RRP is also managed in the{" "}
+          <Link href="/finances/rrp" style={{ color: COLOR.accent, textDecoration: "underline", textUnderlineOffset: 3 }}>
+            RRP page
+          </Link>
+          ; edits made here and there stay in sync.
         </p>
       </section>
 
@@ -381,6 +386,20 @@ export default function PricingClient({
                   }}
                 >
                   {label}
+                  {label === "RRP" && (
+                    <Link
+                      href="/finances/rrp"
+                      style={{
+                        marginLeft: 6,
+                        color: COLOR.accent,
+                        textDecoration: "none",
+                        fontSize: 9,
+                      }}
+                      title="Manage RRP on the RRP page"
+                    >
+                      →
+                    </Link>
+                  )}
                 </th>
               ))}
             </tr>
