@@ -10,6 +10,7 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/api/choose-six') ||
     pathname.startsWith('/api/shopify/theme-asset') ||
     pathname.startsWith('/choose-six-widget')
+    pathname.startsWith('/api/mcp') ||
   ) {
     return NextResponse.next()
   }
