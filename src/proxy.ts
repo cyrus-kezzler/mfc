@@ -4,13 +4,13 @@ import type { NextRequest } from 'next/server'
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (
+if (
     pathname === '/login' ||
     pathname.startsWith('/api/dick') ||
     pathname.startsWith('/api/choose-six') ||
     pathname.startsWith('/api/shopify/theme-asset') ||
-    pathname.startsWith('/choose-six-widget')
     pathname.startsWith('/api/mcp') ||
+    pathname.startsWith('/choose-six-widget')
   ) {
     return NextResponse.next()
   }
