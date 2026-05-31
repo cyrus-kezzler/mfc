@@ -10,6 +10,7 @@ if (
     pathname.startsWith('/api/choose-six') ||
     pathname.startsWith('/api/shopify/theme-asset') ||
     pathname.startsWith('/api/mcp') ||
+    pathname === '/.well-known/oauth-authorization-server' ||
     pathname.startsWith('/choose-six-widget')
   ) {
     return NextResponse.next()
