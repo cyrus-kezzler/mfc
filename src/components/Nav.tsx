@@ -19,8 +19,15 @@ export const NAV_SECTIONS: NavSection[] = [
   { label: "Drinks", href: "/drinks", match: ["/drinks", "/recipes"] },
 ];
 
+const SPEED_RAIL_TRUTHY = new Set(["1", "true", "TRUE", "yes", "on"]);
+const ERP_SECTION: NavSection = { label: "ERP", href: "/erp", match: ["/erp"] };
+
 export default function Nav() {
   const path = usePathname();
+  const erpVisible = SPEED_RAIL_TRUTHY.has(
+    process.env.NEXT_PUBLIC_SPEED_RAIL_ENABLED ?? "",
+  );
+  const sections = erpVisible ? [...NAV_SECTIONS, ERP_SECTION] : NAV_SECTIONS;
 
   return (
     <nav
@@ -89,7 +96,7 @@ export default function Nav() {
             overflowX: "auto",
           }}
         >
-          {NAV_SECTIONS.map((s) => {
+          {sections.map((s) => {
             const active = s.match.some((m) => path === m || path.startsWith(m + "/"));
             return (
               <NavLink key={s.href} href={s.href} active={active}>

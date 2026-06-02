@@ -1,0 +1,21 @@
+name,type,uom,pack_size,pack_cost,abv,notes
+Gin (in-house),ingredient,ml,1000,22.50,41.2,Base spirit; in-house Fusion blend
+Vodka (Bimber),ingredient,ml,1000,27.80,37.5,Bimber single-estate vodka
+Rye,ingredient,ml,700,28.02,45.0,For Manhattans and rye-forward builds
+Campari,ingredient,ml,700,15.17,25.0,
+Cocchi Torino,ingredient,ml,750,18.05,16.5,Sweet vermouth — primary
+Lillet Blanc,ingredient,ml,750,14.42,,For Vespers
+Kahlua,ingredient,ml,700,13.43,16.5,For Espresso Martini and Cold Brew Negroni
+Lemons (juice),ingredient,ml,1000,1.25,,100 lemons @ £0.25 makes 20L
+Limes (juice),ingredient,ml,1000,10.00,,40 limes makes 1L
+Sours base,ingredient,ml,1000,5.00,,House-made citrus/sugar base; promote to sub-recipe in v1.5
+250ml bottle,dry_good,each,1,0.62,,Standard 250ml glass
+500ml bottle,dry_good,each,1,0.54,,Standard 500ml glass
+50ml miniature bottle,dry_good,each,1,0.21,,For Choose Six and Martini Flight
+250ml back label,dry_good,each,1,0.32,,Pre-printed; bottle serial stamped per unit
+F&M 350ml bottle,dry_good,each,1,1.12,,F&M-spec bottle
+Choose Six outer box (6×500ml),packaging,each,1,0.55,,Six-bottle gift carton
+Single-bottle shipping carton,packaging,each,1,1.30,,One-bottle ship-out
+Inbound 1-box,packaging,each,1,0.30,,Single-unit inbound carton
+F&M 12-box outer carton,packaging,each,1,1.35,,12 × 350ml outer for F&M dispatch
+50ml mini outer box,packaging,each,1,0.46,,Outer for Choose Six and Martini Flight
