@@ -82,10 +82,9 @@ and trusted. `DATABASE_URL` must be set in the production env before merging.
 
 ### Open items to confirm (from the brief, before go-live)
 
-- **F&M Vesper percentages** — renormalised to Gin 60.6 / Vodka 10.1 / Lillet
-  10.1 / Cocchi Americano 10.1 / Water 9.1 (preserves the 6:1:1:1 spirit base).
-  The spreadsheet used pre-water percentages, which is mathematically ambiguous —
-  confirm the exact figures.
+- ~~F&M Vesper percentages~~ **Confirmed (2026-06-02):** ratio 6:1:1:1:1
+  (Gin:Vodka:Lillet:Cocchi:Water) = Gin 60 / Vodka 10 / Lillet 10 / Cocchi
+  Americano 10 / Water 10.
 - **Placeholder prices** on the 11 net-new components (Scratch, Espresso, 1:1
   Sugar Syrup, Mozart, Jerez, Black Bottle, Apple Juice, Oat Milk, Shipwreck,
   Fernet, Maple Syrup) and Water (£0). Correct them via the price-history page as

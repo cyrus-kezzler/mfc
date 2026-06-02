@@ -176,9 +176,9 @@ const RECIPE_SEED: RecipeSeed[] = [
   { drinkSlug: "vesper", clientSlug: "mfc", lines: [["Gin (in-house)", 66.7], ["Vodka (Bimber)", 11.1], ["Lillet Blanc", 11.1], ["Cocchi Americano", 11.1]] },
 
   // — F&M —
-  // NOTE: F&M Vesper renormalised from "MFC Vesper + 10% water"; figures flagged
-  // for Cyrus to confirm (brief §4 note). Preserves the 6:1:1:1 spirit ratio.
-  { drinkSlug: "vesper", clientSlug: "fm", lines: [["Gin (in-house)", 60.6], ["Vodka (Bimber)", 10.1], ["Lillet Blanc", 10.1], ["Cocchi Americano", 10.1], ["Water", 9.1]] },
+  // F&M Vesper: ratio 6:1:1:1:1 (Gin:Vodka:Lillet:Cocchi:Water) = 10 parts × 10%.
+  // Confirmed by Cyrus 2026-06-02.
+  { drinkSlug: "vesper", clientSlug: "fm", lines: [["Gin (in-house)", 60], ["Vodka (Bimber)", 10], ["Lillet Blanc", 10], ["Cocchi Americano", 10], ["Water", 10]] },
   { drinkSlug: "espresso-daiquiri", clientSlug: "fm", lines: [["Scratch (white rum)", 33], ["Kahlua", 33], ["Espresso", 34]] },
   { drinkSlug: "robin-roy", clientSlug: "fm", lines: [["Cotswold Whisky", 56], ["Cocchi Torino", 28], ["Water", 16]] },
   { drinkSlug: "clementini", clientSlug: "fm", lines: [["Gin (in-house)", 45], ["Chinotto Nero", 25], ["Sours base", 25], ["Agave Syrup", 5]] },
