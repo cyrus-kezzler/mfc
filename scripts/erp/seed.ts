@@ -23,6 +23,7 @@ import {
   SETTING_KEYS,
   type NewComponent,
 } from "../../src/db/schema";
+import { seedRecipeLayer } from "./seed-recipes";
 
 type Row = {
   name: string;
@@ -130,6 +131,7 @@ async function main() {
 
   await seedSettings();
   await seedComponents();
+  await seedRecipeLayer();
 
   console.log("\nDone. Next: open /erp once SPEED_RAIL_ENABLED=1 is set.");
 }
