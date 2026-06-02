@@ -19,6 +19,39 @@ export function dbConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL);
 }
 
+/** Current recipe lines (component id + percentage) for a (drink, client), or
+ * null if that pair has no current recipe. Feeds the editor and the "add from
+ * MFC default" prefill. */
+export async function getRecipeLines(
+  drinkSlug: string,
+  clientSlug: string,
+): Promise<{ componentId: number; percentage: number }[] | null> {
+  const [row] = await db
+    .select({ recipeId: recipes.id })
+    .from(recipes)
+    .innerJoin(drinks, eq(drinks.id, recipes.drinkId))
+    .innerJoin(clients, eq(clients.id, recipes.clientId))
+    .where(and(eq(drinks.slug, drinkSlug), eq(clients.slug, clientSlug), eq(recipes.isCurrent, true)))
+    .limit(1);
+  if (!row) return null;
+
+  const lines = await db
+    .select({ componentId: recipeLines.componentId, percentage: recipeLines.percentage })
+    .from(recipeLines)
+    .where(eq(recipeLines.recipeId, row.recipeId))
+    .orderBy(asc(recipeLines.displayOrder));
+  return lines.map((l) => ({ componentId: l.componentId, percentage: Number(l.percentage) }));
+}
+
+/** Active ingredient components, for the recipe-editor dropdown. */
+export async function listIngredientComponents() {
+  return db
+    .select({ id: components.id, name: components.name })
+    .from(components)
+    .where(and(eq(components.type, "ingredient"), eq(components.active, true)))
+    .orderBy(asc(components.name));
+}
+
 export type ClientRow = { id: number; slug: string; name: string; isDefault: boolean; displayOrder: number };
 
 /** All clients, ordered for pickers/tabs. */
