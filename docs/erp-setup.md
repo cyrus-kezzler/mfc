@@ -39,8 +39,14 @@ npm run db:seed
 Inserts:
 - 3 system settings (wastage 2%, labour £15/hr, next serial 35001).
 - 20 components (10 ingredients, 5 dry goods, 5 packaging) from `seed/components.csv`.
+- The **Drinks / Recipes layer** (`scripts/erp/seed-recipes.ts`):
+  - 49 ingredient components total — the legacy buying-spreadsheet master
+    migrated in (real prices), 11 net-new (placeholder prices), plus a £0 `Water`.
+  - 3 clients (MFC default, F&M, Cripps), 25 drinks (Clementini archived).
+  - 28 recipes (19 MFC, 7 F&M, 2 Cripps), percentage lines validated to sum 100.
+  - 29 SKUs migrated from the legacy GTIN map, with `drink_id` wired.
 
-Idempotent — re-running won't duplicate anything.
+Idempotent — re-running won't duplicate anything or bump recipe versions.
 
 ## 4. Run
 
@@ -55,6 +61,38 @@ Routes:
 - `/erp/suppliers` — list + new + edit.
 - `/erp/components` — list grouped by type + new + edit, with price history per component.
 - `/erp/settings` — the three system settings.
+
+Drinks / Recipes / Calculator (these are top-nav pages, **not** flag-gated, but
+they read from Postgres — see the cutover note below):
+- `/drinks` — index of every drink, client-recipe badges, last-updated.
+- `/drinks/[slug]` — client tabs (MFC first), current recipe lines, version
+  history, "Edit" and "+ Add <client> recipe".
+- `/drinks/[slug]/edit` / `/new` — recipe editor (versioned saves).
+- `/calculator` — client → drink → litres → ingredient quantities + cost,
+  reading the live recipe.
+
+### Cutover note (important)
+
+`/drinks` and `/calculator` now read recipes from Postgres — they no longer
+carry any embedded recipe data. They degrade to a "set DATABASE_URL" notice when
+no connection string is present, so a deploy without Neon won't white-screen, but
+they are non-functional until the DB is provisioned, migrated, and seeded. Per
+the brief, ship the calculator cutover **last**, once the tables are populated
+and trusted. `DATABASE_URL` must be set in the production env before merging.
+
+### Open items to confirm (from the brief, before go-live)
+
+- **F&M Vesper percentages** — renormalised to Gin 60.6 / Vodka 10.1 / Lillet
+  10.1 / Cocchi Americano 10.1 / Water 9.1 (preserves the 6:1:1:1 spirit base).
+  The spreadsheet used pre-water percentages, which is mathematically ambiguous —
+  confirm the exact figures.
+- **Placeholder prices** on the 11 net-new components (Scratch, Espresso, 1:1
+  Sugar Syrup, Mozart, Jerez, Black Bottle, Apple Juice, Oat Milk, Shipwreck,
+  Fernet, Maple Syrup) and Water (£0). Correct them via the price-history page as
+  real invoices arrive.
+- **Recipe count** — the brief header says "29 recipes across 27 drinks"; its
+  tables enumerate 28 recipes across 25 drinks, which is what's seeded. Worth a
+  reconcile if two are genuinely missing.
 
 ## 5. Vercel
 
