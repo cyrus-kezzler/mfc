@@ -15,6 +15,13 @@
       "when": 1778134837474,
       "tag": "0001_slice_1_pack_format",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780394104580,
+      "tag": "0002_gray_firelord",
+      "breakpoints": true
     }
   ]
 }
