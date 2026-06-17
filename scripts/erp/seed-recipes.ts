@@ -157,7 +157,12 @@ type RecipeSeed = {
 const RECIPE_SEED: RecipeSeed[] = [
   // — MFC —
   { drinkSlug: "baby-otis", clientSlug: "mfc", lines: [["Havana Club 7", 50], ["Cocchi Torino", 25], ["Cocchi Americano", 25]] },
-  { drinkSlug: "cold-brew-negroni", clientSlug: "mfc", lines: [["Gin (in-house)", 33], ["Cocchi Torino", 33], ["Campari", 33], ["Coffee", 1]] },
+  {
+    drinkSlug: "cold-brew-negroni",
+    clientSlug: "mfc",
+    lines: [["Gin (in-house)", 33], ["Cocchi Torino", 33], ["Campari", 33], ["Coffee", 1]],
+    method: "Infuse with 3 coffee beans per 700ml for 20 minutes before production",
+  },
   { drinkSlug: "corpse-reviver", clientSlug: "mfc", lines: [["Gin (in-house)", 25], ["Lillet Blanc", 25], ["Blue Curaçao", 25], ["Sours base", 25]] },
   { drinkSlug: "dempsey", clientSlug: "mfc", lines: [["Gin (in-house)", 48], ["Calvados", 48], ["La Fée Absinthe", 2], ["Monin Grenadine", 2]] },
   { drinkSlug: "desert-negroni", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 33.3], ["Cocchi Torino", 33.3], ["Campari", 33.4]] },
