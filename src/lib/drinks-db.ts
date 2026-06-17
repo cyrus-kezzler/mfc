@@ -242,6 +242,7 @@ export type CalcRecipe = {
   drinkSlug: string;
   drinkName: string;
   clientSlug: string;
+  method: string | null;
   lines: { componentName: string; percentage: number; unitCost: number; uom: string }[];
   skus: { sizeMl: number; code: string }[];
 };
@@ -250,7 +251,7 @@ export type CalcRecipe = {
  * drink's SKU sizes — everything the calculator needs to price a batch. */
 export async function getCalcRecipe(clientSlug: string, drinkSlug: string): Promise<CalcRecipe | null> {
   const [row] = await db
-    .select({ recipeId: recipes.id, drinkId: drinks.id, drinkName: drinks.name })
+    .select({ recipeId: recipes.id, drinkId: drinks.id, drinkName: drinks.name, method: recipes.method })
     .from(recipes)
     .innerJoin(drinks, eq(drinks.id, recipes.drinkId))
     .innerJoin(clients, eq(clients.id, recipes.clientId))
@@ -280,6 +281,7 @@ export async function getCalcRecipe(clientSlug: string, drinkSlug: string): Prom
     drinkSlug,
     drinkName: row.drinkName,
     clientSlug,
+    method: row.method,
     lines: lines.map((l) => ({
       componentName: l.componentName,
       percentage: Number(l.percentage),

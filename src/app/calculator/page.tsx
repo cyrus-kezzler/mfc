@@ -192,6 +192,25 @@ function Output({
         {recipe.drinkName} · {litres} L ({targetMl.toLocaleString()} ml)
       </p>
 
+      {/* Production method — shown before the ingredient table so it's read
+          before batching (e.g. infusions that must happen ahead of production). */}
+      {recipe.method && (
+        <div
+          style={{
+            border: `1px solid ${COLOR.rule}`,
+            borderLeft: `3px solid ${COLOR.accent}`,
+            background: COLOR.paperDeep,
+            padding: "14px 16px",
+            margin: "0 0 24px",
+          }}
+        >
+          <h3 style={{ fontSize: 10, color: COLOR.muted, marginBottom: 6, ...smallCaps }}>Method</h3>
+          <p style={{ fontFamily: FONT.serif, fontSize: 15, lineHeight: 1.55, color: COLOR.ink, whiteSpace: "pre-wrap", margin: 0 }}>
+            {recipe.method}
+          </p>
+        </div>
+      )}
+
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, ...tabularNums }}>
         <thead>
           <tr style={{ borderTop: `2px solid ${COLOR.ink}`, borderBottom: `1px solid ${COLOR.ruleBold}` }}>
