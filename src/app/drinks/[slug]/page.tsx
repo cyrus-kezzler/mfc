@@ -159,6 +159,16 @@ function RecipePanel({
         </tbody>
       </table>
 
+      {/* Production method / instructions */}
+      {recipe.method && (
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 10, color: COLOR.muted, ...smallCaps, marginBottom: 8 }}>Method</h3>
+          <p style={{ fontFamily: FONT.serif, fontSize: 15, lineHeight: 1.6, color: COLOR.ink, whiteSpace: "pre-wrap", margin: 0 }}>
+            {recipe.method}
+          </p>
+        </div>
+      )}
+
       {/* Version history */}
       {recipe.history.length > 1 && (
         <details style={{ marginTop: 20 }}>

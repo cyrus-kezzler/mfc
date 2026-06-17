@@ -38,7 +38,10 @@ export default async function NewRecipePage({
 
   // Pre-fill from the MFC default recipe (brief §6). Empty if MFC has none.
   const defaultClient = clients.find((c) => c.isDefault);
-  const prefill = defaultClient ? (await getRecipeLines(slug, defaultClient.slug)) ?? [] : [];
+  const prefill = (defaultClient ? await getRecipeLines(slug, defaultClient.slug) : null) ?? {
+    lines: [],
+    method: null,
+  };
 
   const components = await listIngredientComponents();
   const action = createRecipeForClient.bind(null, slug, clientSlug);
@@ -54,14 +57,15 @@ export default async function NewRecipePage({
           <RecipeEditor
             action={action}
             components={components}
-            initialLines={prefill}
+            initialLines={prefill.lines}
+            initialMethod={prefill.method}
             heading={`Add ${clientRow.name} recipe — ${drink.name}`}
             submitLabel={`Create ${clientRow.name} recipe`}
             cancelHref={`/drinks/${slug}`}
           />
         </div>
         <p style={{ marginTop: 20, fontSize: 12, color: COLOR.muted, fontStyle: "italic" }}>
-          {prefill.length
+          {prefill.lines.length
             ? `Pre-filled from the ${defaultClient?.name} recipe — adjust as needed.`
             : "Starting from a blank recipe."}
         </p>

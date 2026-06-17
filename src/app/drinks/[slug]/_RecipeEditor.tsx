@@ -13,6 +13,7 @@ export function RecipeEditor({
   action,
   components,
   initialLines,
+  initialMethod,
   heading,
   submitLabel,
   cancelHref,
@@ -20,6 +21,7 @@ export function RecipeEditor({
   action: (prev: SaveState, form: FormData) => Promise<SaveState>;
   components: ComponentOption[];
   initialLines: { componentId: number; percentage: number }[];
+  initialMethod?: string | null;
   heading: string;
   submitLabel: string;
   cancelHref: string;
@@ -30,6 +32,7 @@ export function RecipeEditor({
       ? initialLines.map((l) => ({ componentId: String(l.componentId), percentage: String(l.percentage) }))
       : [{ componentId: "", percentage: "" }],
   );
+  const [method, setMethod] = useState(initialMethod ?? "");
 
   const serialized = useMemo(
     () =>
@@ -150,6 +153,25 @@ export function RecipeEditor({
           {state.error}
         </p>
       )}
+
+      {/* Production method / instructions (optional) */}
+      <div style={{ marginTop: 28 }}>
+        <label htmlFor="method" style={labelStyle}>
+          Method
+        </label>
+        <textarea
+          id="method"
+          name="method"
+          value={method}
+          onChange={(e) => setMethod(e.target.value)}
+          rows={4}
+          placeholder="e.g. Infuse the gin with two pickled onions per litre for twenty minutes, then filter and bottle."
+          style={{ ...inputStyle, width: "100%", resize: "vertical", lineHeight: 1.5, fontFamily: FONT.serif }}
+        />
+        <p style={{ marginTop: 6, fontSize: 12, color: COLOR.muted, fontStyle: "italic" }}>
+          Free-text prep notes — infusions, filtering, anything beyond the ingredient ratios. Optional.
+        </p>
+      </div>
 
       <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
         <button type="submit" disabled={!canSave || isPending} style={{ ...buttonPrimary, opacity: !canSave || isPending ? 0.5 : 1, cursor: !canSave || isPending ? "not-allowed" : "pointer" }}>

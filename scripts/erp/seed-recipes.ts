@@ -151,6 +151,7 @@ type RecipeSeed = {
   drinkSlug: string;
   clientSlug: string;
   lines: [string, number][];
+  method?: string;
 };
 
 const RECIPE_SEED: RecipeSeed[] = [
@@ -161,7 +162,12 @@ const RECIPE_SEED: RecipeSeed[] = [
   { drinkSlug: "dempsey", clientSlug: "mfc", lines: [["Gin (in-house)", 48], ["Calvados", 48], ["La Fée Absinthe", 2], ["Monin Grenadine", 2]] },
   { drinkSlug: "desert-negroni", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 33.3], ["Cocchi Torino", 33.3], ["Campari", 33.4]] },
   { drinkSlug: "espresso-martini", clientSlug: "mfc", lines: [["Vodka (Bimber)", 33], ["Kahlua", 33], ["Coffee", 34]] },
-  { drinkSlug: "gibson-martini", clientSlug: "mfc", lines: [["Gin (in-house)", 80], ["Noilly Prat", 10], ["Water", 10]] },
+  {
+    drinkSlug: "gibson-martini",
+    clientSlug: "mfc",
+    lines: [["Gin (in-house)", 80], ["Noilly Prat", 10], ["Water", 10]],
+    method: "Infuse with one silverskin pickled onion per 700ml for two hours before production",
+  },
   { drinkSlug: "lychee-martini", clientSlug: "mfc", lines: [["Gin (in-house)", 52.17], ["Lychee Liqueur", 26.09], ["Noilly Prat", 13.04], ["Water", 8.7]] },
   { drinkSlug: "manhattan", clientSlug: "mfc", lines: [["Rye", 66], ["Carpano Antica Formula Vermouth", 17], ["Cocchi Torino", 17]] },
   { drinkSlug: "margarita", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 50], ["Sours base", 22.5], ["Triple Sec", 22.5], ["Agave Syrup", 5]] },
@@ -310,6 +316,7 @@ export async function seedRecipeLayer() {
   // 4. Recipes — only create a v1 when (drink, client) has no current recipe.
   let created = 0;
   let skipped = 0;
+  let backfilled = 0;
   for (const r of RECIPE_SEED) {
     const drinkId = drinkIdBySlug.get(r.drinkSlug);
     const clientId = clientIdBySlug.get(r.clientSlug);
@@ -322,18 +329,25 @@ export async function seedRecipeLayer() {
     }
 
     const current = await db
-      .select({ id: recipes.id })
+      .select({ id: recipes.id, method: recipes.method })
       .from(recipes)
       .where(and(eq(recipes.drinkId, drinkId), eq(recipes.clientId, clientId), eq(recipes.isCurrent, true)))
       .limit(1);
     if (current.length) {
+      // Recipe already present — leave its lines untouched, but backfill the
+      // seed's method onto the current row if it has none yet. Only fills NULLs,
+      // so a method entered/edited in the UI is never clobbered by a re-seed.
+      if (r.method && current[0].method == null) {
+        await db.update(recipes).set({ method: r.method, updatedAt: new Date() }).where(eq(recipes.id, current[0].id));
+        backfilled++;
+      }
       skipped++;
       continue;
     }
 
     const [recipe] = await db
       .insert(recipes)
-      .values({ drinkId, clientId, version: 1, isCurrent: true, createdBy: "seed" })
+      .values({ drinkId, clientId, version: 1, isCurrent: true, method: r.method ?? null, createdBy: "seed" })
       .returning({ id: recipes.id });
 
     await db.insert(recipeLines).values(
@@ -345,7 +359,7 @@ export async function seedRecipeLayer() {
     );
     created++;
   }
-  console.log(`✓ Recipes: ${created} created, ${skipped} already present (idempotent).`);
+  console.log(`✓ Recipes: ${created} created, ${skipped} already present (idempotent), ${backfilled} method backfilled.`);
 
   // 5. SKUs — upsert by code, wire drink_id.
   for (const s of SKU_SEED) {

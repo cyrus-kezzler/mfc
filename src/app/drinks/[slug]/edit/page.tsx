@@ -29,8 +29,8 @@ export default async function EditRecipePage({
   if (!drink) notFound();
 
   const clientRow = (await listAllClients()).find((c) => c.slug === clientSlug);
-  const lines = await getRecipeLines(slug, clientSlug);
-  if (!clientRow || !lines) notFound(); // editing requires an existing recipe
+  const recipe = await getRecipeLines(slug, clientSlug);
+  if (!clientRow || !recipe) notFound(); // editing requires an existing recipe
 
   const components = await listIngredientComponents();
   const action = saveRecipeEdit.bind(null, slug, clientSlug);
@@ -46,7 +46,8 @@ export default async function EditRecipePage({
           <RecipeEditor
             action={action}
             components={components}
-            initialLines={lines}
+            initialLines={recipe.lines}
+            initialMethod={recipe.method}
             heading={`Edit ${clientRow.name} recipe — ${drink.name}`}
             submitLabel="Save new version"
             cancelHref={`/drinks/${slug}?client=${clientSlug}`}

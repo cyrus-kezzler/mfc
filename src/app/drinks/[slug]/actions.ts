@@ -32,6 +32,12 @@ function validateLines(lines: RecipeLineInput[]): string | null {
   return null;
 }
 
+/** Normalise the optional free-text method: trim, and treat blank as null. */
+function parseMethod(raw: FormDataEntryValue | null): string | null {
+  const v = String(raw ?? "").trim();
+  return v === "" ? null : v;
+}
+
 function parseLines(raw: string): RecipeLineInput[] {
   let parsed: unknown;
   try {
@@ -72,6 +78,7 @@ export async function saveRecipeEdit(
   const lines = parseLines(String(form.get("lines") ?? "[]"));
   const err = validateLines(lines);
   if (err) return { error: err };
+  const method = parseMethod(form.get("method"));
 
   const { drinkId, clientId } = await resolveIds(drinkSlug, clientSlug);
 
@@ -83,11 +90,11 @@ export async function saveRecipeEdit(
 
   if (!current) {
     // No current recipe — treat as a fresh create at version 1.
-    await createRecipe(drinkId, clientId, lines, String(form.get("createdBy") ?? "") || null);
+    await createRecipe(drinkId, clientId, lines, method, String(form.get("createdBy") ?? "") || null);
   } else {
     const [next] = await db
       .insert(recipes)
-      .values({ drinkId, clientId, version: current.version + 1, isCurrent: false, createdBy: String(form.get("createdBy") ?? "") || null })
+      .values({ drinkId, clientId, version: current.version + 1, isCurrent: false, method, createdBy: String(form.get("createdBy") ?? "") || null })
       .returning({ id: recipes.id });
 
     await db.insert(recipeLines).values(
@@ -116,6 +123,7 @@ export async function createRecipeForClient(
   const lines = parseLines(String(form.get("lines") ?? "[]"));
   const err = validateLines(lines);
   if (err) return { error: err };
+  const method = parseMethod(form.get("method"));
 
   const { drinkId, clientId } = await resolveIds(drinkSlug, clientSlug);
 
@@ -126,17 +134,17 @@ export async function createRecipeForClient(
     .limit(1);
   if (existing) return { error: "This client already has a recipe for this drink." };
 
-  await createRecipe(drinkId, clientId, lines, String(form.get("createdBy") ?? "") || null);
+  await createRecipe(drinkId, clientId, lines, method, String(form.get("createdBy") ?? "") || null);
 
   revalidatePath(`/drinks/${drinkSlug}`);
   revalidatePath("/drinks");
   redirect(`/drinks/${drinkSlug}?client=${clientSlug}`);
 }
 
-async function createRecipe(drinkId: number, clientId: number, lines: RecipeLineInput[], createdBy: string | null) {
+async function createRecipe(drinkId: number, clientId: number, lines: RecipeLineInput[], method: string | null, createdBy: string | null) {
   const [recipe] = await db
     .insert(recipes)
-    .values({ drinkId, clientId, version: 1, isCurrent: true, createdBy })
+    .values({ drinkId, clientId, version: 1, isCurrent: true, method, createdBy })
     .returning({ id: recipes.id });
   await db.insert(recipeLines).values(
     lines.map((l, i) => ({ recipeId: recipe.id, componentId: l.componentId, percentage: l.percentage.toFixed(3), displayOrder: i })),

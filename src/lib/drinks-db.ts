@@ -19,15 +19,15 @@ export function dbConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL);
 }
 
-/** Current recipe lines (component id + percentage) for a (drink, client), or
- * null if that pair has no current recipe. Feeds the editor and the "add from
- * MFC default" prefill. */
+/** Current recipe lines (component id + percentage) + method for a (drink,
+ * client), or null if that pair has no current recipe. Feeds the editor and the
+ * "add from MFC default" prefill. */
 export async function getRecipeLines(
   drinkSlug: string,
   clientSlug: string,
-): Promise<{ componentId: number; percentage: number }[] | null> {
+): Promise<{ lines: { componentId: number; percentage: number }[]; method: string | null } | null> {
   const [row] = await db
-    .select({ recipeId: recipes.id })
+    .select({ recipeId: recipes.id, method: recipes.method })
     .from(recipes)
     .innerJoin(drinks, eq(drinks.id, recipes.drinkId))
     .innerJoin(clients, eq(clients.id, recipes.clientId))
@@ -40,7 +40,10 @@ export async function getRecipeLines(
     .from(recipeLines)
     .where(eq(recipeLines.recipeId, row.recipeId))
     .orderBy(asc(recipeLines.displayOrder));
-  return lines.map((l) => ({ componentId: l.componentId, percentage: Number(l.percentage) }));
+  return {
+    lines: lines.map((l) => ({ componentId: l.componentId, percentage: Number(l.percentage) })),
+    method: row.method,
+  };
 }
 
 /** Active ingredient components, for the recipe-editor dropdown. */
@@ -117,6 +120,7 @@ export type ClientRecipeView = {
   clientOrder: number;
   recipeId: number;
   version: number;
+  method: string | null;
   lines: RecipeLineView[];
   history: RecipeVersionView[];
 };
@@ -144,6 +148,7 @@ export async function getDrinkDetail(slug: string): Promise<DrinkDetail | null> 
       clientOrder: clients.displayOrder,
       version: recipes.version,
       isCurrent: recipes.isCurrent,
+      method: recipes.method,
       createdAt: recipes.createdAt,
       createdBy: recipes.createdBy,
     })
@@ -186,6 +191,7 @@ export async function getDrinkDetail(slug: string): Promise<DrinkDetail | null> 
         clientOrder: r.clientOrder,
         recipeId: -1,
         version: 0,
+        method: null,
         lines: [],
         history: [],
       };
@@ -195,6 +201,7 @@ export async function getDrinkDetail(slug: string): Promise<DrinkDetail | null> 
     if (r.isCurrent) {
       cv.recipeId = r.recipeId;
       cv.version = r.version;
+      cv.method = r.method;
       cv.lines = linesByRecipe.get(r.recipeId) ?? [];
     }
   }

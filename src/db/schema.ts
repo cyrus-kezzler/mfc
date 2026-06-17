@@ -203,6 +203,9 @@ export const recipes = pgTable(
       .references(() => clients.id, { onDelete: "restrict" }),
     version: integer("version").notNull().default(1),
     isCurrent: boolean("is_current").notNull().default(true),
+    // Free-text production method/instructions (e.g. infusions, filtering).
+    // Versioned with the rest of the recipe — each edit carries it forward.
+    method: text("method"),
     createdBy: text("created_by"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
