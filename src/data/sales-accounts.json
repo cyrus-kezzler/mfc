@@ -103,5 +103,20 @@
     "notes": "Award-winning deli, café & wine bar; premium, gift-led, licensed. First-wave provincial target (26 Jun). Buyer TBD.",
     "created_at": "2026-06-26T14:36:42.233Z",
     "updated_at": "2026-06-26T14:36:42.233Z"
+  },
+  {
+    "id": "ac9d5aee-2d9f-46a4-87cd-5194f6ae5bef",
+    "name": "Cold Bath Deli",
+    "category": "Local",
+    "tier": 1,
+    "city": "Harrogate",
+    "buyer_name": "",
+    "buyer_title": "",
+    "buyer_email": "",
+    "buyer_phone": "",
+    "status": "Researching",
+    "notes": "Independent deli on Cold Bath Road, affluent spa town; gift/treat trade. First-wave provincial target (26 Jun). Buyer TBD.",
+    "created_at": "2026-06-26T14:41:23.425Z",
+    "updated_at": "2026-06-26T14:41:23.425Z"
   }
 ]
