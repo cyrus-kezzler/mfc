@@ -88,5 +88,20 @@
     "notes": "Lusha enrichment timed out twice. Email and phone need follow-up. Worth noting: we are writing to them on their own paper.",
     "created_at": "2026-05-18T16:11:47.188Z",
     "updated_at": "2026-05-18T16:11:47.188Z"
+  },
+  {
+    "id": "825d920a-c102-4b3c-b72d-d09222451d03",
+    "name": "Delilah Fine Foods",
+    "category": "Local",
+    "tier": 1,
+    "city": "Nottingham",
+    "buyer_name": "",
+    "buyer_title": "",
+    "buyer_email": "",
+    "buyer_phone": "",
+    "status": "Researching",
+    "notes": "Award-winning deli, café & wine bar; premium, gift-led, licensed. First-wave provincial target (26 Jun). Buyer TBD.",
+    "created_at": "2026-06-26T14:36:42.233Z",
+    "updated_at": "2026-06-26T14:36:42.233Z"
   }
 ]
