@@ -1,24 +1,30 @@
 "use client";
 
 /**
- * Pack-size + pack-cost entry with a live unit-cost preview.
+ * Purchase-size + purchase-unit-cost entry with a live derived-cost preview.
  *
  * Operators think in "a 700ml bottle of X for £15.86", not "£0.0227 per ml".
- * They enter the pack format; the system derives £/UOM for the recipe engine
- * and shows the result live so they can sanity-check before saving.
+ * They enter the purchase size (in consumption uom) and the cost per purchase
+ * unit; the system derives £/consumption-uom for the recipe engine and shows it
+ * live so they can sanity-check before saving.
+ *
+ * Column names: `packSize` ≡ spec purchase_size, `packCost` ≡ spec unit_cost
+ * (£ per purchase_uom). See src/db/schema.ts for the mapping.
  */
 
 import { useId, useState } from "react";
 import { COLOR, FONT } from "@/lib/design";
+import type { ConsumptionUom, PurchaseUom } from "@/lib/uom";
 import { inputStyle, labelStyle } from "../_components/forms";
 
 type Props = {
-  uom: "ml" | "g" | "each" | "m";
+  uom: ConsumptionUom;
+  purchaseUom: PurchaseUom;
   defaultPackSize?: string | null;
   defaultPackCost?: string | null;
 };
 
-export function PackPricer({ uom, defaultPackSize, defaultPackCost }: Props) {
+export function PackPricer({ uom, purchaseUom, defaultPackSize, defaultPackCost }: Props) {
   const sizeId = useId();
   const costId = useId();
   const [size, setSize] = useState(defaultPackSize ?? (uom === "each" || uom === "m" ? "1" : ""));
@@ -34,7 +40,7 @@ export function PackPricer({ uom, defaultPackSize, defaultPackCost }: Props) {
     <div style={{ display: "grid", gap: 10 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <label htmlFor={sizeId} style={{ display: "block" }}>
-          <span style={labelStyle}>Pack size ({uom})</span>
+          <span style={labelStyle}>Purchase size ({uom})</span>
           <input
             id={sizeId}
             name="packSize"
@@ -49,7 +55,7 @@ export function PackPricer({ uom, defaultPackSize, defaultPackCost }: Props) {
           />
         </label>
         <label htmlFor={costId} style={{ display: "block" }}>
-          <span style={labelStyle}>Pack cost (£)</span>
+          <span style={labelStyle}>Unit cost (£ per {purchaseUom})</span>
           <input
             id={costId}
             name="packCost"
@@ -74,21 +80,21 @@ export function PackPricer({ uom, defaultPackSize, defaultPackCost }: Props) {
       >
         {ready ? (
           <>
-            = <strong style={{ fontWeight: 600 }}>£{unitCost.toFixed(4)}</strong> per {uom}
-            {sizeNum !== 1 && (
-              <>
-                {" "}
-                <span style={{ color: COLOR.muted }}>
-                  ({size}
-                  {uom} @ £{costNum.toFixed(2)})
-                </span>
-              </>
-            )}
+            = <strong style={{ fontWeight: 600 }}>≈ £{unitCost.toFixed(4)}</strong> per {uom}
+            {" "}
+            <span style={{ color: COLOR.muted }}>
+              (£{costNum.toFixed(2)} per {purchaseUom} of {formatSize(sizeNum)}
+              {uom === "each" || uom === "m" ? ` ${uom}` : uom})
+            </span>
           </>
         ) : (
-          <>Enter pack size and cost to see unit cost.</>
+          <>Enter purchase size and unit cost to see the derived per-{uom} cost.</>
         )}
       </div>
     </div>
   );
+}
+
+function formatSize(n: number): string {
+  return Number.isInteger(n) ? String(n) : String(n);
 }

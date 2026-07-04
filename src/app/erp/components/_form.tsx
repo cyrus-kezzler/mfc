@@ -11,6 +11,7 @@ import Link from "next/link";
 import { COLOR } from "@/lib/design";
 import { Field, Textarea, Select, buttonPrimary, buttonGhost, inputStyle, labelStyle } from "../_components/forms";
 import type { Component } from "@/db/schema";
+import { derivePurchaseLabel, type ConsumptionUom, type PurchaseUom } from "@/lib/uom";
 import { PackPricer } from "./_PackPricer";
 
 const TYPE_OPTIONS = [
@@ -27,7 +28,22 @@ const UOM_OPTIONS = [
   { value: "m", label: "m (length)" },
 ];
 
-type Uom = "ml" | "g" | "each" | "m";
+const PURCHASE_UOM_OPTIONS = [
+  { value: "bottle", label: "bottle" },
+  { value: "case", label: "case" },
+  { value: "pouch", label: "pouch" },
+  { value: "roll", label: "roll" },
+  { value: "bag", label: "bag" },
+  { value: "each", label: "each" },
+];
+
+type Uom = ConsumptionUom;
+
+/** Sensible purchase-uom default when creating: bought-in liquids are bottles,
+ *  countable items are each. Operator can override. */
+function defaultPurchaseUom(uom: Uom): PurchaseUom {
+  return uom === "ml" || uom === "g" ? "bottle" : "each";
+}
 
 export function ComponentFormBody({
   component,
@@ -38,6 +54,15 @@ export function ComponentFormBody({
 }) {
   const supplierOptions = suppliers.map((s) => ({ value: String(s.id), label: s.name }));
   const [uom, setUom] = useState<Uom>((component?.uom as Uom) ?? "ml");
+  const [purchaseUom, setPurchaseUom] = useState<PurchaseUom>(
+    (component?.purchaseUom as PurchaseUom) ?? defaultPurchaseUom((component?.uom as Uom) ?? "ml"),
+  );
+
+  const derivedLabel = derivePurchaseLabel({
+    purchaseUom,
+    packSize: component?.packSize != null ? Number(component.packSize) : null,
+    consumptionUom: uom,
+  });
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
@@ -46,7 +71,7 @@ export function ComponentFormBody({
         <Select label="Type" name="type" defaultValue={component?.type ?? "ingredient"} required options={TYPE_OPTIONS} />
         <label style={{ display: "block" }}>
           <span style={labelStyle}>
-            Unit of measure <span style={{ color: COLOR.flag, marginLeft: 4 }}>*</span>
+            Consumption unit <span style={{ color: COLOR.flag, marginLeft: 4 }}>*</span>
           </span>
           <select
             name="uom"
@@ -64,8 +89,40 @@ export function ComponentFormBody({
         </label>
       </div>
 
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <label style={{ display: "block" }}>
+          <span style={labelStyle}>
+            Purchase unit <span style={{ color: COLOR.flag, marginLeft: 4 }}>*</span>
+          </span>
+          <select
+            name="purchaseUom"
+            value={purchaseUom}
+            required
+            onChange={(e) => setPurchaseUom(e.target.value as PurchaseUom)}
+            style={{ ...inputStyle, fontFamily: "inherit" }}
+          >
+            {PURCHASE_UOM_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Field
+          label="Purchase label (optional)"
+          name="purchaseLabel"
+          defaultValue={component?.purchaseLabel ?? ""}
+          placeholder={derivedLabel}
+        />
+      </div>
+      <p style={{ fontSize: 11, color: COLOR.muted, marginTop: -6 }}>
+        How it&apos;s bought &amp; received. Leave the label blank to show the derived{" "}
+        <span style={{ color: COLOR.ink }}>&ldquo;{derivedLabel}&rdquo;</span>.
+      </p>
+
       <PackPricer
         uom={uom}
+        purchaseUom={purchaseUom}
         defaultPackSize={component?.packSize ?? null}
         defaultPackCost={component?.packCost ?? null}
       />
@@ -79,7 +136,7 @@ export function ComponentFormBody({
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         <Field
-          label="Reorder threshold"
+          label={`Reorder at (${purchaseUom}s)`}
           name="reorderThreshold"
           type="number"
           step="0.001"
@@ -87,7 +144,7 @@ export function ComponentFormBody({
           defaultValue={component?.reorderThreshold ?? ""}
         />
         <Field
-          label="Reorder quantity"
+          label={`Reorder qty (${purchaseUom}s)`}
           name="reorderQuantity"
           type="number"
           step="0.001"
