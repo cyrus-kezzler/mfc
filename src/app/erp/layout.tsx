@@ -1,17 +1,32 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import { COLOR, FONT, smallCaps } from "@/lib/design";
 import { isErpEnabled } from "@/lib/flags";
+import { ModuleDisabled } from "@/components/ModuleDisabled";
 import { ErpSubnav } from "./_components/Subnav";
+import { ToastHost } from "./_components/Toast";
 
 export const metadata = {
   title: "Speed Rail — Back Bar ERP",
 };
 
 export default function ErpLayout({ children }: { children: React.ReactNode }) {
+  // Flag off: stay inside the Back Bar shell (nav intact) and show an intentional
+  // "disabled" state, rather than throwing notFound() which drops the user onto
+  // the bare Next 404 outside the shell. See Slice 1.1 fix #5.
   if (!isErpEnabled()) {
-    notFound();
+    return (
+      <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
+        <Nav />
+        <ModuleDisabled
+          eyebrow="Speed Rail"
+          title="The ERP module is currently disabled"
+          message="Speed Rail — the Back Bar operations spine — is switched off in this environment. It’s intentionally off, not broken. An owner can enable it by setting the SPEED_RAIL_ENABLED flag; until then, the rest of Back Bar is unaffected."
+          backHref="/"
+          backLabel="Back to Back Bar home"
+        />
+      </div>
+    );
   }
 
   return (
@@ -57,6 +72,7 @@ export default function ErpLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       {children}
+      <ToastHost />
     </div>
   );
 }
