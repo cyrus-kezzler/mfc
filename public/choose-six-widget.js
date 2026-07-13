@@ -301,7 +301,7 @@
   function renderCta(state, ready) {
     var pricePounds = (state.pricePence / 100).toFixed(2)
     var label = state.submitting ? 'Adding…' :
-                ready ? 'Add six minis to cart — £' + pricePounds :
+                ready ? 'Add six minis to cart, £' + pricePounds :
                 'Choose ' + (SLOT_COUNT - state.slots.filter(Boolean).length) + ' more to continue'
     var disabled = ready && !state.submitting ? '' : 'disabled'
     return (
