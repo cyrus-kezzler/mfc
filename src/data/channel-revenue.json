@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-14",
+  "readMeFirst": "Every figure Back Bar serves carries a source and an as_of date. Nothing may be hand-typed without source: 'manual' and a note saying who typed it and why, and anything marked manual renders a visible warning in the UI and in the MCP response. This file holds the DTC series (read from Shopify, the only source for it) and the RULES for deriving the other channels from the QuickBooks snapshot. It deliberately holds no derived QuickBooks figures: those are computed at read time from qb-revenue.json, so they cannot silently go stale when that snapshot is refreshed. It replaces STATIC_ANNUAL_REVENUE / annualDtcWholesaleSplit, which was a hand-typed estimate that a board pack read as source data. See docs/revenue-provenance.md.",
+
+  "dtc": {
+    "label": "DTC (Shopify)",
+    "source": "shopify",
+    "asOf": "2026-07-14",
+    "method": "ShopifyQL, run against the live store: FROM sales SHOW orders, gross_sales, discounts, returns, net_sales, shipping_charges, total_sales GROUP BY year SINCE 2017-01-01 UNTIL today",
+    "shop": "myatts-fields-cocktails.myshopify.com",
+    "basis": "totalSales = grossSales less discounts less returns plus shipping. This is the figure the Shopify admin shows as Total sales.",
+    "years": {
+      "2017": { "orders": 59, "grossSales": 1675.01, "discounts": -60.85, "returns": 0, "netSales": 1614.16, "shipping": 250.75, "totalSales": 2181.25 },
+      "2018": { "orders": 55, "grossSales": 1830.41, "discounts": -11.69, "returns": -11.7, "netSales": 1807.02, "shipping": 407.35, "totalSales": 2545.15 },
+      "2019": { "orders": 95, "grossSales": 3692.34, "discounts": -259.26, "returns": -116.49, "netSales": 3316.59, "shipping": 224.53, "totalSales": 4194.34 },
+      "2020": { "orders": 1266, "grossSales": 40778.55, "discounts": -1743.61, "returns": -304.97, "netSales": 38729.97, "shipping": 2972.55, "totalSales": 49206.22 },
+      "2021": { "orders": 953, "grossSales": 31250.4, "discounts": -1659.89, "returns": -741.77, "netSales": 28848.74, "shipping": 2469.31, "totalSales": 37600.12 },
+      "2022": { "orders": 294, "grossSales": 9333.89, "discounts": -230.19, "returns": -64.64, "netSales": 9039.06, "shipping": 774.86, "totalSales": 11785.94 },
+      "2023": { "orders": 279, "grossSales": 11380.14, "discounts": -317.17, "returns": -61.66, "netSales": 11001.31, "shipping": 594.52, "totalSales": 13915.92 },
+      "2024": { "orders": 111, "grossSales": 5837.15, "discounts": -180.63, "returns": -656.24, "netSales": 5000.28, "shipping": 202.78, "totalSales": 6243.8 },
+      "2025": { "orders": 287, "grossSales": 8669.22, "discounts": -298.89, "returns": -377.11, "netSales": 7993.22, "shipping": 1069.14, "totalSales": 10876.86 },
+      "2026": { "orders": 74, "grossSales": 2499.84, "discounts": -129.67, "returns": -117.2, "netSales": 2252.97, "shipping": 190.51, "totalSales": 2938.33 }
+    },
+    "partialYears": ["2026"]
+  },
+
+  "dtcByProduct": {
+    "label": "DTC by product",
+    "source": "shopify",
+    "asOf": "2026-07-14",
+    "method": "ShopifyQL: FROM sales SHOW total_sales, orders GROUP BY product_title, year SINCE 2022-01-01 ORDER BY total_sales DESC LIMIT 50. Top 50 rows only, so this is a leaderboard, not a complete ledger: the tail is cut off and the totals here will not sum to the DTC series above.",
+    "coverage": "2022 onwards, top 50 product-years by revenue",
+    "caveat": "Rows with an empty product title are sales against products since deleted from the catalogue. They are real money and they are unattributed; do not silently drop them.",
+    "rows": [
+      { "product": "CHOOSE SIX", "year": "2025", "totalSales": 2402, "orders": 101 },
+      { "product": "Negroni", "year": "2022", "totalSales": 2383.3, "orders": 93 },
+      { "product": "Negroni", "year": "2023", "totalSales": 2329.04, "orders": 66 },
+      { "product": "Espresso Martini", "year": "2022", "totalSales": 2063.29, "orders": 81 },
+      { "product": "CHOOSE SIX", "year": "2023", "totalSales": 1931.7, "orders": 50 },
+      { "product": "CHOOSE SIX", "year": "2022", "totalSales": 1677.02, "orders": 49 },
+      { "product": "Espresso Martini", "year": "2023", "totalSales": 1645, "orders": 60 },
+      { "product": "Vesper Martini", "year": "2023", "totalSales": 1585.69, "orders": 60 },
+      { "product": "(deleted product)", "year": "2025", "totalSales": 1559.78, "orders": 36 },
+      { "product": "Vesper Martini", "year": "2022", "totalSales": 1371.19, "orders": 54 },
+      { "product": "Negroni", "year": "2025", "totalSales": 1072, "orders": 55 },
+      { "product": "Negroni", "year": "2024", "totalSales": 1008.3, "orders": 32 },
+      { "product": "Espresso Martini", "year": "2024", "totalSales": 1000, "orders": 24 },
+      { "product": "Vesper Martini", "year": "2025", "totalSales": 993.2, "orders": 53 },
+      { "product": "(deleted product)", "year": "2022", "totalSales": 937.98, "orders": 29 },
+      { "product": "(deleted product)", "year": "2023", "totalSales": 781.83, "orders": 41 },
+      { "product": "CHERRY ESPRESSO MARTINI", "year": "2023", "totalSales": 750, "orders": 31 },
+      { "product": "Vesper Martini", "year": "2024", "totalSales": 738.9, "orders": 28 },
+      { "product": "Espresso Martini", "year": "2025", "totalSales": 717, "orders": 51 },
+      { "product": "Rum Old Fashioned", "year": "2023", "totalSales": 675.5, "orders": 28 },
+      { "product": "CHOOSE SIX", "year": "2024", "totalSales": 600, "orders": 17 },
+      { "product": "Margarita", "year": "2025", "totalSales": 538, "orders": 46 },
+      { "product": "Margarita", "year": "2023", "totalSales": 522.74, "orders": 23 },
+      { "product": "Manhattan", "year": "2023", "totalSales": 506, "orders": 20 },
+      { "product": "(deleted product)", "year": "2024", "totalSales": 493.43, "orders": 17 },
+      { "product": "Margarita", "year": "2024", "totalSales": 492.65, "orders": 20 },
+      { "product": "Pisco Martini", "year": "2022", "totalSales": 443.5, "orders": 16 },
+      { "product": "Rum Old Fashioned", "year": "2025", "totalSales": 438.5, "orders": 47 },
+      { "product": "Negroni", "year": "2026", "totalSales": 437, "orders": 13 },
+      { "product": "Manhattan", "year": "2024", "totalSales": 430.4, "orders": 12 },
+      { "product": "Vesper Martini", "year": "2026", "totalSales": 427.5, "orders": 16 },
+      { "product": "Cold Brew Negroni", "year": "2023", "totalSales": 412.25, "orders": 22 },
+      { "product": "Red Hook", "year": "2025", "totalSales": 400, "orders": 32 },
+      { "product": "CHOOSE SIX", "year": "2026", "totalSales": 390, "orders": 19 },
+      { "product": "Lychee Martini", "year": "2023", "totalSales": 378.2, "orders": 22 },
+      { "product": "Pisco Martini", "year": "2023", "totalSales": 377.63, "orders": 16 },
+      { "product": "Manhattan", "year": "2022", "totalSales": 370.75, "orders": 17 },
+      { "product": "Rum Old Fashioned", "year": "2022", "totalSales": 367, "orders": 16 },
+      { "product": "Desert Negroni", "year": "2022", "totalSales": 328.75, "orders": 18 },
+      { "product": "Cuban Manhattan", "year": "2023", "totalSales": 307, "orders": 13 },
+      { "product": "Desert Negroni", "year": "2023", "totalSales": 301.04, "orders": 15 },
+      { "product": "CADILLAC MARGARITA", "year": "2022", "totalSales": 294.01, "orders": 16 },
+      { "product": "Lychee Martini", "year": "2025", "totalSales": 284.8, "orders": 35 },
+      { "product": "Cold Brew Negroni", "year": "2025", "totalSales": 267, "orders": 36 },
+      { "product": "Desert Negroni", "year": "2025", "totalSales": 261.7, "orders": 25 },
+      { "product": "Rum Old Fashioned", "year": "2024", "totalSales": 250, "orders": 9 },
+      { "product": "Trident", "year": "2025", "totalSales": 243.5, "orders": 17 },
+      { "product": "Cold Brew Negroni", "year": "2022", "totalSales": 232.49, "orders": 15 },
+      { "product": "Dempsey", "year": "2023", "totalSales": 223.15, "orders": 7 },
+      { "product": "Cuban Manhattan", "year": "2025", "totalSales": 221.8, "orders": 35 }
+    ]
+  },
+
+  "quickbooksChannelRules": {
+    "readMe": "These are the RULES, not the numbers. The numbers are computed from qb-revenue.json at read time so they can never drift from the snapshot they claim to come from.",
+    "source": "quickbooks",
+    "amazon": {
+      "label": "Amazon",
+      "accounts": ["Amazon Sales", "Amazon Shipping", "Amazon Reimbursement", "Amazon Refunds"],
+      "basis": "gross",
+      "netKnown": false,
+      "warning": "GROSS ONLY. Amazon fees and compulsory Amazon advertising are NOT deducted. Amazon was loss-making in 2025 on that basis, so this figure overstates the channel and must not be read as revenue earned. The net requires the Amazon Seller Central export, which is Cyrus's to pull. Until then this channel has no trustworthy bottom line, and it has never appeared in a strategy paper at all."
+    },
+    "wholesale": {
+      "label": "Wholesale (classified)",
+      "accounts": ["Sales - wholesale", "Sales - channel", "Sales - retail"],
+      "basis": "floor",
+      "warning": "A FLOOR, not a total. The unclassified account below carries more money than every classified channel combined, and an unknown share of it is wholesale. True wholesale is this figure plus some unknown part of that bucket. Do not quote this as wholesale revenue."
+    },
+    "unclassified": {
+      "label": "Unclassified",
+      "accounts": ["Sales of Product Income"],
+      "basis": "unknown",
+      "warning": "THE BLOCKER. Nobody knows what channel any of this is. It is larger than every classified channel added together, so a channel-by-channel revenue table is impossible until it is broken out. It is NOT, however, double-counting: see reconciliation.settled below. Owner: John at Fathom, folded into the books clean-up."
+    },
+    "excludedFromChannels": {
+      "accounts": ["Discounts given", "Refund", "Uncategorised Income", "Shopify Sales", "Shopify Refunds", "Shopify Shipping"],
+      "why": "Discounts, refunds and uncategorised income are not a channel. The Shopify accounts are excluded deliberately: they are a COPY of Shopify data and the copy is wrong (QuickBooks says £7,523.06 for 2025, Shopify itself says £10,876.86). DTC is read from Shopify, which is the source. Nothing in Back Bar may serve DTC from QuickBooks."
+    }
+  },
+
+  "reconciliation": {
+    "unreconciled": true,
+    "summary": "The channel figures are trustworthy individually but the SPLIT is not yet knowable, because £92,401 of 2025 income has no channel attached. The channels sum to £3,207.67 more than the QuickBooks P&L total, and that gap is fully explained (see settled, below): it is not a mystery, it is the Shopify-versus-QuickBooks copy discrepancy plus £91 of discounts that belong to no channel.",
+
+    "settled": {
+      "the2025Total": {
+        "answer": "£143,513.32, per the QuickBooks P&L. It is NOT in dispute.",
+        "note": "The rival figure of £46,800 came from the fabricated split table's own invented 'total' column. It was never a competing source, only the same guess wearing a different hat. Retracting the table retires the number. No board paper should ever cite £46,800 again.",
+        "settledOn": "2026-07-14"
+      },
+      "doubleCounting": {
+        "answer": "No. 'Sales of Product Income' does NOT double-count the classified channel accounts.",
+        "proof": "The 2025 QuickBooks income accounts sum to exactly £143,513.32, which is the stated total income to the penny. QuickBooks P&L accounts are mutually exclusive by construction, so an account cannot contain revenue that another account also contains. Verified 14 Jul 2026 against qb-revenue.json.",
+        "whyItMatters": "This was the leading hypothesis and it was wrong. The £92k is real, additional, unclassified revenue, almost certainly wholesale. So the channel table is not blocked by a phantom: it is blocked only by the fact that nobody has tagged this account to a channel. That is a bookkeeping job, not a forensic one.",
+        "settledOn": "2026-07-14"
+      },
+      "theVariance": {
+        "answer": "The £3,207.67 by which the channels exceed the P&L total is fully accounted for: £3,116.67 is the amount by which Shopify's own DTC figure exceeds the QuickBooks 'Shopify' accounts, and £91.00 is 'Discounts given', which belongs to no channel.",
+        "settledOn": "2026-07-14"
+      }
+    },
+
+    "openQuestions": [
+      "WHAT CHANNEL IS THE £92k? 'Sales of Product Income' carries £92,401 in 2025, more than every classified channel combined, and nothing says whether it is wholesale, hospitality or something else. This is the only thing standing between us and a real channel table. Owner: John at Fathom.",
+      "WHY IS QUICKBOOKS £3,116.67 SHORT ON DTC? QuickBooks 'Shopify' accounts total £7,760.19 for 2025. Shopify itself says £10,876.86. Shopify is the source; the QuickBooks copy is wrong. Which orders are missing, and is the same leak present in prior years?",
+      "WHAT IS AMAZON'S NET? Gross was £11,780.77 in 2025 and the channel was loss-making after fees and compulsory advertising. No net figure exists anywhere in the business. Needs the Seller Central export, which is Cyrus's to pull."
+    ],
+    "owner": "CFO seat, with John at Fathom",
+    "blocks": [
+      "Board pack section 7, the DTC allocation case",
+      "The Choose Six kill-or-scale rule, which needs real contribution",
+      "Any wholesale-by-product view"
+    ]
+  },
+
+  "retracted": {
+    "annualDtcWholesaleSplit": {
+      "retractedOn": "2026-07-14",
+      "wasServedBy": "get_revenue_overview (MCP) and src/lib/static-data.ts",
+      "whatItWas": "A hand-typed estimate. Every figure was round to the nearest £100, because a person guessed them. It sat in the data layer wearing the costume of data, and nothing marked it as an estimate.",
+      "fabricatedDtcSeries": { "2020": 14200, "2021": 9600, "2022": 8200, "2023": 6800, "2024": 4100, "2025": 2800 },
+      "realDtcSeries": { "2020": 49206.22, "2021": 37600.12, "2022": 11785.94, "2023": 13915.92, "2024": 6243.8, "2025": 10876.86 },
+      "whatItCost": "Section 7 of the Exec Board 02 pack read it as source, concluded 'DTC has fallen every year since 2020', and recommended defunding the channel. Two things were wrong. The £2,800 it called 2025 was really the 2026 year to date, so a partial year was read as a full one: real 2025 DTC was £10,876.86, UP 74% on 2024. And the £14,200 it called the 2020 COVID peak was out by a factor of three and a half: DTC actually took £49,206.22 that year across 1,266 orders. The channel the pack proposed to defund is the only one that has ever proved it can scale.",
+      "ruleThisProduces": "A strategy paper may not cite a number that does not trace to a source system. A hand-typed estimate in a data layer is more dangerous than no number at all, because it wears the costume of data."
+    },
+    "staticAlerts": {
+      "retractedOn": "2026-07-14",
+      "whatItWas": "Two hand-typed dashboard banners. One claimed 'DTC revenue is down 89% from 2020 peak', derived from the fabricated series; the real fall from the true 2020 peak is 78%, and it concealed that 2025 was UP 74% year on year. The other asserted a concentration percentage nobody had computed.",
+      "replacedBy": "Alerts derived at render time from this file and the QuickBooks customer snapshot."
+    }
+  },
+
+  "refresh": {
+    "dtc": "npx tsx scripts/revenue/refresh-dtc.ts (needs SHOPIFY_* in .env.production.local, via `vercel env pull`). Re-derives the DTC series from the Shopify Admin API, diffs it against this file, and refuses to write if the basis has drifted.",
+    "quickbooks": "npx tsx scripts/qb/pull-history.ts to refresh qb-revenue.json. The channel figures follow automatically; nothing is hand-copied.",
+    "staleAfterDays": 45,
+    "note": "This file is allowed to be a snapshot. It is not allowed to be a snapshot of unknown age, which is what the last one was. The UI and the MCP both surface its age."
+  }
+}

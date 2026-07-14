@@ -1,6 +1,12 @@
 import Nav from "@/components/Nav";
 import { getShopifyRevenueData, getRecentShopifyOrders } from "@/lib/shopify";
-import { STATIC_ALERTS } from "@/lib/static-data";
+import {
+  getDtcSeries,
+  getQbChannelSeries,
+  getDerivedAlerts,
+  staleness,
+  reconcile,
+} from "@/lib/revenue";
 import qbRevenue from "@/data/qb-revenue.json";
 import qbCustomers from "@/data/qb-customers.json";
 import { fmt, Section } from "./_shared";
@@ -27,6 +33,16 @@ export default async function RevenuePage() {
       incomeByAccount: Record<string, number>;
     }
   >;
+
+  // Channels, each with its own source. DTC is Shopify and never QuickBooks.
+  const channels = {
+    dtc: getDtcSeries(),
+    amazon: getQbChannelSeries("amazon"),
+    wholesale: getQbChannelSeries("wholesale"),
+    unclassified: getQbChannelSeries("unclassified"),
+  };
+  const sourceAge = staleness();
+  const variances = Object.fromEntries(reconcile().map((r) => [r.year, r]));
 
   const partners = qbCustomers.partners as Record<
     string,
@@ -82,12 +98,14 @@ export default async function RevenuePage() {
               fontWeight: 300,
             }}
           >
-            {currentYear} financial overview. Revenue pulled from QuickBooks via
-            Claude — refreshes automatically every Monday. Last updated {qbRevenue.lastUpdated}.
+            Every figure on this page carries the system it came from and the day it
+            was read. DTC is read from Shopify. Wholesale, Amazon and the totals are
+            read from QuickBooks. Nothing here is typed by hand, and where a number
+            cannot be trusted, it says so.
           </p>
         </section>
 
-        {/* Connection status + alerts */}
+        {/* Connection status */}
         <section
           style={{
             display: "flex",
@@ -100,23 +118,39 @@ export default async function RevenuePage() {
         >
           <StatusBadge label="Shopify" live={isShopifyLive} />
           <StatusBadge
-            label="QuickBooks"
-            live={true}
-            note={`updated ${qbRevenue.lastUpdated}`}
+            label={`Shopify series · read ${sourceAge.shopify.asOf}`}
+            live={!sourceAge.shopify.stale}
+            note={`${sourceAge.shopify.ageDays}d old`}
+          />
+          <StatusBadge
+            label={`QuickBooks · read ${sourceAge.quickbooks.asOf}`}
+            live={!sourceAge.quickbooks.stale}
+            note={`${sourceAge.quickbooks.ageDays}d old`}
           />
         </section>
 
-        {STATIC_ALERTS.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 40 }}>
-            {STATIC_ALERTS.map((alert) => (
-              <AlertBanner key={alert.title} {...alert} />
-            ))}
+        {sourceAge.quickbooks.warning && (
+          <div style={{ marginBottom: 20 }}>
+            <AlertBanner
+              type="warning"
+              title="Stale source"
+              message={sourceAge.quickbooks.warning}
+            />
           </div>
         )}
 
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 40 }}>
+          {getDerivedAlerts(
+            qbCustomers.partners as Record<string, { total: number }>,
+          ).map((alert) => (
+            <AlertBanner key={alert.title} {...alert} />
+          ))}
+        </div>
+
         <RevenueClient
           years={years}
-          lastUpdated={qbRevenue.lastUpdated}
+          channels={channels}
+          variances={variances}
           currentYear={currentYear}
           shopify={
             shopifyData
@@ -298,7 +332,7 @@ function LiveOrdersTable({
                       overflow: "hidden",
                     }}
                   >
-                    {itemSummary || "—"}
+                    {itemSummary || "-"}
                   </span>
                 </td>
                 <td

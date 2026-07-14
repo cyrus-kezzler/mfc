@@ -1,31 +1,26 @@
 /**
- * Static fallback data derived from MYATT'S FIELDS COCKTAILS BUYING.xlsx
- * Used when Shopify/QuickBooks APIs are not yet connected.
- * Replace with live API calls once credentials are configured.
+ * RETRACTED, 14 Jul 2026.
+ *
+ * This file used to export STATIC_ANNUAL_REVENUE (the DTC/wholesale split) and
+ * STATIC_ALERTS. Both were hand-typed. Every figure in the revenue table was
+ * round to the nearest £100, because a person estimated them, and nothing in the
+ * code or the tool response said so.
+ *
+ * Section 7 of the Exec Board 02 pack read that table as source data, concluded
+ * "DTC has fallen every year since 2020", and recommended defunding the channel.
+ * It was wrong twice over: the row labelled 2025 was really the 2026 year to
+ * date (real 2025 DTC was £10,876.86, UP 74% on 2024), and the 2020 "COVID peak"
+ * of £14,200 was understated by a factor of three and a half (the real figure is
+ * £49,206.22 across 1,266 orders).
+ *
+ * Revenue now lives in `src/lib/revenue.ts`, where every figure carries a source
+ * and an as-of date, and anything that cannot be reconciled says so. The exports
+ * are deliberately NOT repointed at the new data: a caller that keeps working
+ * while its meaning changes underneath it is how this happened in the first
+ * place. Anything still importing from here should fail to build.
+ *
+ * If you are here because a build broke: good. Import from "@/lib/revenue".
  */
 
-export const STATIC_ANNUAL_REVENUE = [
-  { year: '2017', dtc: 0,     wholesale: 1200,   total: 1200   },
-  { year: '2018', dtc: 2100,  wholesale: 8400,   total: 10500  },
-  { year: '2019', dtc: 4800,  wholesale: 22000,  total: 26800  },
-  { year: '2020', dtc: 14200, wholesale: 18000,  total: 32200  }, // COVID DTC peak
-  { year: '2021', dtc: 9600,  wholesale: 48000,  total: 57600  },
-  { year: '2022', dtc: 8200,  wholesale: 141100, total: 149300 },
-  { year: '2023', dtc: 6800,  wholesale: 102400, total: 109200 },
-  { year: '2024', dtc: 4100,  wholesale: 97000,  total: 101100 }, // Amazon ~£40k on top
-  { year: '2025', dtc: 2800,  wholesale: 44000,  total: 46800  }, // Partial year
-]
-
-
-export const STATIC_ALERTS = [
-  {
-    type: 'warning' as const,
-    title: 'Concentration Risk',
-    message: 'Cripps + F&M account for ~74% of wholesale revenue. Diversification target: <50% by 2026.',
-  },
-  {
-    type: 'info' as const,
-    title: 'DTC Trend',
-    message: 'DTC revenue is down 89% from 2020 peak. New box campaign targeting £15k DTC in 2026.',
-  },
-]
+export const STATIC_ANNUAL_REVENUE__RETRACTED_SEE_LIB_REVENUE = undefined;
+export const STATIC_ALERTS__RETRACTED_SEE_LIB_REVENUE = undefined;
