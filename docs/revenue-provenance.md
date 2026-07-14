@@ -41,7 +41,7 @@ Correcting six figures would have reset the trap for the next person. So instead
 |---|---|---|---|
 | **DTC** | Shopify | `total_sales` | The only honest DTC in the business. Never take DTC from QuickBooks: its "Shopify" accounts under-report by £3,116.67 in 2025. |
 | **Wholesale** | QuickBooks | **floor** | A floor, not a total. Real wholesale is this plus an unknown share of the unclassified bucket. |
-| **Amazon** | QuickBooks | **gross** | Gross only. Fees and compulsory Amazon advertising are not deducted, and the channel was loss-making in 2025 on that basis. No net figure exists anywhere in the business. |
+| **Amazon** | QuickBooks | **gross**, plus net of Amazon's own fees | The headline is gross, and gross is close to meaningless here: Amazon's fees took **45.5% of gross in 2025** and **57.2% in 2024**. Read `netOfAmazonFees`. It still does not deduct the cost of the liquid, glass and packaging, so it is contribution before cost of goods, not profit. |
 | **Unclassified** | QuickBooks | unknown | `Sales of Product Income`, £92,401 in 2025. Larger than every classified channel combined. Nobody knows what channel it is. |
 
 ## What is settled, and what is not
@@ -52,11 +52,22 @@ Correcting six figures would have reset the trap for the next person. So instead
 - **The unclassified account is not double-counting.** This was the leading hypothesis and it is wrong. The 2025 QuickBooks income accounts sum to exactly £143,513.32, the stated total, to the penny; P&L accounts are mutually exclusive by construction, so an account cannot hold revenue another account also holds. The £92k is real, additional, untagged revenue, almost certainly wholesale.
 - **The £3,207.67 variance is fully explained**: £3,116.67 is Shopify's DTC figure exceeding QuickBooks' copy of it, and £91.00 is discounts, which belong to no channel.
 
+**Amazon, corrected 14 Jul 2026.** The build brief said no net figure existed anywhere and that the Seller Central export was the only way to get one. That was wrong: QuickBooks has carried Amazon's cost accounts since 2024 (`Amazon FBA Fees`, `Amazon Advertising`, `Amazon Promotions`, `Amazon Seller Fees and Charges`, `Amazon Shipping Fees`). Back Bar now serves `netOfAmazonFees` from them.
+
+| Year | Gross | Amazon's fees | Fee load | Net of fees |
+|---|---|---|---|---|
+| 2024 | £9,862.19 | £5,638.63 | 57.2% | £4,223.56 |
+| 2025 | £11,780.77 | £5,361.00 | 45.5% | £6,419.77 |
+
+For 2022, 2023 and 2026 the cost accounts do not exist in QuickBooks at all, so `netOfAmazonFees` returns **null, not zero**. A missing cost is not a free channel.
+
+This does not settle whether Amazon makes money, and Back Bar does not claim it does. Product COGS is not allocated to the channel, so £6,419.77 is contribution *before* the cost of the liquid, the glass and the packaging. At the range's typical gross margin that is somewhere around break-even, which is consistent with the "loss-making" claim in Canon without proving it. What it does establish is the shape: **Amazon takes roughly half of every pound before we have paid for anything.**
+
 **Still open.**
 
 1. **What channel is the £92k?** The only thing standing between us and a real channel table. It is a bookkeeping job, not a forensic one. Owner: John at Fathom.
 2. **Why is QuickBooks £3,116.67 short on DTC?** Which orders are missing, and is the leak in prior years too?
-3. **What is Amazon's net?** Needs the Seller Central export. Cyrus's to pull.
+3. **Does Amazon actually make money?** Needs product COGS allocated to the channel, which needs the Seller Central export at SKU level. Cyrus's to pull. The fee load is now known; the bottom line is not.
 
 ## Refreshing
 

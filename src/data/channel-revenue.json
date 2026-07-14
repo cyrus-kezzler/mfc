@@ -92,9 +92,16 @@
     "amazon": {
       "label": "Amazon",
       "accounts": ["Amazon Sales", "Amazon Shipping", "Amazon Reimbursement", "Amazon Refunds"],
+      "costAccounts": [
+        "Amazon FBA Fees",
+        "Amazon Advertising",
+        "Amazon Promotions",
+        "Amazon Seller Fees and Charges",
+        "Amazon Shipping Fees"
+      ],
       "basis": "gross",
-      "netKnown": false,
-      "warning": "GROSS ONLY. Amazon fees and compulsory Amazon advertising are NOT deducted. Amazon was loss-making in 2025 on that basis, so this figure overstates the channel and must not be read as revenue earned. The net requires the Amazon Seller Central export, which is Cyrus's to pull. Until then this channel has no trustworthy bottom line, and it has never appeared in a strategy paper at all."
+      "warning": "The headline is GROSS. Amazon's own fees are large enough that gross is close to meaningless on its own: they took 45.5% of gross in 2025 and 57.2% in 2024. Where QuickBooks carries the Amazon cost accounts, Back Bar now serves netOfAmazonFees alongside the gross. Read that, not this. And note what netOfAmazonFees still does NOT deduct: the cost of the liquid, the glass and the packaging. So it is contribution before cost of goods, not profit, and whether the channel actually makes money remains unresolved until product COGS is allocated to it.",
+      "costsNote": "The cost accounts only exist in QuickBooks for 2024 and 2025. For 2022, 2023 and 2026 there are no Amazon cost accounts at all, so netOfAmazonFees is UNKNOWN for those years and is returned as null. It is not zero. A missing cost is not a free channel."
     },
     "wholesale": {
       "label": "Wholesale (classified)",

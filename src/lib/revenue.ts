@@ -64,6 +64,8 @@ interface QbYear {
   grossProfit: number;
   netIncome: number;
   incomeByAccount: Record<string, number>;
+  cogsByAccount?: Record<string, number>;
+  expenseByAccount?: Record<string, number>;
 }
 
 const qbYears = (qbRevenueRaw as unknown as { lastUpdated: string; years: Record<string, QbYear> }).years;
@@ -94,7 +96,14 @@ const cr = channelRevenue as unknown as {
   };
   quickbooksChannelRules: {
     source: RevenueSource;
-    amazon: { label: string; accounts: string[]; basis: string; netKnown: boolean; warning: string };
+    amazon: {
+      label: string;
+      accounts: string[];
+      costAccounts: string[];
+      basis: string;
+      warning: string;
+      costsNote: string;
+    };
     wholesale: { label: string; accounts: string[]; basis: string; warning: string };
     unclassified: { label: string; accounts: string[]; basis: string; warning: string };
     excludedFromChannels: { accounts: string[]; why: string };
@@ -150,6 +159,27 @@ export function getDtcSeries(): ChannelYear[] {
     .sort((a, b) => a.year.localeCompare(b.year));
 }
 
+/**
+ * Amazon's own fees, from the QuickBooks cost and expense accounts.
+ *
+ * Returns null, never zero, for years where the cost accounts do not exist
+ * (2022, 2023, 2026). A missing cost is not a free channel, and reporting it as
+ * zero would be inventing a number, which is the thing this module exists to
+ * prevent.
+ */
+function amazonFees(qb: QbYear): number | null {
+  const accounts = cr.quickbooksChannelRules.amazon.costAccounts;
+  const found = accounts.filter(
+    (a) => qb.cogsByAccount?.[a] !== undefined || qb.expenseByAccount?.[a] !== undefined,
+  );
+  if (found.length === 0) return null;
+  const total = found.reduce(
+    (sum, a) => sum + (qb.cogsByAccount?.[a] ?? 0) + (qb.expenseByAccount?.[a] ?? 0),
+    0,
+  );
+  return Math.round(total * 100) / 100;
+}
+
 /** Amazon, wholesale and the unclassified bucket, derived from the QuickBooks snapshot at read time. */
 export function getQbChannelSeries(
   channel: "amazon" | "wholesale" | "unclassified",
@@ -157,18 +187,42 @@ export function getQbChannelSeries(
   const rule = cr.quickbooksChannelRules[channel];
   const basis = rule.basis as ChannelYear["basis"];
   return Object.entries(qbYears)
-    .map(([year, qb]) => ({
-      channel,
-      label: rule.label,
-      year,
-      value: sumAccounts(qb, rule.accounts),
-      basis,
-      source: "quickbooks" as const,
-      asOf: qbAsOf,
-      method: `QuickBooks income accounts: ${rule.accounts.join(", ")}.`,
-      warning: rule.warning,
-      partialYear: isPartial(year, qbAsOf),
-    }))
+    .map(([year, qb]) => {
+      const value = sumAccounts(qb, rule.accounts);
+      const row: ChannelYear = {
+        channel,
+        label: rule.label,
+        year,
+        value,
+        basis,
+        source: "quickbooks" as const,
+        asOf: qbAsOf,
+        method: `QuickBooks income accounts: ${rule.accounts.join(", ")}.`,
+        warning: rule.warning,
+        partialYear: isPartial(year, qbAsOf),
+      };
+
+      // Amazon is the one channel whose gross figure actively misleads, because
+      // its fees are enormous. Serve the net beside it, or say we cannot.
+      if (channel === "amazon") {
+        const fees = amazonFees(qb);
+        row.detail =
+          fees === null
+            ? { gross: value }
+            : {
+                gross: value,
+                amazonFees: fees,
+                netOfAmazonFees: Math.round((value - fees) * 100) / 100,
+                feeLoadPct: value > 0 ? Math.round((fees / value) * 1000) / 10 : 0,
+              };
+        row.warning =
+          fees === null
+            ? `${rule.warning} FOR THIS YEAR (${year}) THERE ARE NO AMAZON COST ACCOUNTS IN QUICKBOOKS AT ALL, so netOfAmazonFees is unknown, not zero.`
+            : `Amazon's own fees took ${row.detail.feeLoadPct}% of gross in ${year}. ${rule.warning}`;
+      }
+
+      return row;
+    })
     .sort((a, b) => a.year.localeCompare(b.year));
 }
 
@@ -316,8 +370,15 @@ export function getRevenueWithProvenance() {
     },
     sources: {
       shopify: { asOf: cr.dtc.asOf, shop: cr.dtc.shop, covers: "DTC only" },
-      quickbooks: { asOf: qbAsOf, covers: "wholesale, Amazon, unclassified, totals" },
-      amazonNet: { asOf: null, covers: "nothing. No net figure exists in the business." },
+      quickbooks: {
+        asOf: qbAsOf,
+        covers: "wholesale, Amazon (gross and net of Amazon's own fees), unclassified, totals",
+      },
+      amazonSellerCentral: {
+        asOf: null,
+        covers:
+          "not connected. QuickBooks carries Amazon's fees for 2024 and 2025, which is enough for net of fees, but not for a per-unit or per-SKU view. The Seller Central export is Cyrus's to pull.",
+      },
     },
     staleness: staleness(),
     retracted: cr.retracted,

@@ -140,7 +140,13 @@ export default function RevenueClient({
         <KpiCard
           label="Amazon (gross)"
           value={fmtShort(amazon?.value ?? 0)}
-          sub={`${prov(amazon)} · no net exists`}
+          sub={
+            amazon?.detail?.netOfAmazonFees !== undefined
+              ? `${fmtShort(
+                  amazon.detail.netOfAmazonFees,
+                )} after Amazon's fees, which took ${amazon.detail.feeLoadPct}%. Before cost of goods.`
+              : `${prov(amazon)} · no cost accounts this year, net unknown`
+          }
           warning
         />
         <KpiCard
