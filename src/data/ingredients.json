@@ -8,12 +8,13 @@
     "currentPriceSetAt": "2026-04-11"
   },
   {
-    "id": "vodka",
-    "name": "Vodka",
+    "id": "thames-ngs-vodka",
+    "name": "Vodka (Thames NGS)",
     "spreadsheetName": "VODKA",
     "bottleSizeMl": 1000,
-    "currentPrice": 18.5,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 15.41,
+    "currentPriceSetAt": "2026-06-22",
+    "notes": "House vodka. £1.78/L spirit + £13.63/L duty (£44.50/25L tub + £33.99/L alcohol). Source: Thames invoice 22 Jun 2026. Replaces the previous house vodkas (see DB component 73 note). Espresso Martini vodka."
   },
   {
     "id": "rye",
@@ -52,16 +53,16 @@
     "name": "Carpano Antica Formula Vermouth",
     "spreadsheetName": "CARPANO ANTICA",
     "bottleSizeMl": 1000,
-    "currentPrice": 24.7,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 27.36,
+    "currentPriceSetAt": "2026-07-13"
   },
   {
     "id": "kahlua",
     "name": "Kahlua",
     "spreadsheetName": "KAHLUA",
     "bottleSizeMl": 700,
-    "currentPrice": 13.43,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 12.29,
+    "currentPriceSetAt": "2026-07-13"
   },
   {
     "id": "cynar",
@@ -107,7 +108,7 @@
     "id": "noilly-prat",
     "name": "Noilly Prat",
     "spreadsheetName": "NOILLY PRAT",
-    "bottleSizeMl": 700,
+    "bottleSizeMl": 750,
     "currentPrice": 12.77,
     "currentPriceSetAt": "2026-04-11"
   },
@@ -116,8 +117,8 @@
     "name": "Manzanilla",
     "spreadsheetName": "MANZANILLA",
     "bottleSizeMl": 750,
-    "currentPrice": 9.75,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 11.25,
+    "currentPriceSetAt": "2026-03-25"
   },
   {
     "id": "lillet-blanc",
@@ -144,20 +145,13 @@
     "currentPriceSetAt": "2026-04-11"
   },
   {
-    "id": "bimber-rum",
-    "name": "Bimber Rum",
-    "spreadsheetName": "BIMBER RUM",
-    "bottleSizeMl": 1000,
-    "currentPrice": 23.67,
-    "currentPriceSetAt": "2026-04-11"
-  },
-  {
-    "id": "bimber-vodka",
-    "name": "Bimber Vodka",
-    "spreadsheetName": "BIMBER VODKA",
-    "bottleSizeMl": 1000,
-    "currentPrice": 27.8,
-    "currentPriceSetAt": "2026-04-11"
+    "id": "scratch-white-rum",
+    "name": "Scratch White Rum",
+    "spreadsheetName": "SCRATCH WHITE RUM",
+    "bottleSizeMl": 700,
+    "currentPrice": 25.0,
+    "currentPriceSetAt": "2026-07-20",
+    "notes": "PLACEHOLDER pending invoice (matches DB placeholder). Used in F&M Espresso Daiquiri 2025 (Cyrus, 20 Jul 2026)."
   },
   {
     "id": "cotswold-whisky",
@@ -169,11 +163,12 @@
   },
   {
     "id": "fusion-fm-gin",
-    "name": "Fusion F&M Gin",
+    "name": "Gin (Amalthea)",
     "spreadsheetName": "FUSION F&M GIN",
     "bottleSizeMl": 1000,
-    "currentPrice": 16.634,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 16.67,
+    "currentPriceSetAt": "2026-07-20",
+    "notes": "One Amalthea price for all variants: £16.67/L (Cyrus, 20 Jul 2026). Primary use: F&M Vesper Martini."
   },
   {
     "id": "yuzu-sake",
@@ -187,16 +182,8 @@
     "id": "triple-sec",
     "name": "Triple Sec",
     "spreadsheetName": "TRIPLE SEC",
-    "bottleSizeMl": 500,
-    "currentPrice": 21.62,
-    "currentPriceSetAt": "2026-04-11"
-  },
-  {
-    "id": "triple-dist-vodka",
-    "name": "Triple Distilled Vodka",
-    "spreadsheetName": "TRIPLE DIST VODKA",
     "bottleSizeMl": 700,
-    "currentPrice": 20,
+    "currentPrice": 21.62,
     "currentPriceSetAt": "2026-04-11"
   },
   {
@@ -219,7 +206,7 @@
     "id": "punt-e-mes",
     "name": "Punt e Mes",
     "spreadsheetName": "PUNT E MES",
-    "bottleSizeMl": 700,
+    "bottleSizeMl": 750,
     "currentPrice": 10.96,
     "currentPriceSetAt": "2026-04-11"
   },
@@ -332,7 +319,7 @@
     "id": "monin-grenadine",
     "name": "Monin Grenadine",
     "spreadsheetName": "MONIN GRENADINE",
-    "bottleSizeMl": 700,
+    "bottleSizeMl": 1000,
     "currentPrice": 9.35,
     "currentPriceSetAt": "2026-04-11"
   },

@@ -225,7 +225,7 @@ export const RECIPES: Recipe[] = [
     name: 'F&M Espresso Daiquiri 2025',
     clients: ['Fortnum & Mason'],
     ingredients: [
-      { ingredientName: 'Bimber Rum', parts: 33 },
+      { ingredientName: 'Scratch White Rum', parts: 33 },
       { ingredientName: 'Kahlua', parts: 33 },
       { ingredientName: 'Espresso', parts: 33 },
     ],

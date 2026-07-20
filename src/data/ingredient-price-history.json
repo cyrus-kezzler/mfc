@@ -108,18 +108,6 @@
     "note": "Initial import from buying spreadsheet"
   },
   {
-    "ingredientId": "bimber-rum",
-    "date": "2026-04-11",
-    "price": 23.67,
-    "note": "Initial import from buying spreadsheet"
-  },
-  {
-    "ingredientId": "bimber-vodka",
-    "date": "2026-04-11",
-    "price": 27.8,
-    "note": "Initial import from buying spreadsheet"
-  },
-  {
     "ingredientId": "cotswold-whisky",
     "date": "2026-04-11",
     "price": 20,
@@ -286,5 +274,65 @@
     "date": "2026-04-12",
     "price": 15.17,
     "note": "Return to real price / end of test"
+  },
+  {
+    "ingredientId": "manzanilla",
+    "date": "2026-03-25",
+    "price": 11.25,
+    "note": "MC invoice 25/03/2026 (La Guita). Was £9.75."
+  },
+  {
+    "ingredientId": "thames-ngs-vodka",
+    "date": "2026-06-22",
+    "price": 15.41,
+    "note": "Thames invoice 22 Jun 2026. New house vodka, £1.78/L spirit + £13.63/L duty."
+  },
+  {
+    "ingredientId": "kahlua",
+    "date": "2026-07-13",
+    "price": 12.29,
+    "note": "Matthew Clark invoice 13/07/2026. Down 8.5% from £13.43."
+  },
+  {
+    "ingredientId": "carpano-antica",
+    "date": "2026-07-13",
+    "price": 27.36,
+    "note": "MC invoice 13/07/2026. Was £24.70. Supplier product code changed 00030013 -> 00049973."
+  },
+  {
+    "ingredientId": "fusion-fm-gin",
+    "date": "2026-07-20",
+    "price": 16.67,
+    "note": "One Amalthea price for all variants: £16.67/L (Cyrus, 20 Jul 2026). Renamed to Gin (Amalthea), was £16.634."
+  },
+  {
+    "ingredientId": "scratch-white-rum",
+    "date": "2026-07-20",
+    "price": 25.0,
+    "note": "PLACEHOLDER pending invoice. Added for F&M Espresso Daiquiri 2025 (Cyrus, 20 Jul 2026)."
+  },
+  {
+    "ingredientId": "triple-sec",
+    "date": "2026-07-20",
+    "price": 21.62,
+    "note": "Bottle size corrected 500ml -> 700ml (Cyrus, 20 Jul 2026). Price unchanged."
+  },
+  {
+    "ingredientId": "noilly-prat",
+    "date": "2026-07-20",
+    "price": 12.77,
+    "note": "Bottle size corrected 700ml -> 750ml (Cyrus, 20 Jul 2026). Price unchanged."
+  },
+  {
+    "ingredientId": "punt-e-mes",
+    "date": "2026-07-20",
+    "price": 10.96,
+    "note": "Bottle size corrected 700ml -> 750ml (Cyrus, 20 Jul 2026). Price unchanged."
+  },
+  {
+    "ingredientId": "monin-grenadine",
+    "date": "2026-07-20",
+    "price": 9.35,
+    "note": "Bottle size corrected 700ml -> 1000ml (Cyrus, 20 Jul 2026: litre bottles, in the Dempsey). Price unchanged."
   }
 ]

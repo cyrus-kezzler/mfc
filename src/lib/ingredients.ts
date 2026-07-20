@@ -44,7 +44,7 @@ export const PRICE_HISTORY: IngredientPriceHistoryEntry[] =
 export const RECIPE_INGREDIENT_MAP: Record<string, string | null> = {
   // Core spirits
   Gin: "gin",
-  Vodka: "vodka",
+  Vodka: "thames-ngs-vodka",
   Rye: "rye",
   Campari: "campari",
   "Cocchi Americano": "cocchi-americano",
@@ -61,7 +61,7 @@ export const RECIPE_INGREDIENT_MAP: Record<string, string | null> = {
   Manzanilla: "manzanilla",
   Lillet: "lillet-blanc",
   Pisco: "pisco-aba",
-  "Bimber Rum": "bimber-rum",
+  "Scratch White Rum": "scratch-white-rum",
   Rum: "mount-gay", // generic "Rum" → Mount Gay
   "Old Tom": "old-tom-gin",
   "Fino Sherry": "fino-sherry",
