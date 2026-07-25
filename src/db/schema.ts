@@ -40,6 +40,21 @@ export const componentTypeEnum = pgEnum("component_type", [
 
 export const uomEnum = pgEnum("uom", ["ml", "g", "each", "m"]);
 
+/**
+ * Purchase UOM — how a component arrives at the door (spec §5.2 / decision §13 #7).
+ * Distinct from `uom` above, which is the consumption UOM recipes draw down in.
+ * A bottle of gin buys as 1 `bottle`, consumes as `ml`; a roll of labels buys as
+ * 1 `roll`, consumes as `each`. Added in Slice 1.1 as the UOM foundation for Slice 2.
+ */
+export const purchaseUomEnum = pgEnum("purchase_uom", [
+  "bottle",
+  "case",
+  "pouch",
+  "roll",
+  "bag",
+  "each",
+]);
+
 export const priceSourceEnum = pgEnum("price_source", ["inbound", "manual"]);
 
 // ─── Suppliers — spec §5.1 ──────────────────────────────────────────────────
@@ -74,12 +89,31 @@ export const components = pgTable(
     ),
 
     /**
-     * Operator entry: how the supplier sells it.
-     * e.g. a 700ml bottle of Cocchi Torino: pack_size = 700, pack_cost = 15.17 (in UOM units).
-     * For each-/m-UOM components pack_size is typically 1.
+     * How the component is bought & received (spec §5.2).
+     *
+     * Spec-name mapping — the columns predate v0.3's naming, so we keep the
+     * existing names and document the equivalence rather than churn a rename:
+     *   pack_size  ≡ spec `purchase_size` — the size of one purchase unit, in
+     *               consumption `uom` units (e.g. 700 for a 700ml bottle; 1 for
+     *               an `each` dry good). Used to convert £/purchase-unit → £/uom.
+     *   pack_cost  ≡ spec `unit_cost (£ per purchase_uom)` — what we paid for one
+     *               purchase unit (e.g. £15.17 per bottle).
+     * For each-UOM components pack_size is typically 1.
      */
     packSize: numeric("pack_size", { precision: 12, scale: 3 }),
     packCost: numeric("pack_cost", { precision: 12, scale: 2 }),
+
+    /**
+     * The purchase unit itself (bottle | case | pouch | roll | bag | each) and an
+     * optional human label override (e.g. "bottle (700ml)", "per litre juiced").
+     * When purchase_label is null the UI derives a label from purchase_uom + size.
+     *
+     * Nullable at rest: Migration A (0004) adds these, Migration B (0005) backfills
+     * every existing row, Migration C (0006) sets purchase_uom NOT NULL — C runs at
+     * deploy, not against the shared prod DB. Flip this to .notNull() alongside C.
+     */
+    purchaseUom: purchaseUomEnum("purchase_uom"),
+    purchaseLabel: text("purchase_label"),
 
     /**
      * Derived: pack_cost / pack_size, in £ per UOM. Cached for fast recipe rollup.
@@ -89,6 +123,8 @@ export const components = pgTable(
     /** When the cached unitCost was last set. */
     unitCostSetAt: timestamp("unit_cost_set_at", { withTimezone: true }),
 
+    // Reorder points are in purchase_uom (spec §5.2): "reorder at 3 bottles",
+    // "order 6 bottles at a time" — not in consumption uom.
     reorderThreshold: numeric("reorder_threshold", { precision: 12, scale: 3 }),
     reorderQuantity: numeric("reorder_quantity", { precision: 12, scale: 3 }),
     leadTimeDays: integer("lead_time_days"),

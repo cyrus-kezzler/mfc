@@ -4,11 +4,25 @@ import { db } from "@/db";
 import { suppliers } from "@/db/schema";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
 import { buttonPrimary } from "../_components/forms";
+import { StatusFilter } from "../_components/StatusFilter";
+import { parseStatus } from "../_components/status";
 
 export const dynamic = "force-dynamic";
 
-export default async function SuppliersPage() {
-  const rows = await db.select().from(suppliers).orderBy(asc(suppliers.name));
+export default async function SuppliersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status: statusRaw } = await searchParams;
+  const status = parseStatus(statusRaw);
+
+  const allRows = await db.select().from(suppliers).orderBy(asc(suppliers.name));
+  const activeCount = allRows.filter((r) => r.active).length;
+  const rows =
+    status === "all"
+      ? allRows
+      : allRows.filter((r) => (status === "active" ? r.active : !r.active));
 
   return (
     <main style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 40px 96px" }}>
@@ -33,16 +47,21 @@ export default async function SuppliersPage() {
             Suppliers
           </h1>
           <p style={{ fontSize: 13, color: COLOR.muted }}>
-            {rows.length} on file · {rows.filter((r) => r.active).length} active
+            {allRows.length} on file · {activeCount} active
           </p>
         </div>
-        <Link href="/erp/suppliers/new" style={{ ...buttonPrimary, textDecoration: "none" }}>
-          New supplier
-        </Link>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <StatusFilter />
+          <Link href="/erp/suppliers/new" style={{ ...buttonPrimary, textDecoration: "none" }}>
+            New supplier
+          </Link>
+        </div>
       </div>
 
-      {rows.length === 0 ? (
+      {allRows.length === 0 ? (
         <EmptyState />
+      ) : rows.length === 0 ? (
+        <FilteredEmptyState status={status} />
       ) : (
         <table
           style={{
@@ -147,6 +166,23 @@ function EmptyState() {
       <Link href="/erp/suppliers/new" style={{ ...buttonPrimary, textDecoration: "none" }}>
         Add the first one
       </Link>
+    </div>
+  );
+}
+
+function FilteredEmptyState({ status }: { status: "active" | "inactive" | "all" }) {
+  return (
+    <div
+      style={{
+        border: `1px dashed ${COLOR.rule}`,
+        padding: "40px 24px",
+        textAlign: "center",
+        color: COLOR.muted,
+      }}
+    >
+      <p style={{ fontFamily: FONT.serif, fontSize: 16, fontStyle: "italic" }}>
+        No {status} suppliers.
+      </p>
     </div>
   );
 }

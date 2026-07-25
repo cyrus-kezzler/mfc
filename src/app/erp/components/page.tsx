@@ -3,6 +3,12 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { components, suppliers } from "@/db/schema";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
+import {
+  derivePurchaseLabel,
+  formatDerivedUnitCost,
+  type ConsumptionUom,
+  type PurchaseUom,
+} from "@/lib/uom";
 import { buttonPrimary } from "../_components/forms";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +29,8 @@ export default async function ComponentsPage() {
       uom: components.uom,
       packSize: components.packSize,
       packCost: components.packCost,
+      purchaseUom: components.purchaseUom,
+      purchaseLabel: components.purchaseLabel,
       unitCost: components.unitCost,
       unitCostSetAt: components.unitCostSetAt,
       reorderThreshold: components.reorderThreshold,
@@ -103,15 +111,24 @@ export default async function ComponentsPage() {
                     }}
                   >
                     <Th>Name</Th>
-                    <Th align="right">Pack</Th>
-                    <Th align="right">Pack cost</Th>
+                    <Th>Purchase</Th>
                     <Th align="right">Unit cost</Th>
+                    <Th align="right">Derived</Th>
                     <Th>Supplier</Th>
                     <Th align="right">Set</Th>
                   </tr>
                 </thead>
                 <tbody>
-                  {grouped[t].map((c) => (
+                  {grouped[t].map((c) => {
+                    const packSizeNum = c.packSize != null ? Number(c.packSize) : null;
+                    const packCostNum = c.packCost != null ? Number(c.packCost) : null;
+                    const purchaseLabel = derivePurchaseLabel({
+                      purchaseUom: c.purchaseUom as PurchaseUom | null,
+                      purchaseLabel: c.purchaseLabel,
+                      packSize: packSizeNum,
+                      consumptionUom: c.uom as ConsumptionUom,
+                    });
+                    return (
                     <tr key={c.id} style={{ borderBottom: `1px solid ${COLOR.rule}` }}>
                       <Td>
                         <Link
@@ -130,14 +147,21 @@ export default async function ComponentsPage() {
                           </span>
                         )}
                       </Td>
-                      <Td align="right" muted>
-                        {c.packSize ? `${formatPack(c.packSize)}${c.uom}` : <span style={{ color: COLOR.mutedLight }}>—</span>}
-                      </Td>
+                      <Td muted>{purchaseLabel}</Td>
                       <Td align="right">
-                        {c.packCost ? `£${Number(c.packCost).toFixed(2)}` : <span style={{ color: COLOR.mutedLight }}>—</span>}
+                        {packCostNum != null ? (
+                          <>
+                            £{packCostNum.toFixed(2)}
+                            {c.purchaseUom && (
+                              <span style={{ fontSize: 11, color: COLOR.mutedLight }}>/{c.purchaseUom}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span style={{ color: COLOR.mutedLight }}>—</span>
+                        )}
                       </Td>
                       <Td align="right" muted>
-                        £{Number(c.unitCost).toFixed(4)}<span style={{ fontSize: 11, color: COLOR.mutedLight }}>/{c.uom}</span>
+                        {formatDerivedUnitCost(packCostNum, packSizeNum, c.uom as ConsumptionUom)}
                       </Td>
                       <Td muted>
                         {c.supplierName || <span style={{ color: COLOR.mutedLight }}>—</span>}
@@ -146,7 +170,8 @@ export default async function ComponentsPage() {
                         {c.unitCostSetAt ? c.unitCostSetAt.toISOString().slice(0, 10) : "—"}
                       </Td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </section>
@@ -154,13 +179,6 @@ export default async function ComponentsPage() {
       )}
     </main>
   );
-}
-
-function formatPack(packSize: string): string {
-  // Drop trailing zeros from the numeric stored as string ("700.000" → "700").
-  const n = Number(packSize);
-  if (!Number.isFinite(n)) return packSize;
-  return Number.isInteger(n) ? String(n) : n.toString();
 }
 
 function Th({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) {

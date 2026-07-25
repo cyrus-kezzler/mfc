@@ -31,6 +31,8 @@ type Row = {
   uom: NewComponent["uom"];
   pack_size: string;
   pack_cost: string;
+  purchase_uom: NonNullable<NewComponent["purchaseUom"]>;
+  purchase_label: string;
   abv: string;
   notes: string;
 };
@@ -77,6 +79,7 @@ async function seedComponents() {
         id: components.id,
         packSize: components.packSize,
         packCost: components.packCost,
+        purchaseUom: components.purchaseUom,
       })
       .from(components)
       .where(sql`lower(${components.name}) = lower(${row.name})`)
@@ -89,6 +92,8 @@ async function seedComponents() {
         uom: row.uom,
         packSize: row.pack_size,
         packCost: row.pack_cost,
+        purchaseUom: row.purchase_uom,
+        purchaseLabel: row.purchase_label || null,
         unitCost,
         unitCostSetAt: now,
         abv: row.abv ? row.abv : null,
@@ -100,15 +105,19 @@ async function seedComponents() {
     }
 
     const cur = existing[0];
-    if (cur.packSize == null || cur.packCost == null) {
-      // Old row from before pack_size/pack_cost existed — back-fill.
+    if (cur.packSize == null || cur.packCost == null || cur.purchaseUom == null) {
+      // Old row from before pack_size/pack_cost/purchase_uom existed — back-fill.
+      // Only fills columns that are actually missing, so hand-corrected rows keep
+      // their values.
       await db
         .update(components)
         .set({
-          packSize: row.pack_size,
-          packCost: row.pack_cost,
-          unitCost,
-          unitCostSetAt: now,
+          packSize: cur.packSize ?? row.pack_size,
+          packCost: cur.packCost ?? row.pack_cost,
+          unitCost: cur.packSize == null || cur.packCost == null ? unitCost : undefined,
+          purchaseUom: cur.purchaseUom ?? row.purchase_uom,
+          purchaseLabel: cur.purchaseUom == null ? row.purchase_label || null : undefined,
+          unitCostSetAt: cur.packSize == null || cur.packCost == null ? now : undefined,
           updatedAt: now,
         })
         .where(eq(components.id, cur.id));

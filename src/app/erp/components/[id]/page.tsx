@@ -3,6 +3,12 @@ import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { components, suppliers, componentPriceHistory } from "@/db/schema";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
+import {
+  derivePurchaseLabel,
+  formatDerivedUnitCost,
+  type ConsumptionUom,
+  type PurchaseUom,
+} from "@/lib/uom";
 import { ComponentFormBody } from "../_form";
 import { buttonGhost } from "../../_components/forms";
 import { updateComponent, setComponentActive } from "../actions";
@@ -40,9 +46,20 @@ export default async function EditComponentPage({
     await setComponentActive(id, !component.active);
   };
 
+  const packSizeNum = component.packSize != null ? Number(component.packSize) : null;
+  const packCostNum = component.packCost != null ? Number(component.packCost) : null;
+  const consumptionUom = component.uom as ConsumptionUom;
+  const purchaseUom = component.purchaseUom as PurchaseUom | null;
+  const purchaseLabel = derivePurchaseLabel({
+    purchaseUom,
+    purchaseLabel: component.purchaseLabel,
+    packSize: packSizeNum,
+    consumptionUom,
+  });
+
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "16px 40px 96px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
         <h1 style={{ fontFamily: FONT.serif, fontSize: 32, fontWeight: 500, letterSpacing: "-0.02em" }}>
           {component.name}
         </h1>
@@ -50,6 +67,21 @@ export default async function EditComponentPage({
           {component.active ? "Active" : "Inactive"}
         </span>
       </div>
+
+      <p style={{ fontSize: 13, color: COLOR.muted, marginBottom: 24, ...tabularNums }}>
+        {purchaseLabel}
+        {packCostNum != null && (
+          <>
+            {" · "}
+            <span style={{ color: COLOR.ink, fontWeight: 500 }}>
+              £{packCostNum.toFixed(2)}
+              {purchaseUom ? `/${purchaseUom}` : ""}
+            </span>
+            {" · "}
+            <span>{formatDerivedUnitCost(packCostNum, packSizeNum, consumptionUom)}</span>
+          </>
+        )}
+      </p>
 
       <form action={updateAction}>
         <ComponentFormBody component={component} suppliers={supplierRows} />
@@ -75,16 +107,37 @@ export default async function EditComponentPage({
             </tr>
           </thead>
           <tbody>
-            {history.map((h) => (
+            {history.map((h) => {
+              // Stored unit_cost is per consumption-uom (the derived cache). Show
+              // the per-purchase-uom price as the headline — reconstructed from the
+              // component's current purchase size — with the per-consumption cost
+              // muted alongside, per spec §5.3 / §8.5.
+              const perConsumption = Number(h.unitCost);
+              const perPurchase =
+                packSizeNum != null ? perConsumption * packSizeNum : null;
+              return (
               <tr key={h.id} style={{ borderBottom: `1px solid ${COLOR.rule}` }}>
                 <td style={td()}>{h.effectiveDate}</td>
-                <td style={td("right")}>£{Number(h.unitCost).toFixed(4)}</td>
+                <td style={td("right")}>
+                  {perPurchase != null && purchaseUom ? (
+                    <>
+                      £{perPurchase.toFixed(2)}
+                      <span style={{ fontSize: 11, color: COLOR.mutedLight }}>/{purchaseUom}</span>
+                      <div style={{ fontSize: 11, color: COLOR.mutedLight }}>
+                        ≈ £{perConsumption.toFixed(4)}/{h.uom}
+                      </div>
+                    </>
+                  ) : (
+                    <>£{perConsumption.toFixed(4)}<span style={{ fontSize: 11, color: COLOR.mutedLight }}>/{h.uom}</span></>
+                  )}
+                </td>
                 <td style={td()}>{h.source}</td>
                 <td style={td()}>
                   <span style={{ color: COLOR.muted }}>{h.notes ?? "—"}</span>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       )}

@@ -29,6 +29,13 @@
       "when": 1781726986070,
       "tag": "0003_wakeful_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783173594837,
+      "tag": "0004_slice_1_1_purchase_uom",
+      "breakpoints": true
     }
   ]
 }
