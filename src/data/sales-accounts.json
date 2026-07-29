@@ -289,15 +289,15 @@
     "name": "Seven Cellars",
     "category": "Wine Merchant",
     "tier": 1,
-    "city": "",
+    "city": "Brighton",
     "buyer_name": "Louise",
     "buyer_title": "",
     "buyer_email": "",
     "buyer_phone": "",
     "status": "Box Sent",
-    "notes": "Posted 29 Jul. PREVIOUS CUSTOMER: GBP 480, 2019-20. The 23 Jul session caught a cold letter about to go and required a warm opening line to Louise before Tuesday. WHETHER THAT FIX WAS MADE IS UNCONFIRMED - verify before the follow-up call.",
+    "notes": "Previous customer: £480, 2019-20. Box posted 29 Jul with a HAND-WRITTEN note from Cyrus to Louise, not a printed letter. The 23 Jul session caught a cold letter about to go to a returning customer; the warm replacement was then abandoned mid-send because of its Ludlow line. Second time in six days the warm path fell back to handwriting (Harp Lane was the first), which is why the warm-lapsed letter was written on 29 Jul.",
     "created_at": "2026-07-29T00:00:00.000Z",
-    "updated_at": "2026-07-29T00:00:00.000Z"
+    "updated_at": "2026-07-29T13:11:59.803Z"
   },
   {
     "id": "bf3e1aaa-8778-5e19-bc1c-91da3a4f436e",
