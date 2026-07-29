@@ -1,1 +1,106 @@
-[]
+[
+  {
+    "id": "fc81bdac-d7ef-595f-b93b-5937edd17d5c",
+    "account_id": "4501b150-af87-5e34-b1c3-1aa9549752e5",
+    "date": "2026-07-16",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents. Date approximate (recorded as ~16-17 Jul).",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "37ca21b2-79f0-5ada-adc0-17845a960be1",
+    "account_id": "f81e7d6d-fece-5bd5-b9cf-475189cbb2f6",
+    "date": "2026-07-16",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents. Date approximate (recorded as ~16-17 Jul).",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "abe80fde-ce17-5424-877a-10535cab7722",
+    "account_id": "a9130104-5ee1-52af-884b-8aa303747432",
+    "date": "2026-07-16",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents. Date approximate (recorded as ~16-17 Jul).",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "c755847c-e8fe-5167-b936-4b7cbd91b07e",
+    "account_id": "4cea36b6-be58-5900-915c-2acd86c5d509",
+    "date": "2026-07-16",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents. Date approximate (recorded as ~16-17 Jul).",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "41123b8d-1d24-568b-98ed-41725f24da1f",
+    "account_id": "d94ae0d8-ee32-5e95-92d0-9df12a8c1192",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "d60085b9-dab4-5ef8-ba01-8fbf1a994491",
+    "account_id": "dbcee69c-95d6-5a9f-b4a0-f7f26a052f23",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "8a6e6477-b63f-5d45-b4f8-a61f15c8bf41",
+    "account_id": "67eb7f16-932e-5464-9db5-e418af04bcaa",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "942236f5-c7c5-5705-b55c-00b175939ab4",
+    "account_id": "b4fb46bd-930d-5b88-922b-13edf2d445c7",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track B. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "28cbe1e6-8b97-5c4f-a050-990f53f49cde",
+    "account_id": "825d920a-c102-4b3c-b72d-d09222451d03",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "3ca307be-0ceb-59aa-95ef-d6602164e347",
+    "account_id": "4c3be219-12d6-5135-bbff-04308164c334",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "551aba24-bfe1-57d9-bfa3-39a14ffa9389",
+    "account_id": "9556fff8-cda7-59ce-88f8-4776bf7ac4d5",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "f6429277-d368-517d-9500-8f71c6e58c52",
+    "account_id": "bf3e1aaa-8778-5e19-bc1c-91da3a4f436e",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "e01ec426-c500-5439-a9eb-3d39ac9e0db6",
+    "account_id": "bf0d3a83-f998-56a7-9851-520aa24fcd70",
+    "date": "2026-07-29",
+    "type": "Box Sent",
+    "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
+    "created_at": "2026-07-29T00:00:00.000Z"
+  }
+]

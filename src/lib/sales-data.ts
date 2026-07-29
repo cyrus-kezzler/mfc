@@ -24,6 +24,7 @@ export const CATEGORIES = [
   "Local",
   "Wine Merchant",
   "Lifestyle",
+  "Hamper & Gifting",
   "Other",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
