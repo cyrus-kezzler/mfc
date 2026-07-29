@@ -102,5 +102,13 @@
     "type": "Box Sent",
     "summary": "Sample box posted, wave 1, track A. Martini Flight contents.",
     "created_at": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": "baa5ebc1-6b60-41da-9d1c-b57b0963e910",
+    "account_id": "9556fff8-cda7-59ce-88f8-4776bf7ac4d5",
+    "date": "2026-07-29",
+    "type": "Letter",
+    "summary": "Hand-written note from Cyrus to Louise. No printed letter went. He started the warm trade letter, spotted that it says \"what moves in Ludlow\" (a Harp Lane Deli hangover never genericised) and wrote by hand instead. Follow-up should pick up from that note, not from a letter.",
+    "created_at": "2026-07-29T13:11:52.305Z"
   }
 ]
