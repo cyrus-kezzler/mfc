@@ -42,6 +42,25 @@ export const uomEnum = pgEnum("uom", ["ml", "g", "each", "m"]);
 
 export const priceSourceEnum = pgEnum("price_source", ["inbound", "manual"]);
 
+/**
+ * What job a component does on a SKU's bill of materials.
+ *
+ * The first five are PRIMARY packaging: they are on every bottle no matter how
+ * it ships, so they belong inside COGS (Cyrus's ruling, 30 Jul 2026). The last
+ * two are SECONDARY, they vary by channel, and they belong in the Channel P&L.
+ * The `include_in_cogs` flag on the row is what actually decides; this enum is
+ * for reporting and for catching a row filed under the wrong job.
+ */
+export const skuComponentRoleEnum = pgEnum("sku_component_role", [
+  "bottle",
+  "closure",
+  "front_label",
+  "hygiene_label",
+  "epr",
+  "outer_carton",
+  "shipping",
+]);
+
 // ─── Suppliers — spec §5.1 ──────────────────────────────────────────────────
 
 export const suppliers = pgTable("suppliers", {
@@ -258,13 +277,67 @@ export const skus = pgTable(
     id: serial("id").primaryKey(),
     code: text("code").notNull().unique(),
     drinkId: integer("drink_id").references(() => drinks.id, { onDelete: "set null" }),
+    /**
+     * Which client's recipe this format sells under. Added 30 Jul 2026.
+     *
+     * Without it the table cannot express "Cripps Espresso Martini 700ml":
+     * drink 6 carries both an own-brand recipe and a Cripps recipe, so
+     * (drink_id, size_ml) is ambiguous the moment a partner shares a drink
+     * name with the own-brand range. That ambiguity is why the flagship, about
+     * half of all wholesale, had no SKU and had to be costed by hand.
+     *
+     * Nullable for now so the migration is purely additive. The 29 pre-existing
+     * rows are all own-brand and are backfilled to Myatt's Fields by a separate
+     * data step, after which this should be tightened to NOT NULL.
+     */
+    clientId: integer("client_id").references(() => clients.id, { onDelete: "restrict" }),
     sizeMl: integer("size_ml").notNull(),
     gtin: text("gtin"),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("skus_drink_idx").on(t.drinkId)],
+  (t) => [
+    index("skus_drink_idx").on(t.drinkId),
+    index("skus_client_idx").on(t.clientId),
+  ],
+);
+
+/**
+ * Bill of materials: which dry goods and packaging go on a given SKU, and how
+ * many of each. Added 30 Jul 2026 to close the gap the 20 Jul reconciliation
+ * found, that no table linked any dry good to any SKU, so packaging cost could
+ * never roll up and the honest build had to be assembled by hand.
+ *
+ * `include_in_cogs` is the mechanism for Cyrus's 30 Jul ruling: primary
+ * packaging (bottle, closure, front label, hygiene label, EPR) sits inside
+ * COGS because it is on every bottle regardless of channel; mailers, cases and
+ * carriage sit outside it, in the Channel P&L, because they genuinely vary.
+ */
+export const skuComponents = pgTable(
+  "sku_components",
+  {
+    id: serial("id").primaryKey(),
+    skuId: integer("sku_id")
+      .notNull()
+      .references(() => skus.id, { onDelete: "cascade" }),
+    componentId: integer("component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "restrict" }),
+    /** How many of this component per finished bottle. Usually 1. */
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull().default("1"),
+    role: skuComponentRoleEnum("role").notNull(),
+    includeInCogs: boolean("include_in_cogs").notNull().default(true),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("sku_components_sku_idx").on(t.skuId),
+    index("sku_components_component_idx").on(t.componentId),
+    uniqueIndex("sku_components_sku_component_uq").on(t.skuId, t.componentId),
+    check("sku_components_qty_positive", sql`${t.quantity} > 0`),
+  ],
 );
 
 // ─── Inferred types ─────────────────────────────────────────────────────────
@@ -295,6 +368,9 @@ export type NewRecipeLine = typeof recipeLines.$inferInsert;
 
 export type Sku = typeof skus.$inferSelect;
 export type NewSku = typeof skus.$inferInsert;
+
+export type SkuComponent = typeof skuComponents.$inferSelect;
+export type NewSkuComponent = typeof skuComponents.$inferInsert;
 
 // ─── Setting keys ───────────────────────────────────────────────────────────
 

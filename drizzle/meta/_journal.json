@@ -29,6 +29,13 @@
       "when": 1781726986070,
       "tag": "0003_wakeful_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785429791598,
+      "tag": "0004_supreme_blue_shield",
+      "breakpoints": true
     }
   ]
 }
