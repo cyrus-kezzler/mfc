@@ -55,6 +55,7 @@ export const skuComponentRoleEnum = pgEnum("sku_component_role", [
   "bottle",
   "closure",
   "front_label",
+  "back_label",
   "hygiene_label",
   "epr",
   "outer_carton",
