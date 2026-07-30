@@ -1,0 +1,86 @@
+=== DRY RUN (pass --write to commit) ===
+
+1. Backfilling skus.client_id to Myatt's Fields where null
+  WOULD backfill 29 SKUs to Myatt's Fields
+
+2. Ensuring label components exist
+  WOULD CREATE component "Front label - Myatt's Fields" at £0.0900
+  WOULD CREATE component "Front label - Fortnum & Mason" at £0.3400
+  WOULD CREATE component "Front label - Cripps" at £0.6000
+  WOULD CREATE component "Hygiene label - Myatt's Fields" at £0.0600
+  WOULD CREATE component "Hygiene label - Fortnum & Mason" at £0.0600
+  WOULD CREATE component "Hygiene label - Cripps" at £0.1500
+
+3. Ensuring partner SKUs exist
+  WOULD CREATE SKU espresso-martini-700-cripps (drink 6, 700ml)
+  WOULD CREATE SKU negroni-700-cripps (drink 12, 700ml)
+  WOULD CREATE SKU robin-roy-350-fm (drink 21, 350ml)
+  WOULD CREATE SKU espresso-daiquiri-350-fm (drink 20, 350ml)
+  WOULD CREATE SKU vesper-martini-350-fm (drink 19, 350ml)
+  WOULD CREATE SKU apples-and-pears-350-fm (drink 101, 350ml)
+  WOULD CREATE SKU christmas-gingertini-350-fm (drink 102, 350ml)
+
+4. Attaching bill of materials
+  would attach 48 bill-of-materials lines
+
+=== GAPS ===
+  SKU baby-otis-250: component "Front label - Myatt's Fields" does not exist
+  SKU baby-otis-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU baby-otis-500: component "Front label - Myatt's Fields" does not exist
+  SKU baby-otis-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU cold-brew-negroni-250: component "Front label - Myatt's Fields" does not exist
+  SKU cold-brew-negroni-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU corpse-reviver-250: component "Front label - Myatt's Fields" does not exist
+  SKU corpse-reviver-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU dempsey-250: component "Front label - Myatt's Fields" does not exist
+  SKU dempsey-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU dempsey-500: component "Front label - Myatt's Fields" does not exist
+  SKU dempsey-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU desert-negroni-250: component "Front label - Myatt's Fields" does not exist
+  SKU desert-negroni-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU desert-negroni-500: component "Front label - Myatt's Fields" does not exist
+  SKU desert-negroni-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU espresso-martini-250: component "Front label - Myatt's Fields" does not exist
+  SKU espresso-martini-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU espresso-martini-500: component "Front label - Myatt's Fields" does not exist
+  SKU espresso-martini-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU gibson-martini-250: component "Front label - Myatt's Fields" does not exist
+  SKU gibson-martini-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU lychee-martini-250: component "Front label - Myatt's Fields" does not exist
+  SKU lychee-martini-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU manhattan-250: component "Front label - Myatt's Fields" does not exist
+  SKU manhattan-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU manhattan-500: component "Front label - Myatt's Fields" does not exist
+  SKU manhattan-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU margarita-250: component "Front label - Myatt's Fields" does not exist
+  SKU margarita-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU naked-and-famous-250: component "Front label - Myatt's Fields" does not exist
+  SKU naked-and-famous-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU negroni-250: component "Front label - Myatt's Fields" does not exist
+  SKU negroni-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU negroni-500: component "Front label - Myatt's Fields" does not exist
+  SKU negroni-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU pisco-martini-250: component "Front label - Myatt's Fields" does not exist
+  SKU pisco-martini-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU pisco-martini-500: component "Front label - Myatt's Fields" does not exist
+  SKU pisco-martini-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU red-hook-250: component "Front label - Myatt's Fields" does not exist
+  SKU red-hook-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU rum-old-fashioned-250: component "Front label - Myatt's Fields" does not exist
+  SKU rum-old-fashioned-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU rum-old-fashioned-500: component "Front label - Myatt's Fields" does not exist
+  SKU rum-old-fashioned-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU sakura-martini-250: component "Front label - Myatt's Fields" does not exist
+  SKU sakura-martini-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU trident-250: component "Front label - Myatt's Fields" does not exist
+  SKU trident-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU trident-500: component "Front label - Myatt's Fields" does not exist
+  SKU trident-500: component "Hygiene label - Myatt's Fields" does not exist
+  SKU tuxedo-250: component "Front label - Myatt's Fields" does not exist
+  SKU tuxedo-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU vesper-250: component "Front label - Myatt's Fields" does not exist
+  SKU vesper-250: component "Hygiene label - Myatt's Fields" does not exist
+  SKU vesper-500: component "Front label - Myatt's Fields" does not exist
+  SKU vesper-500: component "Hygiene label - Myatt's Fields" does not exist
+
+DRY RUN, nothing written. 15 actions, 58 gaps.

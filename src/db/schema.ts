@@ -109,6 +109,15 @@ export const components = pgTable(
     /** When the cached unitCost was last set. */
     unitCostSetAt: timestamp("unit_cost_set_at", { withTimezone: true }),
 
+    /**
+     * Sub-recipe only. How much the base batch yields, in this component's own
+     * UOM. Myatt's Sours yields 326.2, so a 3 litre ask scales by 3000/326.2.
+     * Null for anything that is bought rather than made.
+     */
+    batchYield: numeric("batch_yield", { precision: 12, scale: 4 }),
+    /** Sub-recipe only. How to actually make it. */
+    batchMethod: text("batch_method"),
+
     reorderThreshold: numeric("reorder_threshold", { precision: 12, scale: 3 }),
     reorderQuantity: numeric("reorder_quantity", { precision: 12, scale: 3 }),
     leadTimeDays: integer("lead_time_days"),
@@ -157,6 +166,49 @@ export const componentPriceHistory = pgTable(
   (t) => [
     index("component_price_history_component_idx").on(t.componentId),
     index("component_price_history_effective_date_idx").on(t.effectiveDate),
+  ],
+);
+
+/**
+ * What a sub-recipe component is made of. Added 30 Jul 2026.
+ *
+ * The component_type enum has carried "sub_recipe" since slice 1 and nothing
+ * ever used it, so a house-made input like Myatt's Sours sat in the register as
+ * a flat hand-typed £5 a litre with no constituents behind it. This table is
+ * the exact parallel of sku_components, one level down: a parent component and
+ * the children that go into one base batch of it.
+ *
+ * Two things fall out. Cost derives rather than being asserted, so when the
+ * citric acid price moves, Sours moves and so does every drink using it. And
+ * batch scaling becomes a query: quantities are per base batch, the parent
+ * carries batch_yield, so N units wanted scales every child by N / batch_yield.
+ *
+ * Nesting is allowed and needed: the phosphoric acid 1.25% stock is itself a
+ * sub-recipe that Sours consumes.
+ */
+export const componentRecipes = pgTable(
+  "component_recipes",
+  {
+    id: serial("id").primaryKey(),
+    parentComponentId: integer("parent_component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "cascade" }),
+    childComponentId: integer("child_component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "restrict" }),
+    /** Quantity of the child, in the CHILD's UOM, per one base batch. */
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("component_recipes_parent_idx").on(t.parentComponentId),
+    index("component_recipes_child_idx").on(t.childComponentId),
+    uniqueIndex("component_recipes_parent_child_uq").on(t.parentComponentId, t.childComponentId),
+    check("component_recipes_qty_positive", sql`${t.quantity} > 0`),
+    check("component_recipes_no_self_ref", sql`${t.parentComponentId} <> ${t.childComponentId}`),
   ],
 );
 
@@ -372,6 +424,9 @@ export type NewSku = typeof skus.$inferInsert;
 
 export type SkuComponent = typeof skuComponents.$inferSelect;
 export type NewSkuComponent = typeof skuComponents.$inferInsert;
+
+export type ComponentRecipe = typeof componentRecipes.$inferSelect;
+export type NewComponentRecipe = typeof componentRecipes.$inferInsert;
 
 // ─── Setting keys ───────────────────────────────────────────────────────────
 

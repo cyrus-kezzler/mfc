@@ -1,0 +1,53 @@
+
+Manhattan [Myatt's Fields] recipe 9, lines sum 100%
+     66.000%  Rye                                  £0.040029/ml  type=ingredient
+     17.000%  Carpano Antica Formula Vermouth      £0.027360/ml  type=ingredient
+     17.000%  Cocchi Torino                        £0.024067/ml  type=ingredient
+
+Negroni [Myatt's Fields] recipe 12, lines sum 100%
+     33.700%  Campari                              £0.021671/ml  type=ingredient
+     33.300%  Gin (in-house)                       £0.022500/ml  type=ingredient
+     16.500%  Carpano Antica Formula Vermouth      £0.027360/ml  type=ingredient
+     16.500%  Cocchi Torino                        £0.024067/ml  type=ingredient
+
+Negroni [Cripps] recipe 27, lines sum 100%
+     33.700%  Campari                              £0.021671/ml  type=ingredient
+     33.300%  Gin (in-house)                       £0.022500/ml  type=ingredient
+     16.500%  Carpano Antica Formula Vermouth      £0.027360/ml  type=ingredient
+     16.500%  Punt e Mes                           £0.014613/ml  type=ingredient
+
+Espresso Martini [Myatt's Fields] recipe 6, lines sum 100%
+     34.000%  Espresso (house-brewed)              £0.004000/ml  type=ingredient
+     33.000%  Kahlua                               £0.017557/ml  type=ingredient
+     33.000%  Vodka (Thames NGS)                   £0.015410/ml  type=ingredient
+
+Espresso Martini [Cripps] recipe 28, lines sum 100%
+     33.400%  Espresso (house-brewed)              £0.004000/ml  type=ingredient
+     33.300%  Kahlua                               £0.017557/ml  type=ingredient
+     33.300%  Vodka (Thames NGS)                   £0.015410/ml  type=ingredient
+
+Vesper Martini [Myatt's Fields] recipe 19, lines sum 99.99999999999999%
+     66.700%  Gin (in-house)                       £0.022500/ml  type=ingredient
+     11.100%  Vodka (Bimber - stock only, no reorder) £0.027800/ml  type=ingredient
+     11.100%  Lillet Blanc                         £0.019227/ml  type=ingredient
+     11.100%  Cocchi Americano                     £0.024560/ml  type=ingredient
+
+Vesper Martini [Fortnum & Mason] recipe 20, lines sum 100%
+     60.000%  Gin (Amalthea)                       £0.016670/ml  type=ingredient
+     10.000%  Vodka (Bimber - stock only, no reorder) £0.027800/ml  type=ingredient
+     10.000%  Lillet Blanc                         £0.019227/ml  type=ingredient
+     10.000%  Cocchi Americano                     £0.024560/ml  type=ingredient
+     10.000%  Water                                £0.000000/ml  type=ingredient
+
+Baby Otis [Myatt's Fields] recipe 1, lines sum 100%
+     50.000%  Havana Club 7                        £0.030071/ml  type=ingredient
+     25.000%  Cocchi Torino                        £0.024067/ml  type=ingredient
+     25.000%  Cocchi Americano                     £0.024560/ml  type=ingredient
+
+=== ANY COMPONENT THAT LOOKS LIKE WATER OR DILUTION ===
+    10 Myatt's Sours                            £0.005000/ml active=true
+    52 1:1 Sugar Syrup                          £0.002000/ml active=true
+    61 Water                                    £0.000000/ml active=true
+    33 Agave Syrup                              £0.024000/ml active=true
+    69 Cranberry & Hibiscus Syrup (house)       £0.004000/ml active=true
+    60 Maple Syrup                              £0.016000/ml active=false

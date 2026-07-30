@@ -55,7 +55,7 @@ const INGREDIENTS: SeedComponent[] = [
   { name: "Cocchi Torino", packSizeMl: 750, packCost: 18.05, abv: 16.5 },
   { name: "Lillet Blanc", packSizeMl: 750, packCost: 14.42 },
   { name: "Kahlua", packSizeMl: 700, packCost: 13.43, abv: 16.5 },
-  { name: "Sours base", packSizeMl: 1000, packCost: 5.0 },
+  { name: "Myatt's Sours", packSizeMl: 1000, packCost: 5.0 },
 
   // — migrated from the legacy master (real buying-spreadsheet prices) —
   { name: "Havana Club 7", packSizeMl: 700, packCost: 21.05 },
@@ -101,6 +101,17 @@ const INGREDIENTS: SeedComponent[] = [
   { name: "Fernet Branca", packSizeMl: 700, packCost: 18.0 },
   { name: "Maple Syrup", packSizeMl: 500, packCost: 8.0 },
 
+  // F&M 2026 distillery editions (Cyrus recipes, 2026-07-15), placeholder prices
+  { name: "Somerset Cider Brandy", packSizeMl: 500, packCost: 30.0, notes: "Apples & Pears. Placeholder price - correct via price page." },
+  { name: "Belle de Brillet (pear liqueur)", packSizeMl: 700, packCost: 15.0, notes: "Apples & Pears. Poire Williams + cognac liqueur, ~30% ABV. Placeholder price (likely ~£30+), correct via price page." },
+  { name: "Suze", packSizeMl: 700, packCost: 22.0, notes: "Apples & Pears. Gentian aperitif. Placeholder." },
+  { name: "Clarified Apple Juice (house)", packSizeMl: 1000, packCost: 3.0, notes: "Apples & Pears. Per litre. Placeholder. Confirm vs 'Apple Juice'." },
+  { name: "Angostura Bitters", packSizeMl: 148, packCost: 12.0, notes: "Apples & Pears bitters (label-confirmed 15 Jul; was Peychaud's from an old recipe). Placeholder." },
+  { name: "Ginger Amalthea Gin", packSizeMl: 1000, packCost: 16.63, notes: "Christmas Gingertini. Confirm vs 'Gin (Amalthea)'. Placeholder." },
+  { name: "Cranberry & Hibiscus Syrup (house)", packSizeMl: 1000, packCost: 4.0, notes: "Christmas Gingertini. House 1:2 syrup, cranberry & hibiscus (label-confirmed 15 Jul). Per litre. Placeholder." },
+  { name: "Passoã", packSizeMl: 700, packCost: 14.0, notes: "Christmas Gingertini. Passionfruit liqueur. Placeholder." },
+  { name: "Ginger Liqueur", packSizeMl: 500, packCost: 18.0, notes: "Christmas Gingertini. Placeholder. Not in F&M declaration - reconcile." },
+
   // — Water sentinel (£0) so the cost rollup needs no special-casing —
   { name: "Water", packSizeMl: 1000, packCost: 0.0, notes: "Dilution; £0 sentinel for cost rollup" },
 ];
@@ -143,6 +154,8 @@ const DRINK_SEED: DrinkSeed[] = [
   { slug: "griotte", name: "Griotte", status: "active" },
   { slug: "apple-crumble", name: "Apple Crumble", status: "active" },
   { slug: "autumn-nectar", name: "Autumn Nectar", status: "active" },
+  { slug: "apples-and-pears", name: "Apples & Pears", status: "active" },
+  { slug: "christmas-gingertini", name: "Christmas Gingertini", status: "active" },
 ];
 
 // ─── Recipes (drink × client → percentage lines) ─────────────────────────────
@@ -163,7 +176,7 @@ const RECIPE_SEED: RecipeSeed[] = [
     lines: [["Gin (in-house)", 33], ["Cocchi Torino", 33], ["Campari", 33], ["Coffee", 1]],
     method: "Infuse with 3 coffee beans per 700ml for 20 minutes before production",
   },
-  { drinkSlug: "corpse-reviver", clientSlug: "mfc", lines: [["Gin (in-house)", 25], ["Lillet Blanc", 25], ["Blue Curaçao", 25], ["Sours base", 25]] },
+  { drinkSlug: "corpse-reviver", clientSlug: "mfc", lines: [["Gin (in-house)", 25], ["Lillet Blanc", 25], ["Blue Curaçao", 25], ["Myatt's Sours", 25]] },
   { drinkSlug: "dempsey", clientSlug: "mfc", lines: [["Gin (in-house)", 48], ["Calvados", 48], ["La Fée Absinthe", 2], ["Monin Grenadine", 2]] },
   { drinkSlug: "desert-negroni", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 33.3], ["Cocchi Torino", 33.3], ["Campari", 33.4]] },
   { drinkSlug: "espresso-martini", clientSlug: "mfc", lines: [["Vodka (Bimber)", 33], ["Kahlua", 33], ["Coffee", 34]] },
@@ -175,8 +188,8 @@ const RECIPE_SEED: RecipeSeed[] = [
   },
   { drinkSlug: "lychee-martini", clientSlug: "mfc", lines: [["Gin (in-house)", 52.17], ["Lychee Liqueur", 26.09], ["Noilly Prat", 13.04], ["Water", 8.7]] },
   { drinkSlug: "manhattan", clientSlug: "mfc", lines: [["Rye", 66], ["Carpano Antica Formula Vermouth", 17], ["Cocchi Torino", 17]] },
-  { drinkSlug: "margarita", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 50], ["Sours base", 22.5], ["Triple Sec", 22.5], ["Agave Syrup", 5]] },
-  { drinkSlug: "naked-and-famous", clientSlug: "mfc", lines: [["Mezcal", 25], ["Yellow Chartreuse", 25], ["Aperol", 25], ["Sours base", 25]] },
+  { drinkSlug: "margarita", clientSlug: "mfc", lines: [["Epsolon Blanco Tequila", 50], ["Myatt's Sours", 22.5], ["Triple Sec", 22.5], ["Agave Syrup", 5]] },
+  { drinkSlug: "naked-and-famous", clientSlug: "mfc", lines: [["Mezcal", 25], ["Yellow Chartreuse", 25], ["Aperol", 25], ["Myatt's Sours", 25]] },
   { drinkSlug: "negroni", clientSlug: "mfc", lines: [["Gin (in-house)", 33.3], ["Carpano Antica Formula Vermouth", 16.5], ["Cocchi Torino", 16.5], ["Campari", 33.7]] },
   { drinkSlug: "pisco-martini", clientSlug: "mfc", lines: [["Gin (in-house)", 25], ["Pisco Aba", 25], ["Noilly Prat", 25], ["Cocchi Torino", 25]] },
   { drinkSlug: "rum-old-fashioned", clientSlug: "mfc", lines: [["Mount Gay Rum", 88], ["1:1 Sugar Syrup", 12]] },
@@ -192,10 +205,14 @@ const RECIPE_SEED: RecipeSeed[] = [
   { drinkSlug: "vesper", clientSlug: "fm", lines: [["Gin (in-house)", 60], ["Vodka (Bimber)", 10], ["Lillet Blanc", 10], ["Cocchi Americano", 10], ["Water", 10]] },
   { drinkSlug: "espresso-daiquiri", clientSlug: "fm", lines: [["Scratch (white rum)", 33], ["Kahlua", 33], ["Espresso", 34]] },
   { drinkSlug: "robin-roy", clientSlug: "fm", lines: [["Cotswold Whisky", 56], ["Cocchi Torino", 28], ["Water", 16]] },
-  { drinkSlug: "clementini", clientSlug: "fm", lines: [["Gin (in-house)", 45], ["Chinotto Nero", 25], ["Sours base", 25], ["Agave Syrup", 5]] },
+  { drinkSlug: "clementini", clientSlug: "fm", lines: [["Gin (in-house)", 45], ["Chinotto Nero", 25], ["Myatt's Sours", 25], ["Agave Syrup", 5]] },
   { drinkSlug: "griotte", clientSlug: "fm", lines: [["Mozart Chocolate Liqueur", 30], ["Heering Cherry", 20], ["Kahlua", 20], ["Jerez (Pedro Ximénez)", 30]] },
   { drinkSlug: "apple-crumble", clientSlug: "fm", lines: [["Black Bottle Whisky", 50], ["Apple Juice", 25], ["Oat Milk", 13], ["Water", 12]] },
   { drinkSlug: "autumn-nectar", clientSlug: "fm", lines: [["Shipwreck Rum", 70], ["Fernet Branca", 9], ["Maple Syrup", 9], ["Water", 12]] },
+
+  // F&M 2026 distillery editions (Cyrus recipes, 2026-07-15)
+  { drinkSlug: "apples-and-pears", clientSlug: "fm", lines: [["Somerset Cider Brandy", 15.385], ["Belle de Brillet (pear liqueur)", 15.385], ["Suze", 7.692], ["Clarified Apple Juice (house)", 30.769], ["Water", 30.769]], method: "Add 2 dashes Angostura bitters per 100ml of finished drink (11 dashes for a 550ml batch)." },
+  { drinkSlug: "christmas-gingertini", clientSlug: "fm", lines: [["Ginger Amalthea Gin", 30.769], ["Cranberry & Hibiscus Syrup (house)", 15.385], ["Myatt's Sours", 30.769], ["Passoã", 15.385], ["Ginger Liqueur", 7.692]] },
 
   // — Cripps —
   { drinkSlug: "negroni", clientSlug: "cripps", lines: [["Gin (in-house)", 33.3], ["Carpano Antica Formula Vermouth", 16.5], ["Punt e Mes", 16.5], ["Campari", 33.7]] },

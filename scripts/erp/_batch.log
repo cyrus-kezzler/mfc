@@ -1,0 +1,33 @@
+
+=== Myatt's Sours: make 3000 ml ===
+base batch 326.2 ml, scale x9.196812
+
+STEP: make 460 g of Phosphoric acid 1.25% solution first
+  Phosphoric acid 1.25% solution:
+            5.7 g  Phosphoric acid 75% food grade       cost unknown
+           454 ml  Water                                £0.0000
+
+Myatt's Sours:
+           83 g  Citric acid powder                   cost unknown
+           55 g  Malic acid powder                    cost unknown
+          1.8 g  Tartaric acid powder                 cost unknown
+          460 g  Phosphoric acid 1.25% solution       cost unknown
+        2391 ml  Water                                £0.0000
+          9.2 g  Salt                                 cost unknown
+
+  Derived cost: CANNOT BE COMPUTED. Unpriced inputs:
+     - Citric acid powder
+     - Malic acid powder
+     - Tartaric acid powder
+     - Phosphoric acid 75% food grade
+     - Salt
+
+  Currently asserted in the register: £0.0050 per ml (hand-typed, unsourced)
+  At that asserted rate this batch would be £15.00.
+
+  Method:
+    Dissolve the acids and the salt in the water, add the phosphoric acid stock, stir or whisk until fully dissolved, then bottle.
+    
+    Report the acids to 0.1 g, they drive the flavour balance. Water and the phosphoric stock can be rounded to the nearest gram.
+    
+    The solution is roughly 95% water, so density is about 1 g per ml. A batch comes out around 2% under its nominal volume; top up with a splash of water if the exact volume matters.

@@ -1,0 +1,45 @@
+Components: 85 total, 49 carry an ABV
+
+drink                       client           impliedABV  missingABV  water?
+----------------------------------------------------------------------------------
+Dempsey                     Myatt's Fields   40.3%                   
+Vesper Martini              Myatt's Fields   35.4%                   
+Manhattan                   Myatt's Fields   35.3%                   
+Rum Old Fashioned           Myatt's Fields   35.2%                   
+Gibson Martini              Myatt's Fields   34.8%                   yes
+Red Hook                    Myatt's Fields   33.7%                   yes
+Robin Roy                   Fortnum & Mason  30.4%                   yes
+Lychee Martini              Myatt's Fields   29.1%                   yes
+Margarita                   Myatt's Fields   29.0%       1           yes
+Pisco Martini               Myatt's Fields   28.9%                   
+Baby Otis                   Myatt's Fields   28.3%                   
+Negroni                     Myatt's Fields   27.6%                   
+Negroni                     Cripps           27.5%                   
+Cold Brew Negroni           Myatt's Fields   27.3%                   
+Desert Negroni              Myatt's Fields   27.2%                   
+Trident                     Myatt's Fields   25.5%                   
+Naked & Famous              Myatt's Fields   23.5%       1           yes
+Apple Crumble               Fortnum & Mason  21.5%                   yes
+Sakura Martini              Myatt's Fields   21.0%                   yes
+Espresso Martini            Cripps           18.8%                   
+Espresso Martini            Myatt's Fields   18.7%                   
+Clementini                  Fortnum & Mason  18.5%       2           yes
+Griotte                     Fortnum & Mason  18.3%                   
+Corpse Reviver              Myatt's Fields   14.6%       2           yes
+Apples & Pears              Fortnum & Mason  12.6%                   yes
+Vesper Martini              Fortnum & Mason  7.1%        1           yes
+Tuxedo                      Myatt's Fields   5.5%        1           yes
+Espresso Daiquiri           Fortnum & Mason  5.4%        1           
+Autumn Nectar               Fortnum & Mason  3.5%        1           yes
+Christmas Gingertini        Fortnum & Mason  2.6%        3           yes
+
+Components used in recipes with NO ABV recorded (9):
+   Blue Curaçao
+   Chinotto Nero
+   Gin (Amalthea)
+   Ginger Amalthea Gin
+   Ginger Liqueur
+   Myatt's Sours
+   Old Tom Gin
+   Scratch (white rum)
+   Shipwreck Rum

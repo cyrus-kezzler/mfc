@@ -1,0 +1,106 @@
+=== COUNTS ===
+{
+  "components": 79,
+  "componentPriceHistory": 78,
+  "systemSettings": 3,
+  "suppliers": 0,
+  "clients": 3,
+  "drinks": 27,
+  "recipes": 30,
+  "recipeLines": 113,
+  "skus": 29
+}
+
+=== SYSTEM SETTINGS ===
+  wastage_pct                  0.025
+  labour_rate_gbp_per_hour     15.00
+  next_serial_number           35001
+
+=== CLIENTS ===
+  {"id":1,"slug":"mfc","name":"Myatt's Fields","isDefault":true,"displayOrder":1,"createdAt":"2026-06-02T10:29:23.022Z","updatedAt":"2026-06-17T21:33:52.273Z"}
+  {"id":2,"slug":"fm","name":"Fortnum & Mason","isDefault":false,"displayOrder":2,"createdAt":"2026-06-02T10:29:23.038Z","updatedAt":"2026-06-17T21:33:52.305Z"}
+  {"id":3,"slug":"cripps","name":"Cripps","isDefault":false,"displayOrder":3,"createdAt":"2026-06-02T10:29:23.047Z","updatedAt":"2026-06-17T21:33:52.315Z"}
+
+=== NON-INGREDIENT COMPONENTS (dry_good / packaging) ===
+  id   name                                      type       uom   packSize  packCost  unitCost   setAt       act
+  11   250ml bottle                              dry_good   each  1.000     0.62      0.6200     Thu May 07  Y
+  12   500ml bottle                              dry_good   each  1.000     0.54      0.5400     Thu May 07  Y
+  13   50ml miniature bottle                     dry_good   each  1.000     0.00      0.0000     Wed Jul 22  Y
+  14   250ml back label                          dry_good   each  1.000     0.32      0.3200     Thu May 07  Y
+  15   F&M 350ml bottle (Apollo VB003)           dry_good   each  1.000     0.89      0.8870     Wed May 27  Y
+  16   Choose Six outer box (6×500ml)            packaging  each  1.000     0.55      0.5500     Thu May 07  Y
+  17   Single-bottle shipping carton             packaging  each  1.000     1.30      1.3000     Thu May 07  Y
+  18   Inbound 1-box                             packaging  each  1.000     0.30      0.3000     Thu May 07  Y
+  19   F&M 12-box outer carton                   packaging  each  1.000     1.35      1.3500     Thu May 07  Y
+  20   50ml mini outer box                       packaging  each  1.000     0.46      0.4600     Thu May 07  Y
+  75   Cork 30x12mm micro-agglomerated           dry_good   each  1.000     0.19      0.1850     Thu Jul 02  Y
+  76   Cork 19mm wood-top                        dry_good   each  1.000     0.17      0.1650     Thu May 21  Y
+  77   50ml watchstrap label                     dry_good   each  1.000     0.04      0.0428     Thu Jun 04  Y
+  78   700ml bottle (Blackwell)                  dry_good   each  1.000     0.78      0.7815     Thu Jul 02  Y
+  79   EPR - 700ml Blackwell (glass+wood+cork)   dry_good   each  1.000     0.11      0.1113     Thu Jul 02  Y
+  80   EPR - F&M 350ml (bottle+cork)             dry_good   each  1.000     0.08      0.0823     Wed May 27  Y
+
+=== SKUS ===
+  {"id":1,"code":"baby-otis-250","drinkId":1,"sizeMl":250,"gtin":"5060665000345","active":true,"createdAt":"2026-06-02T10:29:25.663Z","updatedAt":"2026-06-17T21:33:53.522Z"}
+  {"id":2,"code":"baby-otis-500","drinkId":1,"sizeMl":500,"gtin":"5060665000031","active":true,"createdAt":"2026-06-02T10:29:25.681Z","updatedAt":"2026-06-17T21:33:53.539Z"}
+  {"id":3,"code":"cold-brew-negroni-250","drinkId":2,"sizeMl":250,"gtin":"5060665000369","active":true,"createdAt":"2026-06-02T10:29:25.689Z","updatedAt":"2026-06-17T21:33:53.550Z"}
+  {"id":4,"code":"corpse-reviver-250","drinkId":3,"sizeMl":250,"gtin":"5060665000444","active":true,"createdAt":"2026-06-02T10:29:25.699Z","updatedAt":"2026-06-17T21:33:53.561Z"}
+  {"id":5,"code":"dempsey-250","drinkId":4,"sizeMl":250,"gtin":"5060665000291","active":true,"createdAt":"2026-06-02T10:29:25.709Z","updatedAt":"2026-06-17T21:33:53.570Z"}
+  {"id":6,"code":"dempsey-500","drinkId":4,"sizeMl":500,"gtin":"5060665000123","active":true,"createdAt":"2026-06-02T10:29:25.717Z","updatedAt":"2026-06-17T21:33:53.581Z"}
+  {"id":7,"code":"desert-negroni-250","drinkId":5,"sizeMl":250,"gtin":"5060665000314","active":true,"createdAt":"2026-06-02T10:29:25.727Z","updatedAt":"2026-06-17T21:33:53.591Z"}
+  {"id":8,"code":"desert-negroni-500","drinkId":5,"sizeMl":500,"gtin":"5060665000048","active":true,"createdAt":"2026-06-02T10:29:25.735Z","updatedAt":"2026-06-17T21:33:53.601Z"}
+  {"id":9,"code":"espresso-martini-250","drinkId":6,"sizeMl":250,"gtin":"5060665000246","active":true,"createdAt":"2026-06-02T10:29:25.743Z","updatedAt":"2026-06-17T21:33:53.611Z"}
+  {"id":10,"code":"espresso-martini-500","drinkId":6,"sizeMl":500,"gtin":"5060665000017","active":true,"createdAt":"2026-06-02T10:29:25.752Z","updatedAt":"2026-06-17T21:33:53.624Z"}
+  {"id":11,"code":"gibson-martini-250","drinkId":7,"sizeMl":250,"gtin":"5060665000352","active":true,"createdAt":"2026-06-02T10:29:25.760Z","updatedAt":"2026-06-17T21:33:53.636Z"}
+  {"id":12,"code":"lychee-martini-250","drinkId":8,"sizeMl":250,"gtin":"5060665000406","active":true,"createdAt":"2026-06-02T10:29:25.769Z","updatedAt":"2026-06-17T21:33:53.646Z"}
+  {"id":13,"code":"manhattan-250","drinkId":9,"sizeMl":250,"gtin":"5060665000277","active":true,"createdAt":"2026-06-02T10:29:25.779Z","updatedAt":"2026-06-17T21:33:53.655Z"}
+  {"id":14,"code":"manhattan-500","drinkId":9,"sizeMl":500,"gtin":"5060665000055","active":true,"createdAt":"2026-06-02T10:29:25.789Z","updatedAt":"2026-06-17T21:33:53.664Z"}
+  {"id":15,"code":"margarita-250","drinkId":10,"sizeMl":250,"gtin":"5060665000390","active":true,"createdAt":"2026-06-02T10:29:25.796Z","updatedAt":"2026-06-17T21:33:53.677Z"}
+  {"id":16,"code":"naked-and-famous-250","drinkId":11,"sizeMl":250,"gtin":"5060665000437","active":true,"createdAt":"2026-06-02T10:29:25.805Z","updatedAt":"2026-06-17T21:33:53.688Z"}
+  {"id":17,"code":"negroni-250","drinkId":12,"sizeMl":250,"gtin":"5060665000253","active":true,"createdAt":"2026-06-02T10:29:25.815Z","updatedAt":"2026-06-17T21:33:53.698Z"}
+  {"id":18,"code":"negroni-500","drinkId":12,"sizeMl":500,"gtin":"5060665000062","active":true,"createdAt":"2026-06-02T10:29:25.823Z","updatedAt":"2026-06-17T21:33:53.709Z"}
+  {"id":19,"code":"pisco-martini-250","drinkId":13,"sizeMl":250,"gtin":"5060665000260","active":true,"createdAt":"2026-06-02T10:29:25.833Z","updatedAt":"2026-06-17T21:33:53.721Z"}
+  {"id":20,"code":"pisco-martini-500","drinkId":13,"sizeMl":500,"gtin":"5060665000079","active":true,"createdAt":"2026-06-02T10:29:25.841Z","updatedAt":"2026-06-17T21:33:53.733Z"}
+  {"id":21,"code":"red-hook-250","drinkId":15,"sizeMl":250,"gtin":"5060665000420","active":true,"createdAt":"2026-06-02T10:29:25.848Z","updatedAt":"2026-06-17T21:33:53.746Z"}
+  {"id":22,"code":"rum-old-fashioned-250","drinkId":14,"sizeMl":250,"gtin":"5060665000307","active":true,"createdAt":"2026-06-02T10:29:25.857Z","updatedAt":"2026-06-17T21:33:53.837Z"}
+  {"id":23,"code":"rum-old-fashioned-500","drinkId":14,"sizeMl":500,"gtin":"5060665000086","active":true,"createdAt":"2026-06-02T10:29:25.864Z","updatedAt":"2026-06-17T21:33:53.849Z"}
+  {"id":24,"code":"sakura-martini-250","drinkId":16,"sizeMl":250,"gtin":"5060665000413","active":true,"createdAt":"2026-06-02T10:29:25.873Z","updatedAt":"2026-06-17T21:33:53.859Z"}
+  {"id":25,"code":"trident-250","drinkId":17,"sizeMl":250,"gtin":"5060665000338","active":true,"createdAt":"2026-06-02T10:29:25.880Z","updatedAt":"2026-06-17T21:33:53.871Z"}
+  {"id":26,"code":"trident-500","drinkId":17,"sizeMl":500,"gtin":"5060665000093","active":true,"createdAt":"2026-06-02T10:29:25.889Z","updatedAt":"2026-06-17T21:33:53.879Z"}
+  {"id":27,"code":"tuxedo-250","drinkId":18,"sizeMl":250,"gtin":"5060665000376","active":true,"createdAt":"2026-06-02T10:29:25.896Z","updatedAt":"2026-06-17T21:33:53.889Z"}
+  {"id":28,"code":"vesper-250","drinkId":19,"sizeMl":250,"gtin":"5060665000239","active":true,"createdAt":"2026-06-02T10:29:25.905Z","updatedAt":"2026-06-17T21:33:53.899Z"}
+  {"id":29,"code":"vesper-500","drinkId":19,"sizeMl":500,"gtin":"5060665000109","active":true,"createdAt":"2026-06-02T10:29:25.913Z","updatedAt":"2026-06-17T21:33:53.912Z"}
+
+=== DRINKS x RECIPES (client scoped) ===
+  recipe=1                                      drink=Baby Otis                      client=Myatt's Fields       lines=3
+  recipe=3                                      drink=Corpse Reviver                 client=Myatt's Fields       lines=4
+  recipe=4                                      drink=Dempsey                        client=Myatt's Fields       lines=4
+  recipe=5                                      drink=Desert Negroni                 client=Myatt's Fields       lines=3
+  recipe=6                                      drink=Espresso Martini               client=Myatt's Fields       lines=3
+  recipe=8                                      drink=Lychee Martini                 client=Myatt's Fields       lines=4
+  recipe=9                                      drink=Manhattan                      client=Myatt's Fields       lines=3
+  recipe=10                                     drink=Margarita                      client=Myatt's Fields       lines=4
+  recipe=11                                     drink=Naked & Famous                 client=Myatt's Fields       lines=4
+  recipe=12                                     drink=Negroni                        client=Myatt's Fields       lines=4
+  recipe=13                                     drink=Pisco Martini                  client=Myatt's Fields       lines=4
+  recipe=14                                     drink=Rum Old Fashioned              client=Myatt's Fields       lines=2
+  recipe=15                                     drink=Red Hook                       client=Myatt's Fields       lines=4
+  recipe=16                                     drink=Sakura Martini                 client=Myatt's Fields       lines=4
+  recipe=17                                     drink=Trident                        client=Myatt's Fields       lines=3
+  recipe=18                                     drink=Tuxedo                         client=Myatt's Fields       lines=5
+  recipe=19                                     drink=Vesper Martini                 client=Myatt's Fields       lines=4
+  recipe=21                                     drink=Espresso Daiquiri              client=Fortnum & Mason      lines=3
+  recipe=22                                     drink=Robin Roy                      client=Fortnum & Mason      lines=3
+  recipe=23                                     drink=Clementini                     client=Fortnum & Mason      lines=4
+  recipe=24                                     drink=Griotte                        client=Fortnum & Mason      lines=4
+  recipe=25                                     drink=Apple Crumble                  client=Fortnum & Mason      lines=4
+  recipe=26                                     drink=Autumn Nectar                  client=Fortnum & Mason      lines=4
+  recipe=27                                     drink=Negroni                        client=Cripps               lines=4
+  recipe=28                                     drink=Espresso Martini               client=Cripps               lines=3
+  recipe=20                                     drink=Vesper Martini                 client=Fortnum & Mason      lines=5
+  recipe=7                                      drink=Gibson Martini                 client=Myatt's Fields       lines=3
+  recipe=2                                      drink=Cold Brew Negroni              client=Myatt's Fields       lines=4
+  recipe=30                                     drink=Christmas Gingertini           client=Fortnum & Mason      lines=5
+  recipe=29                                     drink=Apples & Pears                 client=Fortnum & Mason      lines=5
+
+Full snapshot written to /Users/gilbertrolfe/code/myattsfields/back-bar/scripts/erp/_state-dump.json

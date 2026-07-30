@@ -1,0 +1,29 @@
+=== WRITE MODE ===
+
+1. Backfilling skus.client_id to Myatt's Fields where null
+  backfilled 29 SKUs to Myatt's Fields
+
+2. Ensuring label components exist
+  CREATED component 81 "Front label - Myatt's Fields" at £0.0900 (manual, 2026-04-12)
+  CREATED component 82 "Front label - Fortnum & Mason" at £0.3400 (manual, 2026-04-12)
+  CREATED component 83 "Front label - Cripps" at £0.6000 (manual, 2026-04-12)
+  CREATED component 84 "Hygiene label - Myatt's Fields" at £0.0600 (manual, 2026-04-12)
+  CREATED component 85 "Hygiene label - Fortnum & Mason" at £0.0600 (manual, 2026-04-12)
+  CREATED component 86 "Hygiene label - Cripps" at £0.1500 (manual, 2026-04-12)
+
+3. Ensuring partner SKUs exist
+  CREATED SKU espresso-martini-700-cripps (drink 6, 700ml)
+  CREATED SKU negroni-700-cripps (drink 12, 700ml)
+  CREATED SKU robin-roy-350-fm (drink 21, 350ml)
+  CREATED SKU espresso-daiquiri-350-fm (drink 20, 350ml)
+  CREATED SKU vesper-martini-350-fm (drink 19, 350ml)
+  CREATED SKU apples-and-pears-350-fm (drink 101, 350ml)
+  CREATED SKU christmas-gingertini-350-fm (drink 102, 350ml)
+
+4. Attaching bill of materials
+  attached 146 bill-of-materials lines
+
+=== GAPS ===
+  none
+
+WRITTEN. 15 actions, 0 gaps.

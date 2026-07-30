@@ -43,6 +43,13 @@
       "when": 1785430748028,
       "tag": "0005_perpetual_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785432993786,
+      "tag": "0006_thick_invaders",
+      "breakpoints": true
     }
   ]
 }
