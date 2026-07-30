@@ -334,5 +334,35 @@
     "date": "2026-07-20",
     "price": 9.35,
     "note": "Bottle size corrected 700ml -> 1000ml (Cyrus, 20 Jul 2026: litre bottles, in the Dempsey). Price unchanged."
+  },
+  {
+    "ingredientId": "bimber-vodka",
+    "date": "2026-07-20",
+    "price": 27.8,
+    "note": "Re-added as stock-only (Cyrus, 20 Jul 2026): Bimber relationship ended but substantial stock remains and the Vespers continue on it. As-paid price £27.80/1000ml; do not reorder."
+  },
+  {
+    "ingredientId": "pisco-aba",
+    "date": "2026-07-20",
+    "price": 17.57,
+    "note": "500ml bottle (Cyrus, 20 Jul 2026). £17.57 current per Kitty Howard (Matthew Clark) email, 20 Jul 2026. Earlier jerry-can remark was Cotswold Whisky, not Pisco."
+  },
+  {
+    "ingredientId": "cocchi-americano",
+    "date": "2026-06-29",
+    "price": 18.42,
+    "note": "Verified Speciality Brands invoice 4031078, 29/06/2026. 750ml @ £18.42."
+  },
+  {
+    "ingredientId": "scratch-white-rum",
+    "date": "2026-06-16",
+    "price": 23.67,
+    "note": "Duty-paid bulk from Canebrake Ltd, 125L at £23.67/L, invoice MF0012026, 16/06/2026. Pack basis 700ml -> 1000ml. F&M Espresso Daiquiri rum. Placeholder retired."
+  },
+  {
+    "ingredientId": "la-fee-absinthe",
+    "date": "2026-07-22",
+    "price": 59.94,
+    "note": "Amazon list price (La Fée Parisienne 70cl), 22 Jul 2026. None bought in 2026; traditionally bought from Amazon; shop around at next purchase (Cyrus). Replaces the stale £45.99 which was also a retail figure."
   }
 ]

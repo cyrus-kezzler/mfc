@@ -51,7 +51,7 @@ export const RECIPES: Recipe[] = [
     clients: ["Myatt's Fields"],
     gtins: { '250ml': '5060665000314', '500ml': '5060665000048' },
     ingredients: [
-      { ingredientName: 'Tequila', parts: 33.3 },
+      { ingredientName: 'Tequila Reposado', parts: 33.3 },
       { ingredientName: 'Cocchi Vermouth di Torino', parts: 33.3 },
       { ingredientName: 'Campari', parts: 33.3 },
     ],
@@ -201,7 +201,7 @@ export const RECIPES: Recipe[] = [
     gtins: { '250ml': '5060665000239', '500ml': '5060665000109' },
     ingredients: [
       { ingredientName: 'Gin', parts: 60 },
-      { ingredientName: 'Vodka', parts: 20 },
+      { ingredientName: 'Vodka (Bimber stock)', parts: 20 },
       { ingredientName: 'Lillet', parts: 11.1 },
       { ingredientName: 'Cocchi Americano', parts: 8.9 },
     ],
@@ -215,7 +215,7 @@ export const RECIPES: Recipe[] = [
     clients: ['Fortnum & Mason'],
     ingredients: [
       { ingredientName: 'Gin', parts: 60.6 },
-      { ingredientName: 'Vodka', parts: 10.1 },
+      { ingredientName: 'Vodka (Bimber stock)', parts: 10.1 },
       { ingredientName: 'Lillet', parts: 10.1 },
       { ingredientName: 'Cocchi Americano', parts: 10.1 },
       { ingredientName: 'Water', parts: 9.1 },
@@ -300,25 +300,6 @@ export const RECIPES: Recipe[] = [
   // ═══════════════════════════════════════
   // Cripps
   // ═══════════════════════════════════════
-  {
-    name: 'Cripps Rum Old Fashioned',
-    clients: ['Cripps'],
-    ingredients: [
-      { ingredientName: 'Ramskull Rum', parts: 85.7 },
-      { ingredientName: 'Simple Syrup', parts: 14.3 },
-    ],
-  },
-  {
-    name: 'Salted Caramel Caramba',
-    clients: ['Cripps'],
-    ingredients: [
-      { ingredientName: 'Ramskull Rum', parts: 30 },
-      { ingredientName: 'Mozart', parts: 20 },
-      { ingredientName: 'Kahlua', parts: 30 },
-      { ingredientName: 'Saline 1:1', parts: 3 },
-      { ingredientName: 'Water', parts: 17 },
-    ],
-  },
   {
     name: 'Cripps Negroni',
     clients: ['Cripps'],

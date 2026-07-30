@@ -22,9 +22,9 @@
   ],
 
   "labour": {
-    "perBottleCost": 1.00,
-    "costSetAt": "2026-04-12",
-    "notes": "Per-bottle filling/labour charge. Dates from when third-party help was used. Could be zeroed out — margin already covers this."
+    "perBottleCost": 0,
+    "costSetAt": "2026-07-22",
+    "notes": "Labour deliberately excluded from COGS (Cyrus ruling, 22 Jul 2026): two-founder business, labour is recovered in margin, not assigned per product. Revisit only if staff return (2026: unlikely). Mechanism retained so a future rate can be set here. Historical rate £1.00/bottle dated from when third-party filling help was used."
   },
 
   "shippingPackaging": [

@@ -37,8 +37,8 @@
     "name": "Cocchi Americano",
     "spreadsheetName": "COCCHI A",
     "bottleSizeMl": 750,
-    "currentPrice": 19.8,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 18.42,
+    "currentPriceSetAt": "2026-06-29"
   },
   {
     "id": "cocchi-torino",
@@ -141,17 +141,26 @@
     "name": "Pisco Aba",
     "spreadsheetName": "PISCO ABA",
     "bottleSizeMl": 500,
-    "currentPrice": 14.78,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 17.57,
+    "currentPriceSetAt": "2026-07-20"
+  },
+  {
+    "id": "bimber-vodka",
+    "name": "Vodka (Bimber - stock only)",
+    "spreadsheetName": "BIMBER VODKA",
+    "bottleSizeMl": 1000,
+    "currentPrice": 27.8,
+    "currentPriceSetAt": "2026-04-11",
+    "notes": "Bimber relationship ended (Cyrus, 20 Jul 2026); substantial bottle stock remains and the Vespers continue on it until a replacement is chosen. Do not reorder. £27.80 is the as-paid price. Re-added 20 Jul 2026 after the morning pass removed it."
   },
   {
     "id": "scratch-white-rum",
     "name": "Scratch White Rum",
     "spreadsheetName": "SCRATCH WHITE RUM",
-    "bottleSizeMl": 700,
-    "currentPrice": 25.0,
-    "currentPriceSetAt": "2026-07-20",
-    "notes": "PLACEHOLDER pending invoice (matches DB placeholder). Used in F&M Espresso Daiquiri 2025 (Cyrus, 20 Jul 2026)."
+    "bottleSizeMl": 1000,
+    "currentPrice": 23.67,
+    "currentPriceSetAt": "2026-06-16",
+    "notes": "Duty-paid bulk from Canebrake Ltd, 125L at £23.67/L, invoice MF0012026, 16/06/2026. Placeholder retired. Used in F&M Espresso Daiquiri 2025 (Cyrus, 20 Jul 2026)."
   },
   {
     "id": "cotswold-whisky",
@@ -239,8 +248,9 @@
     "name": "La Fée Absinthe",
     "spreadsheetName": "LA FEE ABSINTHE",
     "bottleSizeMl": 700,
-    "currentPrice": 45.99,
-    "currentPriceSetAt": "2026-04-11"
+    "currentPrice": 59.94,
+    "currentPriceSetAt": "2026-07-22",
+    "notes": "Amazon list price 22 Jul 2026 (La Fée Parisienne 70cl); none bought in 2026; traditionally bought from Amazon; shop around at next purchase (Cyrus). Replaces the stale £45.99 which was also a retail figure."
   },
   {
     "id": "heering-cherry",
@@ -313,7 +323,7 @@
     "bottleSizeMl": 1000,
     "currentPrice": 5,
     "currentPriceSetAt": "2026-04-11",
-    "notes": "House-made — price reflects flat ingredient cost per litre"
+    "notes": "House-made - price reflects flat ingredient cost per litre"
   },
   {
     "id": "monin-grenadine",

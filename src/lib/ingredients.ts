@@ -54,6 +54,8 @@ export const RECIPE_INGREDIENT_MAP: Record<string, string | null> = {
   Cynar: "cynar",
   Akvavit: "akvavit",
   Tequila: "epsolon-blanco",
+  "Tequila Reposado": "tequila-rep", // Desert Negroni (Cyrus, 20 Jul 2026)
+  "Vodka (Bimber stock)": "bimber-vodka", // Vespers run on remaining Bimber stock (Cyrus, 20 Jul 2026)
   Calvados: "calvados",
   "Havana Club": "havana-club-7",
   "Noilly Prat": "noilly-prat",
@@ -98,7 +100,6 @@ export const RECIPE_INGREDIENT_MAP: Record<string, string | null> = {
   "Saline 1:1": null,
   Mozart: null,
   "Shipwreck Rum": null,
-  "Ramskull Rum": null,
   "Black Button Bourbon": null,
   Fernet: null,
   Jerez: null,
