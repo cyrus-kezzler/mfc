@@ -1,0 +1,39 @@
+
+  sku                           client             price    cogs   ship  margin  margin%    rule  vs rule  flag
+  ----------------------------------------------------------------------------------------------------------------
+  manhattan-250                 Myatt's Fields     13.08   10.13   0.93    2.02    15.5%   15.11    -2.03  
+  red-hook-250                  Myatt's Fields     11.89    9.10   0.93    1.86    15.7%   13.67    -1.78  
+  manhattan-500                 Myatt's Fields     26.03   18.73   1.74    5.56    21.4%   27.96    -1.93  
+  pisco-martini-250             Myatt's Fields     10.94    7.44   0.93    2.57    23.5%   11.35    -0.41  
+  lychee-martini-250            Myatt's Fields      9.60    6.40   0.93    2.27    23.7%    9.89    -0.29  
+  vesper-250                    Myatt's Fields     10.42    7.00   0.93    2.49    23.9%   10.73    -0.31  
+  sakura-martini-250            Myatt's Fields     12.13    8.29   0.93    2.91    24.0%   12.54    -0.41  
+  pisco-martini-500             Myatt's Fields     19.91   13.36   1.74    4.81    24.2%   20.44    -0.53  
+  negroni-250                   Myatt's Fields     10.67    7.08   0.93    2.66    24.9%   10.85    -0.18  
+  negroni-500                   Myatt's Fields     19.39   12.64   1.74    5.01    25.8%   19.43    -0.04  
+  negroni-700-cripps            Cripps             23.68   17.46   0.00    6.22    26.3%   24.44    -0.76  
+  margarita-250                 Myatt's Fields     11.77    7.60   0.93    3.24    27.5%   11.57    +0.20  
+  vesper-500                    Myatt's Fields     19.67   12.47   1.74    5.46    27.8%   19.20    +0.47  
+  trident-500                   Myatt's Fields     20.71   13.22   1.74    5.75    27.8%   20.25    +0.46  
+  dempsey-500                   Myatt's Fields     21.68   13.88   1.74    6.06    28.0%   21.17    +0.51  
+  naked-and-famous-250          Myatt's Fields     13.81    8.99   0.93    3.89    28.2%   13.51    +0.30  
+  trident-250                   Myatt's Fields     11.68    7.37   0.93    3.38    28.9%   11.25    +0.43  
+  rum-old-fashioned-500         Myatt's Fields     19.46   12.08   1.74    5.64    29.0%   18.65    +0.81  
+  dempsey-250                   Myatt's Fields     12.17    7.70   0.93    3.54    29.1%   11.71    +0.46  
+  desert-negroni-500            Myatt's Fields     23.73   15.08   1.74    6.91    29.1%   22.85    +0.88  
+  desert-negroni-250            Myatt's Fields     13.19    8.30   0.93    3.96    30.0%   12.55    +0.64  
+  baby-otis-500                 Myatt's Fields     23.45   14.64   1.74    7.07    30.1%   22.24    +1.21  
+  rum-old-fashioned-250         Myatt's Fields     11.07    6.80   0.93    3.34    30.1%   10.45    +0.62  
+  cold-brew-negroni-250         Myatt's Fields     11.26    6.90   0.93    3.43    30.5%   10.59    +0.67  placeholder
+  tuxedo-250                    Myatt's Fields     11.46    7.01   0.93    3.52    30.7%   10.74    +0.72  
+  baby-otis-250                 Myatt's Fields     13.05    8.09   0.93    4.03    30.9%   12.25    +0.80  
+  gibson-martini-250            Myatt's Fields     10.32    6.17   0.93    3.22    31.2%    9.56    +0.76  
+  corpse-reviver-250            Myatt's Fields      9.53    5.33   0.93    3.27    34.3%    8.40    +1.13  
+  espresso-martini-500          Myatt's Fields     13.82    6.98   1.74    5.10    36.9%   11.51    +2.31  placeholder
+  espresso-martini-250          Myatt's Fields      8.24    4.25   0.93    3.06    37.1%    6.88    +1.36  placeholder
+  espresso-martini-700-cripps   Cripps             18.69   10.71   0.00    7.98    42.7%   14.99    +3.70  placeholder
+  vesper-martini-350-fm         Fortnum & Mason    13.86    7.84   0.00    6.02    43.4%   10.98    +2.88  
+  robin-roy-350-fm              Fortnum & Mason    14.64    8.12   0.00    6.52    44.5%   11.37    +3.27  
+  espresso-daiquiri-350-fm      Fortnum & Mason    14.52    7.06   0.00    7.46    51.4%    9.88    +4.64  placeholder
+
+  34 priced SKUs. 0 sold below cost.
