@@ -1,0 +1,11 @@
+import { neon } from '@neondatabase/serverless';
+const sql = neon(process.env.DATABASE_URL);
+console.log('-- who uses it --');
+for (const r of await sql`select d.name drink, cl.name client, rl.percentage from recipe_lines rl join recipes r on r.id=rl.recipe_id join drinks d on d.id=r.drink_id join clients cl on cl.id=r.client_id where rl.component_id=41`) console.log('  ', r.drink, '['+r.client+']', r.percentage+'%');
+console.log('-- before --');
+for (const c of await sql`select id,name,pack_size,pack_cost,unit_cost,abv from components where id=41`) console.log('  ', JSON.stringify(c));
+const note = 'Akashi Tai Daiginjo Genshu Sake, 72cl. Amazon listing B07FRT7MRV read 31 Jul 2026: GBP 34.50 for 720ml, GBP 47.92 per litre; Cyrus last purchased 20 Jul 2026. ABV 17% from the Akashi-Tai brand comparison table on the same listing. CORRECTS THREE THINGS: it was recorded as generic Ginjo Sake at 300ml and roughly GBP 33.27 per litre. It is a Daiginjo (rice milled to 38%), the bottle is 720ml not 300ml, and the true cost is about a third higher. A 30cl size exists at GBP 20.65 but is not the one bought.';
+await sql`update components set name='Akashi Tai Daiginjo Genshu Sake', pack_size=720.000, pack_cost=34.50, unit_cost=0.0479, unit_cost_set_at=now(), abv=17.00, notes=${note}, updated_at=now() where id=41`;
+await sql`insert into component_price_history (component_id, unit_cost, uom, effective_date, source, notes) values (41, 0.0479, 'ml', '2026-07-31', 'manual', ${note})`;
+console.log('-- after --');
+for (const c of await sql`select id,name,pack_size,pack_cost,unit_cost,abv from components where id=41`) console.log('  ', JSON.stringify(c));
