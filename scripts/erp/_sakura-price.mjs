@@ -1,0 +1,10 @@
+import { neon } from '@neondatabase/serverless';
+const sql = neon(process.env.DATABASE_URL);
+const s = await sql`select id from skus where code='sakura-martini-250'`;
+const id = s[0].id;
+const rrpNote = 'Raised from 20.00 to 23.00 by Cyrus, 31 Jul 2026, to Manhattan parity. The Manhattan 250ml costs 10.13 to make and retails at 23.00; the Sakura costs 10.58 and was retailing at 20.00, so it was three pounds cheaper on the shelf than a drink that costs the same to produce. The old RRP was set before the true sake cost was known (Back Bar had the sake as a generic 300ml Ginjo at 33.27/L; it is a 720ml Akashi Tai Daiginjo at 47.92/L). NOTE: Shopify still shows 20.00. Back Bar and the storefront now disagree until that is pushed.';
+const wsNote = 'First agreed wholesale price for this SKU, set 31 Jul 2026 ahead of listing with Italo. Derived from the retailer test rather than the markup rule: 23.00 RRP divided by (1.30 retailer margin x 1.20 VAT) gives 14.74, which is the most that can be charged without the shelf price breaking the RRP. That is a 21.9% margin on COGS of 10.58 plus 0.93 shipping, below the 1.40 rule price of 15.74, and deliberately so: the drink cannot carry both a 40% markup and this shelf price because premium daiginjo sake is 61% of it. Shipping of 0.93 is carried from the old file and should be zeroed if Italo is self-delivered, which would add about seven points.';
+await sql`update sku_prices set effective_to='2026-07-31', updated_at=now() where sku_id=${id} and price_type='rrp' and effective_to is null`;
+await sql`insert into sku_prices (sku_id, price_type, amount, effective_from, notes) values (${id}, 'rrp', 23.00, '2026-07-31', ${rrpNote})`;
+await sql`insert into sku_prices (sku_id, price_type, amount, effective_from, shipping, notes) values (${id}, 'wholesale', 14.74, '2026-07-31', 0.93, ${wsNote})`;
+for (const r of await sql`select price_type, amount, effective_from, effective_to from sku_prices where sku_id=${id} order by price_type, effective_from`) console.log(' ', r.price_type.padEnd(10), r.amount, 'from', r.effective_from, r.effective_to ? 'to ' + r.effective_to : '(current)');
