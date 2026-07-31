@@ -1,0 +1,33 @@
+
+=== espresso-martini-700-cripps ===
+Espresso Martini for Cripps, 700ml
+
+  kind          component                               unit £     qty       cost £    source    set
+  ----------------------------------------------------------------------------------------------------
+  liquid        Kahlua                                   0.017557  233.10       4.0926 manual    2026-07-13
+  liquid        Vodka (Thames NGS)                       0.015410  233.10       3.5921 manual    2026-06-22
+  liquid        Espresso (house-brewed)                  0.004000  233.80       0.9352 manual    2026-06-02
+                LIQUID SUBTOTAL                                                 8.6198
+
+  bottle        700ml bottle (Blackwell)                 0.781500  1.0000       0.7815 manual    2026-07-02
+  closure       Cork 30x12mm micro-agglomerated          0.185000  1.0000       0.1850 manual    2026-07-02
+  front_label   Front label - Cripps                     0.600000  1.0000       0.6000 manual    2026-04-12
+  hygiene_label Hygiene label - Cripps                   0.150000  1.0000       0.1500 manual    2026-04-12
+  epr           EPR - 700ml Blackwell (glass+wood+cork)  0.111300  1.0000       0.1113 manual    2026-07-02
+                PACKAGING SUBTOTAL                                              1.8278
+
+  ----------------------------------------------------------------------------------------------------
+                SUBTOTAL                                                       10.4476
+                WASTAGE @ 2.5%                                                  0.2612
+                TOTAL COGS                                                     10.7088
+
+  Invoice-backed: 0% of subtotal
+  NOT invoice-backed:
+    - Kahlua (manual, £4.09)
+    - Vodka (Thames NGS) (manual, £3.59)
+    - Espresso (house-brewed) (manual, £0.94)
+    - 700ml bottle (Blackwell) (manual, £0.78)
+    - Cork 30x12mm micro-agglomerated (manual, £0.19)
+    - Front label - Cripps (manual, £0.60)
+    - Hygiene label - Cripps (manual, £0.15)
+    - EPR - 700ml Blackwell (glass+wood+cork) (manual, £0.11)

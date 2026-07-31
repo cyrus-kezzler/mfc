@@ -1,0 +1,1 @@
+ALTER TYPE "public"."sku_component_role" ADD VALUE 'back_label' BEFORE 'hygiene_label';

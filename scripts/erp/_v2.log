@@ -1,0 +1,39 @@
+
+  sku                             client           ml    liquid    pack      wastage   TOTAL     inv%   problems
+  ----------------------------------------------------------------------------------------------------------------
+  espresso-martini-700-cripps     Cripps           700   8.62      1.83      0.26      10.71     0      
+  negroni-700-cripps              Cripps           700   15.21     1.83      0.43      17.46     0      
+  apples-and-pears-350-fm         Fortnum & Mason  350   4.00      1.65      0.14      5.78      0      
+  christmas-gingertini-350-fm     Fortnum & Mason  350   4.60      1.65      0.16      6.40      0      
+  espresso-daiquiri-350-fm        Fortnum & Mason  350   5.24      1.65      0.17      7.06      0      
+  robin-roy-350-fm                Fortnum & Mason  350   6.28      1.65      0.20      8.12      0      
+  vesper-martini-350-fm           Fortnum & Mason  350   6.01      1.65      0.19      7.84      0      
+  baby-otis-500                   Myatt's Fields   500   13.60     0.69      0.36      14.64     0      
+  baby-otis-250                   Myatt's Fields   250   6.80      1.09      0.20      8.09      0      
+  cold-brew-negroni-250           Myatt's Fields   250   5.64      1.09      0.17      6.90      0      
+  corpse-reviver-250              Myatt's Fields   250   4.39      1.09      0.14      5.61      0      
+  dempsey-500                     Myatt's Fields   500   12.85     0.69      0.34      13.88     0      
+  dempsey-250                     Myatt's Fields   250   6.42      1.09      0.19      7.70      0      
+  desert-negroni-500              Myatt's Fields   500   14.02     0.69      0.37      15.08     0      
+  desert-negroni-250              Myatt's Fields   250   7.01      1.09      0.20      8.30      0      
+  espresso-martini-500            Myatt's Fields   500   6.12      0.69      0.17      6.98      0      
+  espresso-martini-250            Myatt's Fields   250   3.06      1.09      0.10      4.25      0      
+  gibson-martini-250              Myatt's Fields   250   4.93      1.09      0.15      6.17      0      
+  lychee-martini-250              Myatt's Fields   250   5.15      1.09      0.16      6.40      0      
+  manhattan-500                   Myatt's Fields   500   17.58     0.69      0.46      18.73     0      
+  manhattan-250                   Myatt's Fields   250   8.79      1.09      0.25      10.13     0      
+  margarita-250                   Myatt's Fields   250   6.57      1.09      0.19      7.85      0      
+  naked-and-famous-250            Myatt's Fields   250   7.95      1.09      0.23      9.27      0      
+  negroni-500                     Myatt's Fields   500   11.64     0.69      0.31      12.64     0      
+  negroni-250                     Myatt's Fields   250   5.82      1.09      0.17      7.08      0      
+  pisco-martini-500               Myatt's Fields   500   12.34     0.69      0.33      13.36     0      
+  pisco-martini-250               Myatt's Fields   250   6.17      1.09      0.18      7.44      0      
+  red-hook-250                    Myatt's Fields   250   7.79      1.09      0.22      9.10      0      
+  rum-old-fashioned-500           Myatt's Fields   500   11.09     0.69      0.29      12.08     0      
+  rum-old-fashioned-250           Myatt's Fields   250   5.55      1.09      0.17      6.80      0      
+  sakura-martini-250              Myatt's Fields   250   7.00      1.09      0.20      8.29      0      
+  trident-500                     Myatt's Fields   500   12.21     0.69      0.32      13.22     0      
+  trident-250                     Myatt's Fields   250   6.10      1.09      0.18      7.37      0      
+  tuxedo-250                      Myatt's Fields   250   5.75      1.09      0.17      7.01      0      
+  vesper-500                      Myatt's Fields   500   11.48     0.69      0.30      12.47     0      
+  vesper-250                      Myatt's Fields   250   5.74      1.09      0.17      7.00      0      

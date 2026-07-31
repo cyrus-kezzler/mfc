@@ -29,6 +29,27 @@
       "when": 1781726986070,
       "tag": "0003_wakeful_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785429791598,
+      "tag": "0004_supreme_blue_shield",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785430748028,
+      "tag": "0005_perpetual_felicia_hardy",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785432993786,
+      "tag": "0006_thick_invaders",
+      "breakpoints": true
     }
   ]
 }

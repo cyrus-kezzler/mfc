@@ -1,0 +1,58 @@
+=== WRITE MODE ===
+  SET Water                                      0%   water
+  SET 1:1 Sugar Syrup                            0%   sugar and water
+  SET Agave Syrup                                0%   non-alcoholic
+  SET Clarified Apple Juice (house)              0%   non-alcoholic
+  SET Cranberry & Hibiscus Syrup (house)         0%   non-alcoholic
+  SET Espresso (house-brewed)                    0%   non-alcoholic
+  SET Maple Syrup                                0%   non-alcoholic
+  SET Monin Grenadine                            0%   non-alcoholic syrup
+  SET Oat Milk                                   0%   non-alcoholic
+  SET Aperol                                    11%   Campari Group, published
+  SET Carpano Antica Formula Vermouth         16.5%   Fratelli Branca, published
+  SET Cocchi Americano                        16.5%   Giulio Cocchi, published
+  SET Cynar                                   16.5%   Campari Group, published
+  SET Lillet Blanc                              17%   Maison Lillet, published
+  SET Noilly Prat                               18%   Noilly Prat, published
+  SET Punt e Mes                                16%   Carpano, published
+  SET Fino Sherry                               15%   typical fino, published
+  SET Manzanilla                                15%   La Guita, published
+  SET Jerez (Pedro Ximénez)                     17%   typical PX, published
+  SET Suze                                      20%   Pernod Ricard, published
+  SET Ginjo Sake                                15%   typical ginjo, published
+  SET Calvados                                  40%   typical calvados, published
+  SET Cotswold Whisky                           46%   Cotswolds Distillery single malt, published
+  SET Epsolon Blanco Tequila                    40%   Espolon Blanco, published
+  SET Tequila Reposado                          40%   Espolon Reposado, published
+  SET Havana Club 7                             40%   Havana Club 7, published
+  SET Mount Gay Rum                             40%   Mount Gay Eclipse, published
+  SET Mount Gay Black Barrel                    43%   Mount Gay Black Barrel, published
+  SET Mezcal                                    40%   typical mezcal, published
+  SET Pisco Aba                                 40%   Pisco ABA, published
+  SET Somerset Cider Brandy                     42%   Somerset Cider Brandy Company 3 year, published
+  SET Akvavit                                   45%   Aalborg Taffel, published
+  SET Fernet Branca                             39%   Fratelli Branca, published
+  SET Heering Cherry                            24%   Cherry Heering, published
+  SET Luxardo Maraschino                        32%   Luxardo, published
+  SET Lychee Liqueur                            20%   Kwai Feh, published
+  SET Mozart Chocolate Liqueur                  17%   Mozart Distillerie, published
+  SET Passoã                                    17%   Passoa, published
+  SET Triple Sec                                40%   Cointreau, published
+  SET Yellow Chartreuse                         43%   Chartreuse Diffusion, published
+  SET Belle de Brillet (pear liqueur)           30%   Maison Brillet, published
+  SET La Fée Absinthe                           68%   La Fee Parisienne, published
+
+Wrote 42. Already had an ABV: 0.
+
+=== LEFT BLANK, NEEDS CYRUS ===
+   Myatt's Sours                      house recipe, and Cyrus says it is largely water, so its ABV drives the dilution maths
+   Blue Curaçao                       brand dependent, ranges roughly 20 to 25
+   Chinotto Nero                      brand dependent, no reliable published figure
+   Gin (Amalthea)                     partner gin, ABV is a Myatt's Fields supply fact
+   Ginger Amalthea Gin                short-run botanical variant of the above
+   Ginger Liqueur                     brand dependent, ranges roughly 20 to 41
+   Old Tom Gin                        brand dependent, ranges roughly 40 to 47
+   Scratch (white rum)                duty-paid bulk from Canebrake, ABV is on the invoice not a label
+   Shipwreck Rum                      brand dependent, no reliable published figure
+
+Active components still without an ABV: 34

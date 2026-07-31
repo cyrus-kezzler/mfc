@@ -1,0 +1,36 @@
+=== WRITE MODE ===
+
+1. Raw inputs
+  CREATED Citric acid powder (id 87, ingredient, g) UNPRICED
+  CREATED Malic acid powder (id 88, ingredient, g) UNPRICED
+  CREATED Tartaric acid powder (id 89, ingredient, g) UNPRICED
+  CREATED Salt (id 90, ingredient, g) UNPRICED
+  CREATED Phosphoric acid 75% food grade (id 91, ingredient, g) UNPRICED
+  Water is component 61 (ml). Density is 1, so grams and millilitres are interchangeable here.
+
+2. Phosphoric acid 1.25% stock, a sub-recipe in its own right
+  CREATED Phosphoric acid 1.25% solution (id 92, sub_recipe, g) UNPRICED
+  LINKED 92 -> 91 qty 1.2500
+  LINKED 92 -> 61 qty 100.0000
+
+3. Myatt's Sours
+  UPDATED Myatt's Sours (id 10) type=sub_recipe yield=326.2000
+  LINKED 10 -> 87 qty 9.0000
+  LINKED 10 -> 88 qty 6.0000
+  LINKED 10 -> 89 qty 0.2000
+  LINKED 10 -> 92 qty 50.0000
+  LINKED 10 -> 61 qty 260.0000
+  LINKED 10 -> 90 qty 1.0000
+
+4. Sense check
+  base batch declared 326.2 g, constituents sum to 326.2 g, MATCH
+
+  Unpriced active components after this run: 6
+     87 Citric acid powder
+     88 Malic acid powder
+     89 Tartaric acid powder
+     90 Salt
+     91 Phosphoric acid 75% food grade
+     92 Phosphoric acid 1.25% solution
+
+WRITTEN.

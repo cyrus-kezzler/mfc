@@ -42,6 +42,26 @@ export const uomEnum = pgEnum("uom", ["ml", "g", "each", "m"]);
 
 export const priceSourceEnum = pgEnum("price_source", ["inbound", "manual"]);
 
+/**
+ * What job a component does on a SKU's bill of materials.
+ *
+ * The first five are PRIMARY packaging: they are on every bottle no matter how
+ * it ships, so they belong inside COGS (Cyrus's ruling, 30 Jul 2026). The last
+ * two are SECONDARY, they vary by channel, and they belong in the Channel P&L.
+ * The `include_in_cogs` flag on the row is what actually decides; this enum is
+ * for reporting and for catching a row filed under the wrong job.
+ */
+export const skuComponentRoleEnum = pgEnum("sku_component_role", [
+  "bottle",
+  "closure",
+  "front_label",
+  "back_label",
+  "hygiene_label",
+  "epr",
+  "outer_carton",
+  "shipping",
+]);
+
 // ─── Suppliers — spec §5.1 ──────────────────────────────────────────────────
 
 export const suppliers = pgTable("suppliers", {
@@ -88,6 +108,15 @@ export const components = pgTable(
     unitCost: numeric("unit_cost", { precision: 12, scale: 4 }).notNull().default("0"),
     /** When the cached unitCost was last set. */
     unitCostSetAt: timestamp("unit_cost_set_at", { withTimezone: true }),
+
+    /**
+     * Sub-recipe only. How much the base batch yields, in this component's own
+     * UOM. Myatt's Sours yields 326.2, so a 3 litre ask scales by 3000/326.2.
+     * Null for anything that is bought rather than made.
+     */
+    batchYield: numeric("batch_yield", { precision: 12, scale: 4 }),
+    /** Sub-recipe only. How to actually make it. */
+    batchMethod: text("batch_method"),
 
     reorderThreshold: numeric("reorder_threshold", { precision: 12, scale: 3 }),
     reorderQuantity: numeric("reorder_quantity", { precision: 12, scale: 3 }),
@@ -137,6 +166,49 @@ export const componentPriceHistory = pgTable(
   (t) => [
     index("component_price_history_component_idx").on(t.componentId),
     index("component_price_history_effective_date_idx").on(t.effectiveDate),
+  ],
+);
+
+/**
+ * What a sub-recipe component is made of. Added 30 Jul 2026.
+ *
+ * The component_type enum has carried "sub_recipe" since slice 1 and nothing
+ * ever used it, so a house-made input like Myatt's Sours sat in the register as
+ * a flat hand-typed £5 a litre with no constituents behind it. This table is
+ * the exact parallel of sku_components, one level down: a parent component and
+ * the children that go into one base batch of it.
+ *
+ * Two things fall out. Cost derives rather than being asserted, so when the
+ * citric acid price moves, Sours moves and so does every drink using it. And
+ * batch scaling becomes a query: quantities are per base batch, the parent
+ * carries batch_yield, so N units wanted scales every child by N / batch_yield.
+ *
+ * Nesting is allowed and needed: the phosphoric acid 1.25% stock is itself a
+ * sub-recipe that Sours consumes.
+ */
+export const componentRecipes = pgTable(
+  "component_recipes",
+  {
+    id: serial("id").primaryKey(),
+    parentComponentId: integer("parent_component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "cascade" }),
+    childComponentId: integer("child_component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "restrict" }),
+    /** Quantity of the child, in the CHILD's UOM, per one base batch. */
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("component_recipes_parent_idx").on(t.parentComponentId),
+    index("component_recipes_child_idx").on(t.childComponentId),
+    uniqueIndex("component_recipes_parent_child_uq").on(t.parentComponentId, t.childComponentId),
+    check("component_recipes_qty_positive", sql`${t.quantity} > 0`),
+    check("component_recipes_no_self_ref", sql`${t.parentComponentId} <> ${t.childComponentId}`),
   ],
 );
 
@@ -258,13 +330,67 @@ export const skus = pgTable(
     id: serial("id").primaryKey(),
     code: text("code").notNull().unique(),
     drinkId: integer("drink_id").references(() => drinks.id, { onDelete: "set null" }),
+    /**
+     * Which client's recipe this format sells under. Added 30 Jul 2026.
+     *
+     * Without it the table cannot express "Cripps Espresso Martini 700ml":
+     * drink 6 carries both an own-brand recipe and a Cripps recipe, so
+     * (drink_id, size_ml) is ambiguous the moment a partner shares a drink
+     * name with the own-brand range. That ambiguity is why the flagship, about
+     * half of all wholesale, had no SKU and had to be costed by hand.
+     *
+     * Nullable for now so the migration is purely additive. The 29 pre-existing
+     * rows are all own-brand and are backfilled to Myatt's Fields by a separate
+     * data step, after which this should be tightened to NOT NULL.
+     */
+    clientId: integer("client_id").references(() => clients.id, { onDelete: "restrict" }),
     sizeMl: integer("size_ml").notNull(),
     gtin: text("gtin"),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("skus_drink_idx").on(t.drinkId)],
+  (t) => [
+    index("skus_drink_idx").on(t.drinkId),
+    index("skus_client_idx").on(t.clientId),
+  ],
+);
+
+/**
+ * Bill of materials: which dry goods and packaging go on a given SKU, and how
+ * many of each. Added 30 Jul 2026 to close the gap the 20 Jul reconciliation
+ * found, that no table linked any dry good to any SKU, so packaging cost could
+ * never roll up and the honest build had to be assembled by hand.
+ *
+ * `include_in_cogs` is the mechanism for Cyrus's 30 Jul ruling: primary
+ * packaging (bottle, closure, front label, hygiene label, EPR) sits inside
+ * COGS because it is on every bottle regardless of channel; mailers, cases and
+ * carriage sit outside it, in the Channel P&L, because they genuinely vary.
+ */
+export const skuComponents = pgTable(
+  "sku_components",
+  {
+    id: serial("id").primaryKey(),
+    skuId: integer("sku_id")
+      .notNull()
+      .references(() => skus.id, { onDelete: "cascade" }),
+    componentId: integer("component_id")
+      .notNull()
+      .references(() => components.id, { onDelete: "restrict" }),
+    /** How many of this component per finished bottle. Usually 1. */
+    quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull().default("1"),
+    role: skuComponentRoleEnum("role").notNull(),
+    includeInCogs: boolean("include_in_cogs").notNull().default(true),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("sku_components_sku_idx").on(t.skuId),
+    index("sku_components_component_idx").on(t.componentId),
+    uniqueIndex("sku_components_sku_component_uq").on(t.skuId, t.componentId),
+    check("sku_components_qty_positive", sql`${t.quantity} > 0`),
+  ],
 );
 
 // ─── Inferred types ─────────────────────────────────────────────────────────
@@ -295,6 +421,12 @@ export type NewRecipeLine = typeof recipeLines.$inferInsert;
 
 export type Sku = typeof skus.$inferSelect;
 export type NewSku = typeof skus.$inferInsert;
+
+export type SkuComponent = typeof skuComponents.$inferSelect;
+export type NewSkuComponent = typeof skuComponents.$inferInsert;
+
+export type ComponentRecipe = typeof componentRecipes.$inferSelect;
+export type NewComponentRecipe = typeof componentRecipes.$inferInsert;
 
 // ─── Setting keys ───────────────────────────────────────────────────────────
 
