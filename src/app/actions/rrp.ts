@@ -1,11 +1,11 @@
 "use server";
 
 /**
- * Server Actions for the RRP page — Amazon price overrides, per-SKU notes, and
- * the "last pushed to Shopify" baseline. All persist to git via the GitHub
- * Contents API, the same model as the wholesale pricing tool. RRP values
- * themselves are persisted by the shared `updateRrpOverride` action in
- * ./pricing.ts (rrp-overrides.json is the single source for RRP).
+ * Server Actions for the RRP page: Amazon price overrides, per-SKU notes, and
+ * the "last pushed to Shopify" baseline. These three persist to git via the
+ * GitHub Contents API, keyed by SKU code; they are page furniture rather than
+ * financial source data. The RRP itself is an agreed price and lives in the
+ * database (sku_prices), written by `setAgreedRrp` in ./pricing.ts.
  */
 
 import { revalidatePath } from "next/cache";

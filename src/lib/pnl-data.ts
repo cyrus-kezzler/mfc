@@ -2,7 +2,7 @@
  * Per-drink P&L — channel costs, cost scenarios, and the fulfilment math behind
  * the /finances/pnl page. Pure data + helpers, usable on server or client.
  *
- * COGS itself is derived live from the ingredient master (see lib/cogs.ts). This
+ * COGS itself is derived live from the database (see lib/erp/cogs.ts). This
  * file layers the *channel* costs on top — fulfilment, freight, payment fees —
  * and the scenario deltas that surface what sunk inventory currently hides.
  *

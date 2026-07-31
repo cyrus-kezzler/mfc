@@ -1,14 +1,40 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import {
-  IngredientMaster,
-  IngredientPriceHistoryEntry,
-  computeImpact,
-  pricePerMl,
-} from "@/lib/ingredients";
 import { updateIngredientPrice } from "@/app/actions/ingredients";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
+
+// Plain serialisable shapes passed down from the server page. These mirror
+// @/lib/erp/ingredients but carry no server-only imports.
+export type ClientIngredient = {
+  id: number;
+  name: string;
+  type: string;
+  uom: string;
+  packSize: number | null;
+  packCost: number | null;
+  /** £ per UOM, the operative costing figure. */
+  unitCost: number;
+  unitCostSetAt: string | null;
+  provenance: "inbound" | "manual" | "placeholder" | "none";
+  isSubRecipe: boolean;
+  notes: string | null;
+};
+
+export type ClientPriceHistoryRow = {
+  componentId: number;
+  date: string;
+  unitCost: number;
+  source: string;
+  note: string | null;
+};
+
+export type RecipeUsageRow = {
+  componentId: number;
+  drinkName: string;
+  clientName: string;
+  percentage: number;
+};
 
 const fmt = (n: number) =>
   n.toLocaleString("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 2 });
@@ -32,36 +58,46 @@ const fmtDate = (iso: string) => {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 };
 
-type Props = {
-  ingredients: IngredientMaster[];
-  priceHistory: IngredientPriceHistoryEntry[];
-  usageCounts: Record<string, number>;
+const PROVENANCE_META: Record<
+  ClientIngredient["provenance"],
+  { label: string; color: string }
+> = {
+  inbound: { label: "Invoice-backed", color: COLOR.positive },
+  manual: { label: "Manual entry", color: COLOR.accent },
+  placeholder: { label: "Placeholder", color: COLOR.flag },
+  none: { label: "No sourced price", color: COLOR.flag },
 };
 
-export default function IngredientsClient({ ingredients, priceHistory, usageCounts }: Props) {
+type Props = {
+  ingredients: ClientIngredient[];
+  priceHistory: ClientPriceHistoryRow[];
+  recipeUsage: RecipeUsageRow[];
+  usageCounts: Record<number, number>;
+};
+
+export default function IngredientsClient({
+  ingredients,
+  priceHistory,
+  recipeUsage,
+  usageCounts,
+}: Props) {
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return ingredients;
-    return ingredients.filter(
-      (i) =>
-        i.name.toLowerCase().includes(q) ||
-        (i.spreadsheetName?.toLowerCase().includes(q) ?? false),
-    );
+    return ingredients.filter((i) => i.name.toLowerCase().includes(q));
   }, [ingredients, query]);
 
   const selected = ingredients.find((i) => i.id === selectedId) ?? null;
   const selectedHistory = useMemo(
-    () =>
-      selected
-        ? priceHistory
-            .filter((h) => h.ingredientId === selected.id)
-            .slice()
-            .sort((a, b) => b.date.localeCompare(a.date))
-        : [],
+    () => (selected ? priceHistory.filter((h) => h.componentId === selected.id) : []),
     [priceHistory, selected],
+  );
+  const selectedUsage = useMemo(
+    () => (selected ? recipeUsage.filter((u) => u.componentId === selected.id) : []),
+    [recipeUsage, selected],
   );
 
   return (
@@ -73,7 +109,7 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
         gap: 48,
       }}
     >
-      {/* LEFT — ingredient table */}
+      {/* LEFT: ingredient table */}
       <section>
         <input
           type="text"
@@ -97,7 +133,7 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
           <colgroup>
             <col />
             <col style={{ width: 76 }} />
-            <col style={{ width: 78 }} />
+            <col style={{ width: 82 }} />
             <col style={{ width: 56 }} />
           </colgroup>
           <thead>
@@ -108,7 +144,7 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
               }}
             >
               <th style={thStyle("left")}>Ingredient</th>
-              <th style={thStyle("right")}>Bottle</th>
+              <th style={thStyle("right")}>Pack</th>
               <th style={thStyle("right")}>Price</th>
               <th style={thStyle("right")}>Used in</th>
             </tr>
@@ -117,6 +153,11 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
             {filtered.map((ing) => {
               const active = ing.id === selectedId;
               const count = usageCounts[ing.id] ?? 0;
+              const displayPrice =
+                ing.packSize && ing.packSize > 1 && ing.packCost !== null
+                  ? ing.packCost
+                  : ing.unitCost;
+              const priced = ing.provenance !== "none" || displayPrice > 0;
               return (
                 <tr
                   key={ing.id}
@@ -134,9 +175,25 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
                       color: active ? COLOR.ink : COLOR.inkSoft,
                       fontFamily: FONT.serif,
                       fontSize: 16,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {ing.name}
+                    {ing.isSubRecipe && (
+                      <span style={{ marginLeft: 8, fontSize: 9, color: COLOR.accent, ...smallCaps }}>
+                        made
+                      </span>
+                    )}
+                    {(ing.provenance === "none" || ing.provenance === "placeholder") && (
+                      <span
+                        style={{ marginLeft: 8, fontSize: 9, color: COLOR.flag, ...smallCaps }}
+                        title={PROVENANCE_META[ing.provenance].label}
+                      >
+                        {ing.provenance === "none" ? "unsourced" : "placeholder"}
+                      </span>
+                    )}
                   </td>
                   <td
                     style={{
@@ -149,18 +206,20 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
                       ...tabularNums,
                     }}
                   >
-                    {ing.bottleSizeMl}&nbsp;ml
+                    {ing.packSize && ing.packSize > 1
+                      ? `${ing.packSize} ${ing.uom}`
+                      : `per ${ing.uom}`}
                   </td>
                   <td
                     style={{
                       padding: "14px 12px",
                       textAlign: "right",
                       fontFamily: FONT.mono,
-                      color: COLOR.ink,
+                      color: priced ? COLOR.ink : COLOR.flag,
                       ...tabularNums,
                     }}
                   >
-                    {fmt(ing.currentPrice)}
+                    {priced ? fmt(displayPrice) : "none"}
                   </td>
                   <td
                     style={{
@@ -185,10 +244,15 @@ export default function IngredientsClient({ ingredients, priceHistory, usageCoun
         </table>
       </section>
 
-      {/* RIGHT — detail + impact preview */}
+      {/* RIGHT: detail + impact preview */}
       <section>
         {selected ? (
-          <IngredientDetail ingredient={selected} history={selectedHistory} />
+          <IngredientDetail
+            key={selected.id}
+            ingredient={selected}
+            history={selectedHistory}
+            usage={selectedUsage}
+          />
         ) : (
           <div
             style={{
@@ -240,30 +304,55 @@ function thStyle(align: "left" | "right" | "center") {
 function IngredientDetail({
   ingredient,
   history,
+  usage,
 }: {
-  ingredient: IngredientMaster;
-  history: IngredientPriceHistoryEntry[];
+  ingredient: ClientIngredient;
+  history: ClientPriceHistoryRow[];
+  usage: RecipeUsageRow[];
 }) {
-  const [newPriceStr, setNewPriceStr] = useState(ingredient.currentPrice.toString());
+  const pricedByPack = !!ingredient.packSize && ingredient.packSize > 1;
+  const currentEditPrice = pricedByPack
+    ? (ingredient.packCost ?? 0)
+    : ingredient.unitCost;
+
+  const [newPriceStr, setNewPriceStr] = useState(currentEditPrice.toString());
   const [note, setNote] = useState("");
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
   const newPrice = Number(newPriceStr);
   const newPriceValid = Number.isFinite(newPrice) && newPrice >= 0;
-  const changed = newPriceValid && Math.abs(newPrice - ingredient.currentPrice) > 0.0005;
+  const changed = newPriceValid && Math.abs(newPrice - currentEditPrice) > 0.0005;
 
-  const impact = useMemo(
-    () => (newPriceValid ? computeImpact(ingredient, newPrice) : []),
-    [ingredient, newPrice, newPriceValid],
-  );
+  const currentUnit = ingredient.unitCost;
+  const newUnit = newPriceValid
+    ? pricedByPack
+      ? newPrice / (ingredient.packSize ?? 1)
+      : newPrice
+    : currentUnit;
 
-  const ppmCurrent = pricePerMl(ingredient);
-  const ppmNew = newPriceValid ? newPrice / ingredient.bottleSizeMl : ppmCurrent;
   const deltaPct =
-    ingredient.currentPrice > 0
-      ? ((newPrice - ingredient.currentPrice) / ingredient.currentPrice) * 100
-      : 0;
+    currentEditPrice > 0 ? ((newPrice - currentEditPrice) / currentEditPrice) * 100 : 0;
+
+  // Price-change impact per drink at 500ml, from the live recipe shares.
+  // Only meaningful for liquid (ml) components.
+  const impact = useMemo(() => {
+    if (ingredient.uom !== "ml") return [];
+    return usage
+      .map((u) => {
+        const mlPer500 = (u.percentage / 100) * 500;
+        return {
+          key: `${u.drinkName} (${u.clientName})`,
+          mlPer500,
+          currentCostPer500: mlPer500 * currentUnit,
+          newCostPer500: mlPer500 * newUnit,
+          deltaPer500: mlPer500 * (newUnit - currentUnit),
+        };
+      })
+      .sort((a, b) => Math.abs(b.deltaPer500) - Math.abs(a.deltaPer500));
+  }, [usage, ingredient.uom, currentUnit, newUnit]);
+
+  const prov = PROVENANCE_META[ingredient.provenance];
 
   function handleSave() {
     if (!changed || !newPriceValid) return;
@@ -273,7 +362,7 @@ function IngredientDetail({
       if (res.ok) {
         setFeedback({
           kind: "ok",
-          msg: "Saved to git. The site will redeploy in ~30s with the new price.",
+          msg: "Saved to the database and stamped in the price history.",
         });
         setNote("");
       } else {
@@ -300,8 +389,15 @@ function IngredientDetail({
           {ingredient.name}
         </h2>
         <p style={{ fontSize: 11, color: COLOR.accent, ...smallCaps }}>
-          {ingredient.bottleSizeMl} ml · {fmt(ingredient.currentPrice)} · set{" "}
-          {fmtDate(ingredient.currentPriceSetAt)}
+          {pricedByPack
+            ? `${ingredient.packSize} ${ingredient.uom} · ${fmt(ingredient.packCost ?? 0)}`
+            : `£${ingredient.unitCost.toFixed(4)} / ${ingredient.uom}`}
+          {ingredient.unitCostSetAt ? ` · set ${fmtDate(ingredient.unitCostSetAt)}` : " · never set"}
+        </p>
+        <p style={{ fontSize: 10, color: prov.color, marginTop: 6, ...smallCaps }}>
+          {prov.label}
+          {ingredient.provenance === "none" &&
+            " · this figure has no invoice or manual entry behind it"}
         </p>
         {ingredient.notes && (
           <p
@@ -335,7 +431,9 @@ function IngredientDetail({
         >
           <label style={{ flex: 1, minWidth: 200 }}>
             <span style={{ fontSize: 10, color: COLOR.muted, ...smallCaps }}>
-              New price (per {ingredient.bottleSizeMl} ml bottle)
+              {pricedByPack
+                ? `New price (per ${ingredient.packSize} ${ingredient.uom} pack)`
+                : `New price (per ${ingredient.uom})`}
             </span>
             <input
               type="number"
@@ -348,7 +446,7 @@ function IngredientDetail({
           </label>
           <label style={{ flex: 1.4, minWidth: 240 }}>
             <span style={{ fontSize: 10, color: COLOR.muted, ...smallCaps }}>
-              Note (optional — shows up in history)
+              Note (optional, shows up in history)
             </span>
             <input
               type="text"
@@ -371,15 +469,15 @@ function IngredientDetail({
             marginBottom: 20,
           }}
         >
-          <Stat label="Current £/ml" value={`£${ppmCurrent.toFixed(5)}`} />
+          <Stat label={`Current £/${ingredient.uom}`} value={`£${currentUnit.toFixed(5)}`} />
           <Stat
-            label="New £/ml"
-            value={`£${ppmNew.toFixed(5)}`}
+            label={`New £/${ingredient.uom}`}
+            value={`£${newUnit.toFixed(5)}`}
             color={changed ? COLOR.accent : undefined}
           />
           <Stat
             label="Change"
-            value={changed ? `${deltaPct > 0 ? "+" : ""}${deltaPct.toFixed(1)}%` : "—"}
+            value={changed ? `${deltaPct > 0 ? "+" : ""}${deltaPct.toFixed(1)}%` : "·"}
             color={changed ? (deltaPct >= 0 ? COLOR.flag : COLOR.positive) : undefined}
           />
         </div>
@@ -419,7 +517,7 @@ function IngredientDetail({
       {/* Impact preview */}
       <section>
         <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 4, ...smallCaps }}>
-          Impact on MFC drinks
+          Impact on drinks
         </p>
         <p
           style={{
@@ -430,9 +528,13 @@ function IngredientDetail({
             marginBottom: 16,
           }}
         >
-          {impact.length === 0
-            ? "No MFC recipes use this ingredient yet."
-            : `${impact.length} recipe${impact.length === 1 ? "" : "s"} — sorted by biggest 500 ml impact`}
+          {ingredient.uom !== "ml"
+            ? "Impact modelling applies to liquid ingredients; this component is costed per " +
+              ingredient.uom +
+              "."
+            : impact.length === 0
+            ? "No current recipes use this ingredient."
+            : `${impact.length} recipe${impact.length === 1 ? "" : "s"}, sorted by biggest 500 ml impact`}
         </p>
 
         {impact.length > 0 && (
@@ -453,10 +555,7 @@ function IngredientDetail({
             </thead>
             <tbody>
               {impact.map((row) => (
-                <tr
-                  key={row.recipeName}
-                  style={{ borderBottom: `1px solid ${COLOR.rule}` }}
-                >
+                <tr key={row.key} style={{ borderBottom: `1px solid ${COLOR.rule}` }}>
                   <td
                     style={{
                       padding: "12px 12px",
@@ -465,7 +564,7 @@ function IngredientDetail({
                       color: COLOR.ink,
                     }}
                   >
-                    {row.recipeName}
+                    {row.key}
                   </td>
                   <td
                     style={{
@@ -476,7 +575,7 @@ function IngredientDetail({
                       ...tabularNums,
                     }}
                   >
-                    {fmtMl(row.mlPerBottle500)}
+                    {fmtMl(row.mlPer500)}
                   </td>
                   <td
                     style={{
@@ -517,7 +616,7 @@ function IngredientDetail({
                       ...tabularNums,
                     }}
                   >
-                    {changed ? fmtDelta(row.deltaPer500) : "—"}
+                    {changed ? fmtDelta(row.deltaPer500) : "·"}
                   </td>
                 </tr>
               ))}
@@ -534,7 +633,7 @@ function IngredientDetail({
       {/* Price history */}
       <section>
         <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 16, ...smallCaps }}>
-          Price history
+          Price history (per {ingredient.uom})
         </p>
         {history.length === 0 ? (
           <p
@@ -542,10 +641,10 @@ function IngredientDetail({
               fontFamily: FONT.serif,
               fontStyle: "italic",
               fontSize: 14,
-              color: COLOR.muted,
+              color: COLOR.flag,
             }}
           >
-            No history recorded.
+            No history recorded. This price has never been sourced or entered.
           </p>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
@@ -557,8 +656,9 @@ function IngredientDetail({
                 }}
               >
                 <th style={thStyle("left")}>Note</th>
+                <th style={thStyle("left")}>Source</th>
                 <th style={thStyle("right")}>Date</th>
-                <th style={thStyle("right")}>Price</th>
+                <th style={thStyle("right")}>£ / {ingredient.uom}</th>
               </tr>
             </thead>
             <tbody>
@@ -572,7 +672,22 @@ function IngredientDetail({
                       color: h.note ? COLOR.inkSoft : COLOR.mutedLight,
                     }}
                   >
-                    {h.note ?? "—"}
+                    {h.note ?? "·"}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 12px",
+                      fontSize: 10,
+                      color:
+                        h.source === "inbound"
+                          ? COLOR.positive
+                          : h.source === "placeholder"
+                          ? COLOR.flag
+                          : COLOR.muted,
+                      ...smallCaps,
+                    }}
+                  >
+                    {h.source}
                   </td>
                   <td
                     style={{
@@ -595,7 +710,7 @@ function IngredientDetail({
                       ...tabularNums,
                     }}
                   >
-                    {fmt(h.price)}
+                    £{h.unitCost.toFixed(4)}
                   </td>
                 </tr>
               ))}

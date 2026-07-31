@@ -1,165 +1,107 @@
 "use server";
 
 /**
- * Server Action for persisting RRP overrides via GitHub API.
- * Same pattern as ingredient price persistence — every save is a git commit.
+ * Server Actions for agreed SKU prices.
+ *
+ * An AGREED price is a commitment to a retailer, stored in `sku_prices` with
+ * the period it applies to. Setting a new one closes the current row (its
+ * effective_to is stamped) and inserts a new open row, so the history of what
+ * was actually charged is never overwritten. The rule price (COGS x markup +
+ * shipping) is computed on read in `@/lib/erp/pricing` and is never written
+ * here, or anywhere.
  */
 
 import { revalidatePath } from "next/cache";
+import { and, eq, isNull } from "drizzle-orm";
 
-const OWNER = "cyrusgilbertrolfe";
-const REPO = "back-bar";
-const BRANCH = "main";
-const RRP_PATH = "src/data/rrp-overrides.json";
-const WHOLESALE_PATH = "src/data/wholesale-overrides.json";
+import { db } from "@/db";
+import { skuPrices, skus, type NewSkuPrice } from "@/db/schema";
 
-export type UpdateRrpResult =
-  | { ok: true }
-  | { ok: false; error: string };
+export type AgreedPriceResult = { ok: true } | { ok: false; error: string };
 
-async function ghHeaders(): Promise<Record<string, string>> {
-  const pat = process.env.GITHUB_PAT;
-  if (!pat) throw new Error("GITHUB_PAT is not set.");
-  return {
-    Authorization: `Bearer ${pat}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
+function revalidateFinances() {
+  revalidatePath("/finances/pricing");
+  revalidatePath("/finances/rrp");
+  revalidatePath("/finances/pnl");
+  revalidatePath("/finances/profitability");
 }
 
-async function ghGet(filePath: string) {
-  const headers = await ghHeaders();
-  const res = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}?ref=${BRANCH}`,
-    { headers, cache: "no-store" },
-  );
-  if (!res.ok) throw new Error(`GitHub GET ${filePath} failed (${res.status})`);
-  const data = await res.json();
-  return { content: Buffer.from(data.content, "base64").toString("utf8"), sha: data.sha };
-}
-
-async function ghPut(filePath: string, content: string, sha: string, message: string) {
-  const headers = await ghHeaders();
-  const res = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
-    {
-      method: "PUT",
-      headers,
-      body: JSON.stringify({
-        message,
-        content: Buffer.from(content, "utf8").toString("base64"),
-        sha,
-        branch: BRANCH,
-      }),
-    },
-  );
-  if (!res.ok) throw new Error(`GitHub PUT ${filePath} failed (${res.status})`);
-}
-
-/**
- * Save an RRP override for a product. Commits to git so all devices see it.
- */
-export async function updateRrpOverride(
-  productId: string,
-  productName: string,
-  size: string,
-  newRrp: number,
-): Promise<UpdateRrpResult> {
-  if (!Number.isFinite(newRrp) || newRrp <= 0) {
-    return { ok: false, error: "RRP must be a positive number." };
+async function setAgreedPrice(
+  skuId: number,
+  priceType: "wholesale" | "rrp",
+  amount: number,
+  opts?: { shipping?: number; note?: string },
+): Promise<AgreedPriceResult> {
+  if (!Number.isInteger(skuId) || skuId <= 0) {
+    return { ok: false, error: "skuId must be a positive integer." };
+  }
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { ok: false, error: "Price must be a positive number." };
   }
 
   try {
-    const file = await ghGet(RRP_PATH);
-    const overrides: Record<string, number> = JSON.parse(file.content);
+    const [sku] = await db.select().from(skus).where(eq(skus.id, skuId));
+    if (!sku) return { ok: false, error: `No SKU with id ${skuId}.` };
 
-    overrides[productId] = Math.round(newRrp * 100) / 100;
+    const today = new Date().toISOString().slice(0, 10);
 
-    const commitMsg = `Update ${productName} ${size} RRP to £${overrides[productId].toFixed(2)}\n\nSource: Back Bar pricing editor`;
+    const [current] = await db
+      .select()
+      .from(skuPrices)
+      .where(
+        and(
+          eq(skuPrices.skuId, skuId),
+          eq(skuPrices.priceType, priceType),
+          isNull(skuPrices.effectiveTo),
+        ),
+      );
 
-    await ghPut(
-      RRP_PATH,
-      JSON.stringify(overrides, null, 2) + "\n",
-      file.sha,
-      commitMsg,
-    );
+    if (current) {
+      await db
+        .update(skuPrices)
+        .set({ effectiveTo: today, updatedAt: new Date() })
+        .where(eq(skuPrices.id, current.id));
+    }
 
-    revalidatePath("/finances/pricing");
-    revalidatePath("/finances/rrp");
+    // Wholesale rows carry the per-bottle shipping assumed at agreement time.
+    // If the caller does not supply one, carry the previous row's forward.
+    const shipping =
+      priceType === "wholesale"
+        ? (opts?.shipping ?? (current ? Number(current.shipping ?? 0) : 0))
+        : null;
+
+    const row: NewSkuPrice = {
+      skuId,
+      priceType,
+      amount: (Math.round(amount * 100) / 100).toFixed(2),
+      effectiveFrom: today,
+      effectiveTo: null,
+      shipping: shipping === null ? null : shipping.toFixed(4),
+      notes: opts?.note?.trim() || "Set from Back Bar",
+    };
+    await db.insert(skuPrices).values(row);
+
+    revalidateFinances();
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
 
-/**
- * Reset all RRP overrides (revert to defaults from pricing-data.ts).
- */
-export async function resetRrpOverrides(): Promise<UpdateRrpResult> {
-  try {
-    const file = await ghGet(RRP_PATH);
-    await ghPut(RRP_PATH, "{}\n", file.sha, "Reset all RRP overrides to defaults\n\nSource: Back Bar pricing editor");
-    revalidatePath("/finances/pricing");
-    revalidatePath("/finances/rrp");
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
+/** Record a newly agreed wholesale price (ex VAT) for a SKU. */
+export async function setAgreedWholesale(
+  skuId: number,
+  amount: number,
+  opts?: { shipping?: number; note?: string },
+): Promise<AgreedPriceResult> {
+  return setAgreedPrice(skuId, "wholesale", amount, opts);
 }
 
-/**
- * Save a wholesale price override for a product. Commits to git so all devices see it.
- * When set, this value replaces the formula-derived wholesale; the retailer test still runs against it.
- */
-export async function updateWholesaleOverride(
-  productId: string,
-  productName: string,
-  size: string,
-  newWholesale: number,
-): Promise<UpdateRrpResult> {
-  if (!Number.isFinite(newWholesale) || newWholesale <= 0) {
-    return { ok: false, error: "Wholesale must be a positive number." };
-  }
-
-  try {
-    const file = await ghGet(WHOLESALE_PATH);
-    const overrides: Record<string, number> = JSON.parse(file.content);
-
-    overrides[productId] = Math.round(newWholesale * 100) / 100;
-
-    const commitMsg = `Update ${productName} ${size} wholesale to £${overrides[productId].toFixed(2)}\n\nSource: Back Bar pricing editor`;
-
-    await ghPut(
-      WHOLESALE_PATH,
-      JSON.stringify(overrides, null, 2) + "\n",
-      file.sha,
-      commitMsg,
-    );
-
-    revalidatePath("/finances/pricing");
-    revalidatePath("/finances/rrp");
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
-}
-
-/**
- * Reset all wholesale overrides (revert to formula-derived values).
- */
-export async function resetWholesaleOverrides(): Promise<UpdateRrpResult> {
-  try {
-    const file = await ghGet(WHOLESALE_PATH);
-    await ghPut(
-      WHOLESALE_PATH,
-      "{}\n",
-      file.sha,
-      "Reset all wholesale overrides to defaults\n\nSource: Back Bar pricing editor",
-    );
-    revalidatePath("/finances/pricing");
-    revalidatePath("/finances/rrp");
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
+/** Record a newly agreed RRP (inc VAT) for a SKU. */
+export async function setAgreedRrp(
+  skuId: number,
+  amount: number,
+  opts?: { note?: string },
+): Promise<AgreedPriceResult> {
+  return setAgreedPrice(skuId, "rrp", amount, opts);
 }

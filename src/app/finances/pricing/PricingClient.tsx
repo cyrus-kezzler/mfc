@@ -2,20 +2,8 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
-import {
-  PricingConfig,
-  PricingProduct,
-  calcWholesale,
-  calcRetailerPrice,
-  passesRetailerTest,
-  calcMargin,
-} from "@/lib/pricing-data";
-import {
-  updateRrpOverride,
-  resetRrpOverrides,
-  updateWholesaleOverride,
-  resetWholesaleOverrides,
-} from "@/app/actions/pricing";
+import { setAgreedRrp, setAgreedWholesale } from "@/app/actions/pricing";
+import type { PricingConfigView, SkuRow } from "../finance-types";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
 
 const GBP = (n: number) =>
@@ -25,27 +13,31 @@ const GBP = (n: number) =>
     minimumFractionDigits: 2,
   }).format(n);
 
-const STORAGE_CONFIG_KEY = "mfc_pricing_config";
+// Shared with the RRP page so the two tools run on one set of what-if
+// assumptions per device. The saved config lives in the database
+// (system_settings); this key only carries local experiments on top of it.
+const STORAGE_CONFIG_KEY = "mfc_pricing_config_v2";
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 type Props = {
-  products: PricingProduct[];
-  defaultConfig: PricingConfig;
-  rrpOverrides: Record<string, number>;
-  wholesaleOverrides: Record<string, number>;
+  rows: SkuRow[];
+  config: PricingConfigView;
 };
 
 type EditField = "rrp" | "wholesale";
 
-export default function PricingClient({
-  products: serverProducts,
-  defaultConfig,
-  rrpOverrides: serverRrpOverrides,
-  wholesaleOverrides: serverWholesaleOverrides,
-}: Props) {
-  const [config, setConfig] = useState<PricingConfig>(defaultConfig);
-  const [localRrpEdits, setLocalRrpEdits] = useState<Record<string, number>>({});
-  const [localWholesaleEdits, setLocalWholesaleEdits] = useState<Record<string, number>>({});
-  const [editingId, setEditingId] = useState<string | null>(null);
+type WhatIf = { markup: number; retailerMargin: number; vat: number };
+
+export default function PricingClient({ rows: serverRows, config }: Props) {
+  const [whatIf, setWhatIf] = useState<WhatIf>({
+    markup: config.markup,
+    retailerMargin: config.retailerMargin,
+    vat: config.vat,
+  });
+  const [localRrpEdits, setLocalRrpEdits] = useState<Record<number, number>>({});
+  const [localWholesaleEdits, setLocalWholesaleEdits] = useState<Record<number, number>>({});
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<EditField | null>(null);
   const [editValue, setEditValue] = useState("");
   const [filterFails, setFilterFails] = useState(false);
@@ -56,33 +48,42 @@ export default function PricingClient({
   useEffect(() => {
     try {
       const sc = localStorage.getItem(STORAGE_CONFIG_KEY);
-      if (sc) setConfig({ ...defaultConfig, ...JSON.parse(sc) });
+      if (sc) setWhatIf((prev) => ({ ...prev, ...JSON.parse(sc) }));
     } catch {}
     setHydrated(true);
-  }, [defaultConfig]);
+  }, []);
 
-  const products: PricingProduct[] = serverProducts.map((p) => ({
-    ...p,
-    rrp: localRrpEdits[p.id] ?? p.rrp,
-    wholesaleOverride:
-      localWholesaleEdits[p.id] !== undefined
-        ? localWholesaleEdits[p.id]
-        : p.wholesaleOverride,
-  }));
+  const derived = serverRows.map((r) => {
+    const rrp = localRrpEdits[r.skuId] ?? r.rrp;
+    const wholesale = localWholesaleEdits[r.skuId] ?? r.wholesale;
+    const rulePrice = round2(r.cogs * whatIf.markup + r.shipping);
+    const shelf = wholesale === null ? null : round2(wholesale * whatIf.retailerMargin * whatIf.vat);
+    const testPasses = shelf === null || rrp === null ? null : shelf <= rrp;
+    const headroom = shelf === null || rrp === null ? null : round2(rrp - shelf);
+    const margin = wholesale === null ? null : round2(wholesale - r.cogs - r.shipping);
+    const marginPct =
+      wholesale === null || wholesale === 0 || margin === null
+        ? null
+        : Math.round((margin / wholesale) * 1000) / 10;
+    const gapToRule = wholesale === null ? null : round2(wholesale - rulePrice);
+    return { r, rrp, wholesale, rulePrice, shelf, testPasses, headroom, marginPct, gapToRule };
+  });
 
-  const allPass = products.every((p) => passesRetailerTest(p, config));
-  const failCount = products.filter((p) => !passesRetailerTest(p, config)).length;
-  const displayed = filterFails
-    ? products.filter((p) => !passesRetailerTest(p, config))
-    : products;
+  const testable = derived.filter((d) => d.testPasses !== null);
+  const failCount = testable.filter((d) => d.testPasses === false).length;
+  const unpriced = derived.filter((d) => d.wholesale === null).length;
+  const allPass = testable.length > 0 && failCount === 0;
+
+  const displayed = filterFails ? derived.filter((d) => d.testPasses === false) : derived;
+
   const totalUnsavedEdits =
     Object.keys(localRrpEdits).length + Object.keys(localWholesaleEdits).length;
   const hasUnsavedEdits = totalUnsavedEdits > 0;
 
-  const startEdit = (id: string, field: EditField, val: number) => {
+  const startEdit = (id: number, field: EditField, val: number | null) => {
     setEditingId(id);
     setEditingField(field);
-    setEditValue(val.toFixed(2));
+    setEditValue(val === null ? "" : val.toFixed(2));
   };
 
   const cancelEdit = () => {
@@ -91,16 +92,16 @@ export default function PricingClient({
   };
 
   const commitEdit = useCallback(() => {
-    if (!editingId || !editingField) return;
+    if (editingId === null || !editingField) return;
     const val = parseFloat(editValue);
     if (isNaN(val) || val <= 0) {
       cancelEdit();
       return;
     }
     if (editingField === "rrp") {
-      setLocalRrpEdits((prev) => ({ ...prev, [editingId]: val }));
+      setLocalRrpEdits((prev) => ({ ...prev, [editingId]: round2(val) }));
     } else {
-      setLocalWholesaleEdits((prev) => ({ ...prev, [editingId]: val }));
+      setLocalWholesaleEdits((prev) => ({ ...prev, [editingId]: round2(val) }));
     }
     cancelEdit();
     setFeedback(null);
@@ -113,18 +114,14 @@ export default function PricingClient({
     if (rrpEntries.length + wholesaleEntries.length === 0) return;
     startTransition(async () => {
       for (const [id, rrp] of rrpEntries) {
-        const product = serverProducts.find((p) => p.id === id);
-        if (!product) continue;
-        const res = await updateRrpOverride(id, product.name, product.size, rrp);
+        const res = await setAgreedRrp(Number(id), rrp);
         if (!res.ok) {
           setFeedback({ kind: "err", msg: res.error });
           return;
         }
       }
       for (const [id, ws] of wholesaleEntries) {
-        const product = serverProducts.find((p) => p.id === id);
-        if (!product) continue;
-        const res = await updateWholesaleOverride(id, product.name, product.size, ws);
+        const res = await setAgreedWholesale(Number(id), ws);
         if (!res.ok) {
           setFeedback({ kind: "err", msg: res.error });
           return;
@@ -135,38 +132,16 @@ export default function PricingClient({
       const total = rrpEntries.length + wholesaleEntries.length;
       setFeedback({
         kind: "ok",
-        msg: `${total} change${total > 1 ? "s" : ""} saved — site redeploys in ~30s.`,
+        msg: `${total} agreed price${total > 1 ? "s" : ""} recorded in the price book.`,
       });
     });
   };
 
-  const handleResetRrp = () => {
-    startTransition(async () => {
-      const res = await resetRrpOverrides();
-      if (res.ok) {
-        setLocalRrpEdits({});
-        setFeedback({ kind: "ok", msg: "RRP overrides cleared. Defaults restored." });
-      } else {
-        setFeedback({ kind: "err", msg: res.error });
-      }
-    });
-  };
-
-  const handleResetWholesale = () => {
-    startTransition(async () => {
-      const res = await resetWholesaleOverrides();
-      if (res.ok) {
-        setLocalWholesaleEdits({});
-        setFeedback({ kind: "ok", msg: "Wholesale overrides cleared. Formula restored." });
-      } else {
-        setFeedback({ kind: "err", msg: res.error });
-      }
-    });
-  };
-
-  const saveConfig = (c: PricingConfig) => {
-    setConfig(c);
-    localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(c));
+  const saveWhatIf = (c: WhatIf) => {
+    setWhatIf(c);
+    try {
+      localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(c));
+    } catch {}
   };
 
   if (!hydrated) {
@@ -190,7 +165,7 @@ export default function PricingClient({
   return (
     <main
       className="pricing-main"
-      style={{ maxWidth: 1180, margin: "0 auto", padding: "48px 40px 96px" }}
+      style={{ maxWidth: 1240, margin: "0 auto", padding: "48px 40px 96px" }}
     >
       <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 20, ...smallCaps }}>
         Finances · Wholesale pricing
@@ -217,22 +192,24 @@ export default function PricingClient({
             fontSize: 19,
             color: COLOR.inkSoft,
             lineHeight: 1.55,
-            maxWidth: 720,
+            maxWidth: 760,
             fontWeight: 300,
           }}
         >
-          What stockists pay. COGS derived live from the ingredient master (liquid plus labour);
-          wholesale is COGS times markup, plus shipping. Both RRP and wholesale are click-to-edit —
-          overrides persist to git across every device, and the retailer test runs against whatever
-          wholesale is shown. RRP is also managed in the{" "}
+          What stockists pay. COGS is derived live from the database (liquid, primary
+          packaging and wastage). The <strong>agreed</strong> price is the commitment on the
+          current price list; the <strong>rule</strong> price is what the formula says today,
+          shown alongside so the gap between them, the margin erosion since the last review,
+          is always visible. The two are never substituted for each other. RRP is also
+          managed in the{" "}
           <Link href="/finances/rrp" style={{ color: COLOR.accent, textDecoration: "underline", textUnderlineOffset: 3 }}>
             RRP page
           </Link>
-          ; edits made here and there stay in sync.
+          .
         </p>
       </section>
 
-      {/* Assumptions row */}
+      {/* Assumptions row (local what-if on top of the stored config) */}
       <section
         style={{
           borderTop: `1px solid ${COLOR.rule}`,
@@ -253,7 +230,7 @@ export default function PricingClient({
         ].map(({ label, key }) => (
           <label key={key} style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 110 }}>
             <span style={{ fontSize: 10, color: COLOR.muted, ...smallCaps }}>{label}</span>
-            <PercentInput value={config[key]} onChange={(n) => saveConfig({ ...config, [key]: n })} />
+            <PercentInput value={whatIf[key]} onChange={(n) => saveWhatIf({ ...whatIf, [key]: n })} />
           </label>
         ))}
 
@@ -264,10 +241,12 @@ export default function PricingClient({
             fontSize: 14,
             color: COLOR.muted,
             marginLeft: "auto",
-            maxWidth: 360,
+            maxWidth: 380,
           }}
         >
-          Wholesale = COGS × (1 + markup) + shipping.
+          Rule price = COGS × markup + shipping. What-if only on this device; the stored
+          config lives in the database
+          {config.listEffectiveFrom ? ` (list effective ${config.listEffectiveFrom})` : ""}.
         </span>
       </section>
 
@@ -293,9 +272,16 @@ export default function PricingClient({
           }}
         >
           <Dot color={allPass ? COLOR.accent : COLOR.flag} filled />
-          {allPass
-            ? `All ${products.length} SKUs pass the retailer test.`
-            : `${failCount} of ${products.length} SKUs fail the retailer test.`}
+          {testable.length === 0
+            ? "No SKU has both an agreed wholesale and an agreed RRP yet."
+            : allPass
+            ? `All ${testable.length} priced SKUs pass the retailer test.`
+            : `${failCount} of ${testable.length} priced SKUs fail the retailer test.`}
+          {unpriced > 0 && (
+            <span style={{ color: COLOR.muted, fontSize: 14 }}>
+              {unpriced} with no agreed wholesale.
+            </span>
+          )}
         </span>
 
         <TextButton
@@ -336,20 +322,14 @@ export default function PricingClient({
             >
               {isPending
                 ? "Saving…"
-                : `Save ${totalUnsavedEdits} change${totalUnsavedEdits > 1 ? "s" : ""}`}
+                : `Save ${totalUnsavedEdits} agreed price${totalUnsavedEdits > 1 ? "s" : ""}`}
             </button>
           )}
-          <TextButton onClick={handleResetRrp} color={COLOR.muted} disabled={isPending}>
-            Reset RRP overrides
-          </TextButton>
-          <TextButton onClick={handleResetWholesale} color={COLOR.muted} disabled={isPending}>
-            Reset wholesale overrides
-          </TextButton>
         </div>
       </section>
 
       {/* Table */}
-      <section>
+      <section style={{ overflowX: "auto" }}>
         <table
           style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, ...tabularNums }}
         >
@@ -358,14 +338,15 @@ export default function PricingClient({
               {[
                 { label: "Cocktail", align: "left" as const },
                 { label: "Size", align: "left" as const },
-                { label: "RRP", align: "right" as const },
+                { label: "RRP (agreed)", align: "right" as const },
                 { label: "COGS", align: "right" as const },
                 { label: "Ship", align: "right" as const },
-                { label: "Wholesale", align: "right" as const },
-                { label: "Retailer +30%", align: "right" as const },
+                { label: "Wholesale (agreed)", align: "right" as const },
+                { label: "Rule price", align: "right" as const },
+                { label: "Gap to rule", align: "right" as const },
+                { label: "Retailer shelf", align: "right" as const },
                 { label: "Test", align: "center" as const },
-                { label: "Headroom", align: "right" as const },
-                { label: "Markup", align: "right" as const },
+                { label: "Margin", align: "right" as const },
               ].map(({ label, align }) => (
                 <th
                   key={label}
@@ -386,7 +367,7 @@ export default function PricingClient({
                   }}
                 >
                   {label}
-                  {label === "RRP" && (
+                  {label === "RRP (agreed)" && (
                     <Link
                       href="/finances/rrp"
                       style={{
@@ -405,39 +386,28 @@ export default function PricingClient({
             </tr>
           </thead>
           <tbody>
-            {displayed.map((p) => {
-              const ws = calcWholesale(p, config);
-              const rp = calcRetailerPrice(ws, config);
-              const passes = rp <= p.rrp;
-              const headroom = Math.round((p.rrp - rp) * 100) / 100;
-              const margin = calcMargin(p, config);
-              const isEditingRrp = editingId === p.id && editingField === "rrp";
-              const isEditingWholesale = editingId === p.id && editingField === "wholesale";
-              const hasRrpOverride =
-                localRrpEdits[p.id] !== undefined || serverRrpOverrides[p.id] !== undefined;
-              const isUnsavedRrpEdit = localRrpEdits[p.id] !== undefined;
-              const hasWholesaleOverride =
-                localWholesaleEdits[p.id] !== undefined ||
-                serverWholesaleOverrides[p.id] !== undefined;
-              const isUnsavedWholesaleEdit = localWholesaleEdits[p.id] !== undefined;
+            {displayed.map(({ r, rrp, wholesale, rulePrice, shelf, testPasses, marginPct, gapToRule }) => {
+              const isEditingRrp = editingId === r.skuId && editingField === "rrp";
+              const isEditingWholesale = editingId === r.skuId && editingField === "wholesale";
+              const isUnsavedRrpEdit = localRrpEdits[r.skuId] !== undefined;
+              const isUnsavedWholesaleEdit = localWholesaleEdits[r.skuId] !== undefined;
+              const hasCostFlags = r.unsourced.length + r.placeholders.length + r.problems.length > 0;
 
               return (
-                <tr key={p.id} style={{ borderBottom: `1px solid ${COLOR.rule}` }} className="pricing-row">
+                <tr key={r.skuId} style={{ borderBottom: `1px solid ${COLOR.rule}` }} className="pricing-row">
                   <td style={{ padding: "18px 12px", color: COLOR.ink, fontFamily: FONT.serif, fontSize: 17 }}>
-                    {p.name}
-                    {p.gtin && (
-                      <div
-                        style={{
-                          fontFamily: FONT.mono,
-                          fontSize: 10,
-                          color: COLOR.mutedLight,
-                          marginTop: 4,
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {p.gtin}
-                      </div>
-                    )}
+                    {r.name}
+                    <div
+                      style={{
+                        fontFamily: FONT.mono,
+                        fontSize: 10,
+                        color: COLOR.mutedLight,
+                        marginTop: 4,
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {[r.clientName, r.gtin].filter(Boolean).join(" · ")}
+                    </div>
                   </td>
                   <td
                     style={{
@@ -448,52 +418,38 @@ export default function PricingClient({
                       ...smallCaps,
                     }}
                   >
-                    {p.size}
+                    {r.size}
                   </td>
+
+                  {/* RRP (agreed), editable */}
                   <td
                     style={{
                       padding: "18px 12px",
                       textAlign: "right",
                       fontFamily: FONT.mono,
                       cursor: isEditingRrp ? "default" : "text",
-                      color: isUnsavedRrpEdit
-                        ? COLOR.flag
-                        : hasRrpOverride
-                        ? COLOR.accent
-                        : COLOR.ink,
-                      fontWeight: hasRrpOverride || isUnsavedRrpEdit ? 600 : 400,
+                      color: isUnsavedRrpEdit ? COLOR.flag : rrp === null ? COLOR.mutedLight : COLOR.ink,
+                      fontWeight: isUnsavedRrpEdit ? 600 : 400,
                     }}
-                    onClick={() => !isEditingRrp && startEdit(p.id, "rrp", p.rrp)}
+                    onClick={() => !isEditingRrp && startEdit(r.skuId, "rrp", rrp)}
                   >
                     {isEditingRrp ? (
-                      <input
-                        autoFocus
+                      <EditInput
                         value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onBlur={commitEdit}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") commitEdit();
-                          if (e.key === "Escape") cancelEdit();
-                        }}
-                        style={{
-                          width: 72,
-                          textAlign: "right",
-                          fontFamily: FONT.mono,
-                          fontSize: 14,
-                          fontWeight: 600,
-                          color: COLOR.accent,
-                          background: COLOR.paperDeep,
-                          border: `1px solid ${COLOR.accent}`,
-                          padding: "4px 6px",
-                          outline: "none",
-                        }}
+                        onChange={setEditValue}
+                        onCommit={commitEdit}
+                        onCancel={cancelEdit}
                       />
+                    ) : rrp === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic" }}>none agreed</span>
                     ) : (
                       <span style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}>
-                        {GBP(p.rrp)}
+                        {GBP(rrp)}
                       </span>
                     )}
                   </td>
+
+                  {/* COGS */}
                   <td
                     style={{
                       padding: "18px 12px",
@@ -502,8 +458,18 @@ export default function PricingClient({
                       color: COLOR.inkSoft,
                     }}
                   >
-                    {GBP(p.cogs)}
+                    {GBP(r.cogs)}
+                    {hasCostFlags && (
+                      <span
+                        title={[...r.problems, ...r.unsourced.map((u) => `Unsourced: ${u}`), ...r.placeholders.map((p) => `Placeholder: ${p}`)].join("\n")}
+                        style={{ marginLeft: 6, fontSize: 10, color: COLOR.flag, cursor: "help" }}
+                      >
+                        ⚑
+                      </span>
+                    )}
                   </td>
+
+                  {/* Shipping */}
                   <td
                     style={{
                       padding: "18px 12px",
@@ -512,8 +478,10 @@ export default function PricingClient({
                       color: COLOR.mutedLight,
                     }}
                   >
-                    {GBP(p.shipping)}
+                    {GBP(r.shipping)}
                   </td>
+
+                  {/* Wholesale (agreed), editable */}
                   <td
                     style={{
                       padding: "18px 12px",
@@ -522,42 +490,39 @@ export default function PricingClient({
                       cursor: isEditingWholesale ? "default" : "text",
                       color: isUnsavedWholesaleEdit
                         ? COLOR.flag
-                        : hasWholesaleOverride
-                        ? COLOR.accent
+                        : wholesale === null
+                        ? COLOR.mutedLight
                         : COLOR.ink,
                       fontWeight: 600,
                     }}
-                    onClick={() => !isEditingWholesale && startEdit(p.id, "wholesale", ws)}
+                    onClick={() => !isEditingWholesale && startEdit(r.skuId, "wholesale", wholesale)}
                   >
                     {isEditingWholesale ? (
-                      <input
-                        autoFocus
+                      <EditInput
                         value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onBlur={commitEdit}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") commitEdit();
-                          if (e.key === "Escape") cancelEdit();
-                        }}
-                        style={{
-                          width: 72,
-                          textAlign: "right",
-                          fontFamily: FONT.mono,
-                          fontSize: 14,
-                          fontWeight: 600,
-                          color: COLOR.accent,
-                          background: COLOR.paperDeep,
-                          border: `1px solid ${COLOR.accent}`,
-                          padding: "4px 6px",
-                          outline: "none",
-                        }}
+                        onChange={setEditValue}
+                        onCommit={commitEdit}
+                        onCancel={cancelEdit}
                       />
+                    ) : wholesale === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic", fontWeight: 400 }}>
+                        none agreed
+                      </span>
                     ) : (
-                      <span style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}>
-                        {GBP(ws)}
+                      <span
+                        title={
+                          r.wholesaleEffectiveFrom
+                            ? `Agreed price, effective from ${r.wholesaleEffectiveFrom}`
+                            : "Agreed price"
+                        }
+                        style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}
+                      >
+                        {GBP(wholesale)}
                       </span>
                     )}
                   </td>
+
+                  {/* Rule price */}
                   <td
                     style={{
                       padding: "18px 12px",
@@ -565,35 +530,29 @@ export default function PricingClient({
                       fontFamily: FONT.mono,
                       color: COLOR.muted,
                     }}
+                    title="COGS x markup + shipping at the assumptions above. Never a substitute for the agreed price."
                   >
-                    {GBP(rp)}
+                    {GBP(rulePrice)}
                   </td>
-                  <td style={{ padding: "18px 12px", textAlign: "center" }}>
-                    {passes ? (
-                      <Dot color={COLOR.accent} filled />
-                    ) : (
-                      <span style={{ fontSize: 10, color: COLOR.flag, ...smallCaps }}>
-                        Below test
-                      </span>
-                    )}
-                  </td>
+
+                  {/* Gap to rule */}
                   <td
                     style={{
                       padding: "18px 12px",
                       textAlign: "right",
                       fontFamily: FONT.mono,
                       color:
-                        headroom < 0
+                        gapToRule === null
+                          ? COLOR.mutedLight
+                          : gapToRule < 0
                           ? COLOR.flag
-                          : headroom < 0.5
-                          ? COLOR.accent
-                          : COLOR.inkSoft,
-                      fontWeight: headroom < 0.5 ? 600 : 400,
+                          : COLOR.positive,
                     }}
                   >
-                    {headroom >= 0 ? "+" : ""}
-                    {GBP(headroom)}
+                    {gapToRule === null ? "·" : `${gapToRule >= 0 ? "+" : ""}${GBP(gapToRule)}`}
                   </td>
+
+                  {/* Retailer shelf price (from the agreed wholesale) */}
                   <td
                     style={{
                       padding: "18px 12px",
@@ -602,7 +561,30 @@ export default function PricingClient({
                       color: COLOR.muted,
                     }}
                   >
-                    {margin.toFixed(1)}%
+                    {shelf === null ? "·" : GBP(shelf)}
+                  </td>
+
+                  {/* Retailer test */}
+                  <td style={{ padding: "18px 12px", textAlign: "center" }}>
+                    {testPasses === null ? (
+                      <span style={{ fontSize: 10, color: COLOR.mutedLight, ...smallCaps }}>n/a</span>
+                    ) : testPasses ? (
+                      <Dot color={COLOR.accent} filled />
+                    ) : (
+                      <span style={{ fontSize: 10, color: COLOR.flag, ...smallCaps }}>Fails</span>
+                    )}
+                  </td>
+
+                  {/* Margin */}
+                  <td
+                    style={{
+                      padding: "18px 12px",
+                      textAlign: "right",
+                      fontFamily: FONT.mono,
+                      color: marginPct === null ? COLOR.mutedLight : marginPct < 0 ? COLOR.flag : COLOR.muted,
+                    }}
+                  >
+                    {marginPct === null ? "·" : `${marginPct.toFixed(1)}%`}
                   </td>
                 </tr>
               );
@@ -611,7 +593,7 @@ export default function PricingClient({
           <tfoot>
             <tr>
               <td
-                colSpan={10}
+                colSpan={11}
                 style={{ borderTop: `2px solid ${COLOR.ink}`, padding: 0, height: 2 }}
               />
             </tr>
@@ -629,44 +611,53 @@ export default function PricingClient({
           rowGap: 20,
         }}
       >
-        {[
-          { label: "SKUs", value: products.length.toString() },
-          {
-            label: "Pass rate",
-            value: allPass ? "100%" : `${products.length - failCount} / ${products.length}`,
-          },
-          {
-            label: "Average wholesale",
-            value: GBP(
-              products.reduce((s, p) => s + calcWholesale(p, config), 0) / products.length,
-            ),
-          },
-          {
-            label: "Average markup",
-            value:
-              (products.reduce((s, p) => s + calcMargin(p, config), 0) / products.length).toFixed(
-                1,
-              ) + "%",
-          },
-        ].map(({ label, value }) => (
-          <div key={label}>
-            <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 6, ...smallCaps }}>
-              {label}
-            </p>
-            <p
-              style={{
-                fontFamily: FONT.serif,
-                fontSize: 28,
-                fontWeight: 400,
-                color: COLOR.ink,
-                letterSpacing: "-0.01em",
-                ...tabularNums,
-              }}
-            >
-              {value}
-            </p>
-          </div>
-        ))}
+        {(() => {
+          const priced = derived.filter((d) => d.wholesale !== null);
+          const avg = (xs: number[]) =>
+            xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null;
+          const avgWholesale = avg(priced.map((d) => d.wholesale as number));
+          const margins = priced
+            .map((d) => d.marginPct)
+            .filter((m): m is number => m !== null);
+          const avgMargin = avg(margins);
+          return [
+            { label: "SKUs", value: derived.length.toString() },
+            { label: "With agreed wholesale", value: `${priced.length} / ${derived.length}` },
+            {
+              label: "Retailer test",
+              value:
+                testable.length === 0
+                  ? "n/a"
+                  : `${testable.length - failCount} / ${testable.length} pass`,
+            },
+            {
+              label: "Average agreed wholesale",
+              value: avgWholesale === null ? "n/a" : GBP(avgWholesale),
+            },
+            {
+              label: "Average margin",
+              value: avgMargin === null ? "n/a" : `${avgMargin.toFixed(1)}%`,
+            },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 6, ...smallCaps }}>
+                {label}
+              </p>
+              <p
+                style={{
+                  fontFamily: FONT.serif,
+                  fontSize: 28,
+                  fontWeight: 400,
+                  color: COLOR.ink,
+                  letterSpacing: "-0.01em",
+                  ...tabularNums,
+                }}
+              >
+                {value}
+              </p>
+            </div>
+          ));
+        })()}
       </section>
 
       <style>{`
@@ -676,6 +667,43 @@ export default function PricingClient({
         }
       `}</style>
     </main>
+  );
+}
+
+function EditInput({
+  value,
+  onChange,
+  onCommit,
+  onCancel,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onCommit: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <input
+      autoFocus
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onCommit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onCommit();
+        if (e.key === "Escape") onCancel();
+      }}
+      style={{
+        width: 72,
+        textAlign: "right",
+        fontFamily: FONT.mono,
+        fontSize: 14,
+        fontWeight: 600,
+        color: COLOR.accent,
+        background: COLOR.paperDeep,
+        border: `1px solid ${COLOR.accent}`,
+        padding: "4px 6px",
+        outline: "none",
+      }}
+    />
   );
 }
 

@@ -1,70 +1,81 @@
 /**
- * MCP tools — drinks & wholesale pricing (read).
+ * MCP tools: drinks & wholesale pricing (read).
  *
- * Backed by the git-committed pricing data: PRICING_PRODUCTS with live COGS
- * derived from the ingredient master, plus the RRP and wholesale override
- * files. This mirrors exactly what the Finances › Wholesale Pricing page
- * shows. Recipe internals are never exposed — only the COGS total.
+ * Backed by the database: COGS from the live recipe and bill of materials,
+ * agreed prices from sku_prices, config from system_settings. This mirrors
+ * exactly what the Finances pages show. Recipe internals are never exposed,
+ * only the COGS total and its quality flags.
+ *
+ * Two prices, never conflated: `wholesale` and `rrp` are AGREED prices and are
+ * null when nothing has been agreed; `rulePrice` is what the markup formula
+ * says today. A null agreed price is reported as null, not substituted.
  */
 
-import rrpOverridesRaw from "@/data/rrp-overrides.json";
-import wholesaleOverridesRaw from "@/data/wholesale-overrides.json";
-import { getPricingProductsWithLiveCogs } from "@/lib/cogs";
-import {
-  DEFAULT_CONFIG,
-  calcWholesale,
-  calcRetailerPrice,
-  calcMargin,
-  passesRetailerTest,
-} from "@/lib/pricing-data";
+import { computeAllProfitability, getPricingConfig } from "@/lib/erp/pricing";
+import { db } from "@/db";
+import { skus } from "@/db/schema";
 import type { ToolArgs, ToolDefinition } from "../types";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 interface DrinkView {
-  id: string;
+  skuId: number;
+  code: string;
   name: string;
+  clientName: string | null;
   size: string;
   ean: string | null;
-  rrp: number;
+  /** Agreed RRP inc VAT, or null when none is agreed. */
+  rrp: number | null;
+  /** Full COGS: liquid + primary packaging + wastage. */
   cogs: number;
   shipping: number;
-  wholesale: number;
-  wholesaleIsOverridden: boolean;
-  retailerPrice: number;
-  passesRetailerTest: boolean;
-  marginPct: number;
-  notes: string | null;
+  /** Agreed wholesale ex VAT, or null when none is agreed. */
+  wholesale: number | null;
+  wholesaleEffectiveFrom: string | null;
+  /** COGS x markup + shipping. A formula output, never an agreed price. */
+  rulePrice: number;
+  /** wholesale - rulePrice; negative means the agreed price has fallen behind. */
+  gapToRule: number | null;
+  retailerShelfPrice: number | null;
+  passesRetailerTest: boolean | null;
+  marginPct: number | null;
+  /** Cost lines with no invoice or manual entry behind them. */
+  unsourced: string[];
+  /** Cost lines standing on declared placeholders. */
+  placeholders: string[];
+  problems: string[];
 }
 
-/** Build the override-aware, live-COGS view of every SKU. */
-function buildDrinks(): DrinkView[] {
-  const rrpOverrides = rrpOverridesRaw as Record<string, number>;
-  const wholesaleOverrides = wholesaleOverridesRaw as Record<string, number>;
+/** Build the DB view of every active SKU. */
+async function buildDrinks(): Promise<DrinkView[]> {
+  const [profitability, skuRows] = await Promise.all([
+    computeAllProfitability(),
+    db.select({ id: skus.id, gtin: skus.gtin }).from(skus),
+  ]);
+  const gtinById = new Map(skuRows.map((s) => [s.id, s.gtin]));
 
-  return getPricingProductsWithLiveCogs().map((p) => {
-    const product = {
-      ...p,
-      rrp: rrpOverrides[p.id] ?? p.rrp,
-      wholesaleOverride: wholesaleOverrides[p.id],
-    };
-    const wholesale = calcWholesale(product, DEFAULT_CONFIG);
-    return {
-      id: product.id,
-      name: product.name,
-      size: product.size,
-      ean: product.gtin ?? null,
-      rrp: round2(product.rrp),
-      cogs: round2(product.cogs),
-      shipping: round2(product.shipping),
-      wholesale,
-      wholesaleIsOverridden: product.wholesaleOverride !== undefined,
-      retailerPrice: calcRetailerPrice(wholesale, DEFAULT_CONFIG),
-      passesRetailerTest: passesRetailerTest(product, DEFAULT_CONFIG),
-      marginPct: calcMargin(product, DEFAULT_CONFIG),
-      notes: product.notes ? product.notes : null,
-    };
-  });
+  return profitability.map((p) => ({
+    skuId: p.skuId,
+    code: p.code,
+    name: p.drinkName ?? p.code,
+    clientName: p.clientName,
+    size: `${p.sizeMl}ml`,
+    ean: gtinById.get(p.skuId) ?? null,
+    rrp: p.rrp,
+    cogs: round2(p.cost.total),
+    shipping: round2(p.shipping),
+    wholesale: p.wholesale,
+    wholesaleEffectiveFrom: p.wholesaleEffectiveFrom,
+    rulePrice: p.rulePrice,
+    gapToRule: p.gapToRule,
+    retailerShelfPrice: p.retailerShelfPrice,
+    passesRetailerTest: p.retailerTestPasses,
+    marginPct: p.marginPct,
+    unsourced: p.cost.unsourced,
+    placeholders: p.cost.placeholders,
+    problems: p.cost.problems,
+  }));
 }
 
 function str(args: ToolArgs, key: string): string | null {
@@ -77,16 +88,17 @@ export const pricingTools: ToolDefinition[] = [
     name: "list_drinks",
     title: "List drinks",
     description:
-      "List every Myatt's Fields drink/SKU with size, EAN barcode, RRP, COGS, " +
-      "wholesale price, retailer price and whether it passes the retailer test. " +
-      "Optionally filter by size (e.g. '250ml') or by name substring.",
+      "List every drink/SKU with size, EAN barcode, agreed RRP, database COGS, " +
+      "agreed wholesale price (null when none is agreed), the formula rule " +
+      "price, the gap between them, and the retailer test. Optionally filter " +
+      "by size (e.g. '250ml') or by name substring.",
     access: "read",
     inputSchema: {
       type: "object",
       properties: {
         size: {
           type: "string",
-          description: "Filter by exact size, e.g. '250ml', '500ml', '700ml', 'set'.",
+          description: "Filter by exact size, e.g. '250ml', '500ml', '700ml'.",
         },
         name: {
           type: "string",
@@ -96,21 +108,17 @@ export const pricingTools: ToolDefinition[] = [
       additionalProperties: false,
     },
     handler: async (args) => {
-      let drinks = buildDrinks();
+      let drinks = await buildDrinks();
       const size = str(args, "size");
       const name = str(args, "name");
       if (size) {
-        drinks = drinks.filter(
-          (d) => d.size.toLowerCase() === size.toLowerCase(),
-        );
+        drinks = drinks.filter((d) => d.size.toLowerCase() === size.toLowerCase());
       }
       if (name) {
         const needle = name.toLowerCase();
         drinks = drinks.filter((d) => d.name.toLowerCase().includes(needle));
       }
-      drinks.sort(
-        (a, b) => a.name.localeCompare(b.name) || a.size.localeCompare(b.size),
-      );
+      drinks.sort((a, b) => a.name.localeCompare(b.name) || a.size.localeCompare(b.size));
       return { count: drinks.length, drinks };
     },
   },
@@ -118,36 +126,39 @@ export const pricingTools: ToolDefinition[] = [
     name: "get_drink",
     title: "Get a drink",
     description:
-      "Look up a single drink/SKU by its id, EAN barcode, or name. When matched " +
-      "by name, every size of that drink is returned.",
+      "Look up a single drink/SKU by its numeric sku id, code (e.g. " +
+      "'negroni-250'), EAN barcode, or name. When matched by name, every size " +
+      "of that drink is returned.",
     access: "read",
     inputSchema: {
       type: "object",
       properties: {
-        id: { type: "string", description: "SKU id, e.g. 'negroni-250'." },
+        id: { type: "string", description: "SKU code (e.g. 'negroni-250') or numeric sku id." },
         ean: { type: "string", description: "EAN/GTIN barcode number." },
         name: { type: "string", description: "Drink name, e.g. 'Negroni'." },
       },
       additionalProperties: false,
     },
     handler: async (args) => {
-      const id = str(args, "id");
+      const idArg = str(args, "id");
       const ean = str(args, "ean");
       const name = str(args, "name");
-      if (!id && !ean && !name) {
+      if (!idArg && !ean && !name) {
         throw new Error("Provide one of: id, ean, name.");
       }
-      const drinks = buildDrinks();
+      const drinks = await buildDrinks();
       let matches: DrinkView[] = [];
-      if (id) matches = drinks.filter((d) => d.id === id);
-      else if (ean) matches = drinks.filter((d) => d.ean === ean);
+      if (idArg) {
+        const numeric = Number(idArg);
+        matches = drinks.filter(
+          (d) => d.code === idArg || (Number.isInteger(numeric) && d.skuId === numeric),
+        );
+      } else if (ean) matches = drinks.filter((d) => d.ean === ean);
       else if (name) {
         const needle = name.toLowerCase();
         matches = drinks.filter((d) => d.name.toLowerCase() === needle);
         if (matches.length === 0) {
-          matches = drinks.filter((d) =>
-            d.name.toLowerCase().includes(needle),
-          );
+          matches = drinks.filter((d) => d.name.toLowerCase().includes(needle));
         }
       }
       if (matches.length === 0) throw new Error("No matching drink found.");
@@ -158,31 +169,40 @@ export const pricingTools: ToolDefinition[] = [
     name: "get_pricing_config",
     title: "Get pricing config",
     description:
-      "Return the wholesale pricing assumptions (markup on COGS, retailer " +
-      "margin, VAT rate) and summary stats: SKU count, retailer-test pass rate, " +
-      "average wholesale price and average margin.",
+      "Return the wholesale pricing assumptions from the database (markup on " +
+      "COGS, retailer margin, VAT rate, price-list effective date) and summary " +
+      "stats: SKU count, how many have an agreed wholesale price, retailer-test " +
+      "pass rate, average agreed wholesale and average margin.",
     access: "read",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
-      const drinks = buildDrinks();
-      const passing = drinks.filter((d) => d.passesRetailerTest).length;
+      const [config, drinks] = await Promise.all([getPricingConfig(), buildDrinks()]);
+      const priced = drinks.filter((d) => d.wholesale !== null);
+      const testable = drinks.filter((d) => d.passesRetailerTest !== null);
+      const passing = testable.filter((d) => d.passesRetailerTest === true).length;
       const avg = (xs: number[]) =>
-        xs.length ? round2(xs.reduce((s, x) => s + x, 0) / xs.length) : 0;
+        xs.length ? round2(xs.reduce((s, x) => s + x, 0) / xs.length) : null;
       return {
         config: {
-          markupOnCogsPct: round2((DEFAULT_CONFIG.markup - 1) * 100),
-          retailerMarginPct: round2((DEFAULT_CONFIG.retailerMargin - 1) * 100),
-          vatRatePct: round2((DEFAULT_CONFIG.vat - 1) * 100),
-          lastUpdated: DEFAULT_CONFIG.lastUpdated,
-          formula: "wholesale = COGS x (1 + markup) + shipping",
+          markupOnCogsPct: round2((config.markup - 1) * 100),
+          retailerMarginPct: round2((config.retailerMargin - 1) * 100),
+          vatRatePct: round2((config.vat - 1) * 100),
+          listEffectiveFrom: config.listEffectiveFrom,
+          formula:
+            "rule price = COGS x markup + shipping. Computed for comparison; the agreed price is what is actually charged.",
         },
         summary: {
           skuCount: drinks.length,
+          withAgreedWholesale: priced.length,
+          retailerTestable: testable.length,
           retailerTestPassing: passing,
-          retailerTestPassRatePct:
-            drinks.length ? round2((passing / drinks.length) * 100) : 0,
-          averageWholesale: avg(drinks.map((d) => d.wholesale)),
-          averageMarginPct: avg(drinks.map((d) => d.marginPct)),
+          retailerTestPassRatePct: testable.length
+            ? round2((passing / testable.length) * 100)
+            : null,
+          averageAgreedWholesale: avg(priced.map((d) => d.wholesale as number)),
+          averageMarginPct: avg(
+            priced.map((d) => d.marginPct).filter((m): m is number => m !== null),
+          ),
         },
       };
     },

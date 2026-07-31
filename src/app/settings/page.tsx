@@ -1,8 +1,22 @@
 import Nav from "@/components/Nav";
-import SettingsPanel from "@/components/SettingsPanel";
+import SettingsPanel, { type SettingsIngredient } from "@/components/SettingsPanel";
+import { listIngredients } from "@/lib/erp/ingredients";
 import { COLOR, FONT, smallCaps } from "@/lib/design";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const rows = await listIngredients();
+
+  // Map the database register onto the shape the batch-settings panel wants:
+  // sub-recipes are house-made, everything else defaults to a bottle of its
+  // pack size. Local overrides in the browser refine from there.
+  const ingredients: SettingsIngredient[] = rows.map((r) => ({
+    name: r.name,
+    type: r.isSubRecipe ? ("house-made" as const) : ("bottle" as const),
+    bottleSize: r.packSize && r.packSize > 1 ? r.packSize : 700,
+  }));
+
   return (
     <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
       <Nav />
@@ -38,10 +52,10 @@ export default function SettingsPage() {
             marginBottom: 32,
           }}
         >
-          Override default bottle sizes and ingredient types per client. Settings are
-          stored locally in this browser.
+          Override default bottle sizes and ingredient types per client. Defaults come
+          from the database register; overrides are stored locally in this browser.
         </p>
-        <SettingsPanel />
+        <SettingsPanel ingredients={ingredients} />
       </main>
       <style>{`
         @media (max-width: 640px) {

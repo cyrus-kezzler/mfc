@@ -1,22 +1,21 @@
 /**
- * MCP tools — pricing & ingredient writes.
+ * MCP tools: pricing & ingredient writes.
  *
- * These wrap the existing Back Bar server actions. Every write is persisted by
- * committing the relevant JSON file to GitHub (Contents API), so each change
- * is a real git commit with a descriptive message — the git history IS the
- * audit log. Vercel redeploys automatically within ~30-60s.
+ * These wrap the Back Bar server actions, which write to the database:
+ * ingredient prices update `components` and append a `component_price_history`
+ * row (source "manual"); agreed prices close the current `sku_prices` row and
+ * insert a new open one, so the history of what was actually charged is the
+ * audit log.
  *
- * Writes require a write-tier token (see auth.ts). They need GITHUB_PAT set in
- * the environment; without it the underlying action returns a clear error.
+ * Writes require a write-tier token (see auth.ts).
  */
 
-import {
-  updateWholesaleOverride,
-  updateRrpOverride,
-} from "@/app/actions/pricing";
+import { eq } from "drizzle-orm";
+
+import { setAgreedRrp, setAgreedWholesale } from "@/app/actions/pricing";
 import { updateIngredientPrice } from "@/app/actions/ingredients";
-import { PRICING_PRODUCTS } from "@/lib/pricing-data";
-import { INGREDIENTS } from "@/lib/ingredients";
+import { db } from "@/db";
+import { skus, type Sku } from "@/db/schema";
 import type { ToolArgs, ToolDefinition } from "../types";
 
 function str(args: ToolArgs, key: string): string | null {
@@ -34,46 +33,58 @@ function num(args: ToolArgs, key: string): number {
   return n;
 }
 
+/** Resolve a SKU by code (e.g. 'negroni-250') or numeric id. */
+async function findSku(idArg: string): Promise<Sku> {
+  const [byCode] = await db.select().from(skus).where(eq(skus.code, idArg));
+  if (byCode) return byCode;
+  const numeric = Number(idArg);
+  if (Number.isInteger(numeric) && numeric > 0) {
+    const [byId] = await db.select().from(skus).where(eq(skus.id, numeric));
+    if (byId) return byId;
+  }
+  throw new Error(`Drink "${idArg}" not found. Use list_drinks to find the SKU code.`);
+}
+
 export const writeTools: ToolDefinition[] = [
   {
     name: "set_wholesale_price",
     title: "Set wholesale price",
     description:
-      "Override the wholesale price for one drink/SKU. This replaces the " +
-      "formula-derived wholesale price. Committed to git. Find the drink id " +
-      "with list_drinks.",
+      "Record a newly AGREED wholesale price (GBP, ex VAT) for one drink/SKU. " +
+      "This closes the current agreed price and opens a new one effective " +
+      "today; the formula rule price is unaffected and stays computed. Find " +
+      "the drink id with list_drinks.",
     access: "write",
     inputSchema: {
       type: "object",
       properties: {
-        drink_id: { type: "string", description: "SKU id, e.g. 'negroni-250'." },
+        drink_id: { type: "string", description: "SKU code (e.g. 'negroni-250') or numeric sku id." },
         wholesale: {
           type: "number",
-          description: "New wholesale price in GBP, ex VAT. Must be positive.",
+          description: "Newly agreed wholesale price in GBP, ex VAT. Must be positive.",
+        },
+        note: {
+          type: "string",
+          description: "Optional note recorded on the price row, e.g. the review it came from.",
         },
       },
       required: ["drink_id", "wholesale"],
       additionalProperties: false,
     },
     handler: async (args) => {
-      const id = str(args, "drink_id");
-      if (!id) throw new Error("drink_id is required.");
+      const idArg = str(args, "drink_id");
+      if (!idArg) throw new Error("drink_id is required.");
       const wholesale = num(args, "wholesale");
-      const product = PRICING_PRODUCTS.find((p) => p.id === id);
-      if (!product) throw new Error(`Drink "${id}" not found.`);
+      const note = str(args, "note") ?? undefined;
+      const sku = await findSku(idArg);
 
-      const result = await updateWholesaleOverride(
-        product.id,
-        product.name,
-        product.size,
-        wholesale,
-      );
+      const result = await setAgreedWholesale(sku.id, wholesale, { note });
       if (!result.ok) throw new Error(result.error);
       return {
         ok: true,
-        drink: { id: product.id, name: product.name, size: product.size },
+        drink: { skuId: sku.id, code: sku.code, sizeMl: sku.sizeMl },
         wholesale: Math.round(wholesale * 100) / 100,
-        message: "Wholesale override committed to git. Vercel will redeploy shortly.",
+        message: "Agreed wholesale price recorded in the database, effective today.",
       };
     },
   },
@@ -81,40 +92,40 @@ export const writeTools: ToolDefinition[] = [
     name: "set_rrp",
     title: "Set RRP",
     description:
-      "Override the RRP (recommended retail price, inc VAT) for one drink/SKU. " +
-      "Committed to git. Find the drink id with list_drinks.",
+      "Record a newly AGREED RRP (recommended retail price, GBP inc VAT) for " +
+      "one drink/SKU. Closes the current agreed RRP and opens a new one " +
+      "effective today. Find the drink id with list_drinks.",
     access: "write",
     inputSchema: {
       type: "object",
       properties: {
-        drink_id: { type: "string", description: "SKU id, e.g. 'negroni-250'." },
+        drink_id: { type: "string", description: "SKU code (e.g. 'negroni-250') or numeric sku id." },
         rrp: {
           type: "number",
-          description: "New RRP in GBP, inc VAT. Must be positive.",
+          description: "Newly agreed RRP in GBP, inc VAT. Must be positive.",
+        },
+        note: {
+          type: "string",
+          description: "Optional note recorded on the price row.",
         },
       },
       required: ["drink_id", "rrp"],
       additionalProperties: false,
     },
     handler: async (args) => {
-      const id = str(args, "drink_id");
-      if (!id) throw new Error("drink_id is required.");
+      const idArg = str(args, "drink_id");
+      if (!idArg) throw new Error("drink_id is required.");
       const rrp = num(args, "rrp");
-      const product = PRICING_PRODUCTS.find((p) => p.id === id);
-      if (!product) throw new Error(`Drink "${id}" not found.`);
+      const note = str(args, "note") ?? undefined;
+      const sku = await findSku(idArg);
 
-      const result = await updateRrpOverride(
-        product.id,
-        product.name,
-        product.size,
-        rrp,
-      );
+      const result = await setAgreedRrp(sku.id, rrp, { note });
       if (!result.ok) throw new Error(result.error);
       return {
         ok: true,
-        drink: { id: product.id, name: product.name, size: product.size },
+        drink: { skuId: sku.id, code: sku.code, sizeMl: sku.sizeMl },
         rrp: Math.round(rrp * 100) / 100,
-        message: "RRP override committed to git. Vercel will redeploy shortly.",
+        message: "Agreed RRP recorded in the database, effective today.",
       };
     },
   },
@@ -122,20 +133,22 @@ export const writeTools: ToolDefinition[] = [
     name: "set_ingredient_price",
     title: "Set ingredient price",
     description:
-      "Update the current unit price of one ingredient in the buying master. " +
-      "Appends a dated entry to the price history. Committed to git. Find the " +
-      "ingredient id with list_ingredients.",
+      "Update the current price of one ingredient in the buying master. For " +
+      "pack-priced components (pack size > 1) the price is the PACK cost, e.g. " +
+      "the bottle price; otherwise it is the per-unit cost. Appends a dated " +
+      "manual entry to the price history. Find the numeric ingredient id with " +
+      "list_ingredients.",
     access: "write",
     inputSchema: {
       type: "object",
       properties: {
         ingredient_id: {
-          type: "string",
-          description: "Ingredient id, e.g. 'campari'.",
+          type: "number",
+          description: "Numeric component id, e.g. 12.",
         },
         price: {
           type: "number",
-          description: "New unit price in GBP. Must be zero or positive.",
+          description: "New price in GBP (pack cost for pack-priced components). Must be zero or positive.",
         },
         note: {
           type: "string",
@@ -146,20 +159,20 @@ export const writeTools: ToolDefinition[] = [
       additionalProperties: false,
     },
     handler: async (args) => {
-      const id = str(args, "ingredient_id");
-      if (!id) throw new Error("ingredient_id is required.");
+      const componentId = num(args, "ingredient_id");
+      if (!Number.isInteger(componentId) || componentId <= 0) {
+        throw new Error("ingredient_id must be a positive integer.");
+      }
       const price = num(args, "price");
       const note = str(args, "note") ?? undefined;
-      const ingredient = INGREDIENTS.find((i) => i.id === id);
-      if (!ingredient) throw new Error(`Ingredient "${id}" not found.`);
 
-      const result = await updateIngredientPrice(id, price, note);
+      const result = await updateIngredientPrice(componentId, price, note);
       if (!result.ok) throw new Error(result.error);
       return {
         ok: true,
         ingredient: result.ingredient,
         message:
-          "Ingredient price committed to git. Vercel will redeploy shortly.",
+          "Ingredient price updated in the database and stamped in the price history.",
       };
     },
   },

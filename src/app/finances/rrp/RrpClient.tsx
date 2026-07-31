@@ -2,18 +2,14 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
-import {
-  PricingConfig,
-  PricingProduct,
-  calcRetailerPrice,
-} from "@/lib/pricing-data";
-import { updateRrpOverride, resetRrpOverrides } from "@/app/actions/pricing";
+import { setAgreedRrp } from "@/app/actions/pricing";
 import {
   updateAmazonOverride,
   resetAmazonOverrides,
   updateRrpNote,
   markShopifyRrpSynced,
 } from "@/app/actions/rrp";
+import type { PricingConfigView, SkuRow } from "../finance-types";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
 
 const GBP = (n: number) =>
@@ -24,14 +20,13 @@ const GBP = (n: number) =>
   }).format(n);
 
 // Same key the wholesale pricing tool uses, so the two pages share one set of
-// assumptions on a device and never diverge.
-const STORAGE_CONFIG_KEY = "mfc_pricing_config";
+// what-if assumptions on a device and never diverge.
+const STORAGE_CONFIG_KEY = "mfc_pricing_config_v2";
 const AMAZON_MULTIPLIER = 1.15;
 
 type Props = {
-  products: PricingProduct[];
-  defaultConfig: PricingConfig;
-  rrpOverrides: Record<string, number>;
+  rows: SkuRow[];
+  config: PricingConfigView;
   amazonOverrides: Record<string, number>;
   rrpNotes: Record<string, string>;
   shopifySync: Record<string, number>;
@@ -39,21 +34,26 @@ type Props = {
 
 type EditField = "rrp" | "amazon" | "note";
 
+type WhatIf = { markup: number; retailerMargin: number; vat: number };
+
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export default function RrpClient({
-  products: serverProducts,
-  defaultConfig,
-  rrpOverrides: serverRrpOverrides,
+  rows: serverRows,
+  config,
   amazonOverrides: serverAmazonOverrides,
   rrpNotes: serverNotes,
   shopifySync,
 }: Props) {
-  const [config, setConfig] = useState<PricingConfig>(defaultConfig);
-  const [localRrpEdits, setLocalRrpEdits] = useState<Record<string, number>>({});
+  const [whatIf, setWhatIf] = useState<WhatIf>({
+    markup: config.markup,
+    retailerMargin: config.retailerMargin,
+    vat: config.vat,
+  });
+  const [localRrpEdits, setLocalRrpEdits] = useState<Record<number, number>>({});
   const [localAmazonEdits, setLocalAmazonEdits] = useState<Record<string, number>>({});
   const [localNoteEdits, setLocalNoteEdits] = useState<Record<string, string>>({});
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<EditField | null>(null);
   const [editValue, setEditValue] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -64,42 +64,47 @@ export default function RrpClient({
   useEffect(() => {
     try {
       const sc = localStorage.getItem(STORAGE_CONFIG_KEY);
-      if (sc) setConfig({ ...defaultConfig, ...JSON.parse(sc) });
+      if (sc) setWhatIf((prev) => ({ ...prev, ...JSON.parse(sc) }));
     } catch {}
     setHydrated(true);
-  }, [defaultConfig]);
+  }, []);
 
-  const effRrp = (p: PricingProduct) => localRrpEdits[p.id] ?? p.rrp;
-  const effAmazon = (p: PricingProduct) =>
-    localAmazonEdits[p.id] ??
-    serverAmazonOverrides[p.id] ??
-    round2(effRrp(p) * AMAZON_MULTIPLIER);
-  const effNote = (p: PricingProduct) =>
-    localNoteEdits[p.id] ?? serverNotes[p.id] ?? "";
+  const effRrp = (r: SkuRow): number | null => localRrpEdits[r.skuId] ?? r.rrp;
+  const effAmazon = (r: SkuRow): number | null => {
+    const explicit = localAmazonEdits[r.code] ?? serverAmazonOverrides[r.code];
+    if (explicit !== undefined) return explicit;
+    const rrp = effRrp(r);
+    return rrp === null ? null : round2(rrp * AMAZON_MULTIPLIER);
+  };
+  const effNote = (r: SkuRow) => localNoteEdits[r.code] ?? serverNotes[r.code] ?? "";
 
-  const rows = serverProducts.map((p) => {
-    const rrp = effRrp(p);
-    const floor = round2(p.cogs * config.markup + p.shipping); // pure formula, ignores wholesale overrides
-    const retailerTest = calcRetailerPrice(floor, config);
-    const headroom = round2(rrp - retailerTest);
+  const rows = serverRows.map((r) => {
+    const rrp = effRrp(r);
+    // The rule floor is the pure formula. It ignores the agreed wholesale on
+    // purpose: an agreed price is a commitment, not a floor.
+    const floor = round2(r.cogs * whatIf.markup + r.shipping);
+    const retailerTest = round2(floor * whatIf.retailerMargin * whatIf.vat);
+    const headroom = rrp === null ? null : round2(rrp - retailerTest);
     const amazonOverridden =
-      localAmazonEdits[p.id] !== undefined || serverAmazonOverrides[p.id] !== undefined;
+      localAmazonEdits[r.code] !== undefined || serverAmazonOverrides[r.code] !== undefined;
     return {
-      p,
+      r,
       rrp,
-      rrpExVat: round2(rrp / config.vat),
+      rrpExVat: rrp === null ? null : round2(rrp / whatIf.vat),
       floor,
       retailerTest,
       headroom,
-      amazon: effAmazon(p),
+      amazon: effAmazon(r),
       amazonOverridden,
-      note: effNote(p),
+      note: effNote(r),
     };
   });
 
-  const thinOrNegative = rows.filter((r) => r.headroom < 0.5).length;
-  const negative = rows.filter((r) => r.headroom < 0).length;
-  const allHealthy = thinOrNegative === 0;
+  const withRrp = rows.filter((x) => x.headroom !== null);
+  const noRrp = rows.length - withRrp.length;
+  const thinOrNegative = withRrp.filter((x) => (x.headroom as number) < 0.5).length;
+  const negative = withRrp.filter((x) => (x.headroom as number) < 0).length;
+  const allHealthy = thinOrNegative === 0 && noRrp === 0;
 
   const totalUnsavedEdits =
     Object.keys(localRrpEdits).length +
@@ -107,15 +112,15 @@ export default function RrpClient({
     Object.keys(localNoteEdits).length;
   const hasUnsavedEdits = totalUnsavedEdits > 0;
 
-  // ─── Push to Shopify: diff live RRP against the last synced baseline ────────
+  // Push to Shopify: diff live agreed RRPs against the last synced baseline.
   const hasBaseline = Object.keys(shopifySync).length > 0;
-  const pending = rows.filter((r) => {
-    if (!hasBaseline) return false;
-    const synced = shopifySync[r.p.id];
-    return synced === undefined || round2(r.rrp) !== round2(synced);
+  const pending = rows.filter((x) => {
+    if (!hasBaseline || x.rrp === null) return false;
+    const synced = shopifySync[x.r.code];
+    return synced === undefined || round2(x.rrp) !== round2(synced);
   });
 
-  const startEdit = (id: string, field: EditField, val: string) => {
+  const startEdit = (id: number, field: EditField, val: string) => {
     setEditingId(id);
     setEditingField(field);
     setEditValue(val);
@@ -127,9 +132,11 @@ export default function RrpClient({
   };
 
   const commitEdit = useCallback(() => {
-    if (!editingId || !editingField) return;
+    if (editingId === null || !editingField) return;
+    const row = serverRows.find((r) => r.skuId === editingId);
+    if (!row) return cancelEdit();
     if (editingField === "note") {
-      setLocalNoteEdits((prev) => ({ ...prev, [editingId]: editValue }));
+      setLocalNoteEdits((prev) => ({ ...prev, [row.code]: editValue }));
     } else {
       const val = parseFloat(editValue);
       if (isNaN(val) || val <= 0) {
@@ -139,33 +146,31 @@ export default function RrpClient({
       if (editingField === "rrp") {
         setLocalRrpEdits((prev) => ({ ...prev, [editingId]: round2(val) }));
       } else {
-        setLocalAmazonEdits((prev) => ({ ...prev, [editingId]: round2(val) }));
+        setLocalAmazonEdits((prev) => ({ ...prev, [row.code]: round2(val) }));
       }
     }
     cancelEdit();
     setFeedback(null);
-  }, [editingId, editingField, editValue]);
+  }, [editingId, editingField, editValue, serverRows]);
 
   const saveAllEdits = () => {
     setFeedback(null);
     if (!hasUnsavedEdits) return;
     startTransition(async () => {
       for (const [id, rrp] of Object.entries(localRrpEdits)) {
-        const product = serverProducts.find((p) => p.id === id);
-        if (!product) continue;
-        const res = await updateRrpOverride(id, product.name, product.size, rrp);
+        const res = await setAgreedRrp(Number(id), rrp);
         if (!res.ok) return setFeedback({ kind: "err", msg: res.error });
       }
-      for (const [id, price] of Object.entries(localAmazonEdits)) {
-        const product = serverProducts.find((p) => p.id === id);
-        if (!product) continue;
-        const res = await updateAmazonOverride(id, product.name, product.size, price);
+      for (const [code, price] of Object.entries(localAmazonEdits)) {
+        const row = serverRows.find((r) => r.code === code);
+        if (!row) continue;
+        const res = await updateAmazonOverride(code, row.name, row.size, price);
         if (!res.ok) return setFeedback({ kind: "err", msg: res.error });
       }
-      for (const [id, note] of Object.entries(localNoteEdits)) {
-        const product = serverProducts.find((p) => p.id === id);
-        if (!product) continue;
-        const res = await updateRrpNote(id, product.name, product.size, note);
+      for (const [code, note] of Object.entries(localNoteEdits)) {
+        const row = serverRows.find((r) => r.code === code);
+        if (!row) continue;
+        const res = await updateRrpNote(code, row.name, row.size, note);
         if (!res.ok) return setFeedback({ kind: "err", msg: res.error });
       }
       setLocalRrpEdits({});
@@ -173,18 +178,8 @@ export default function RrpClient({
       setLocalNoteEdits({});
       setFeedback({
         kind: "ok",
-        msg: `${totalUnsavedEdits} change${totalUnsavedEdits > 1 ? "s" : ""} saved — site redeploys in ~30s.`,
+        msg: `${totalUnsavedEdits} change${totalUnsavedEdits > 1 ? "s" : ""} saved.`,
       });
-    });
-  };
-
-  const handleResetRrp = () => {
-    startTransition(async () => {
-      const res = await resetRrpOverrides();
-      if (res.ok) {
-        setLocalRrpEdits({});
-        setFeedback({ kind: "ok", msg: "RRP overrides cleared. Defaults restored." });
-      } else setFeedback({ kind: "err", msg: res.error });
     });
   };
 
@@ -204,7 +199,9 @@ export default function RrpClient({
       return;
     }
     const map: Record<string, number> = {};
-    rows.forEach((r) => (map[r.p.id] = round2(r.rrp)));
+    rows.forEach((x) => {
+      if (x.rrp !== null) map[x.r.code] = round2(x.rrp);
+    });
     startTransition(async () => {
       const res = await markShopifyRrpSynced(map);
       if (res.ok) setFeedback({ kind: "ok", msg: "Current RRPs recorded as the Shopify baseline." });
@@ -213,21 +210,21 @@ export default function RrpClient({
   };
 
   const copyCsv = async () => {
-    const list = hasBaseline ? pending : rows;
+    const list = (hasBaseline ? pending : rows).filter((x) => x.rrp !== null);
     const header = "sku,cocktail,size,rrp_inc_vat";
     const body = list
-      .map((r) => `${r.p.gtin ?? r.p.id},${r.p.name},${r.p.size},${r.rrp.toFixed(2)}`)
+      .map((x) => `${x.r.gtin ?? x.r.code},${x.r.name},${x.r.size},${(x.rrp as number).toFixed(2)}`)
       .join("\n");
     try {
       await navigator.clipboard.writeText(`${header}\n${body}\n`);
       setFeedback({ kind: "ok", msg: `${list.length} RRP row${list.length === 1 ? "" : "s"} copied as CSV.` });
     } catch {
-      setFeedback({ kind: "err", msg: "Clipboard blocked — copy manually from the panel." });
+      setFeedback({ kind: "err", msg: "Clipboard blocked. Copy manually from the panel." });
     }
   };
 
-  const saveConfig = (c: PricingConfig) => {
-    setConfig(c);
+  const saveWhatIf = (c: WhatIf) => {
+    setWhatIf(c);
     try {
       localStorage.setItem(STORAGE_CONFIG_KEY, JSON.stringify(c));
     } catch {}
@@ -282,9 +279,10 @@ export default function RrpClient({
             fontWeight: 300,
           }}
         >
-          What we charge end customers across our own channels. RRP is set by positioning, not by
-          cost — but it must clear the wholesale floor (COGS × markup + shipping) by enough headroom
-          to give a stockist a 30% margin plus VAT and still land below our own price.
+          What we charge end customers across our own channels. RRP is agreed by positioning,
+          not by cost, but it must clear the rule floor (COGS × markup + shipping) by enough
+          headroom to give a stockist a 30% margin plus VAT and still land below our own price.
+          A SKU with no agreed RRP shows exactly that: no number is invented for it.
         </p>
       </section>
 
@@ -299,8 +297,8 @@ export default function RrpClient({
         }}
       >
         <p style={{ fontFamily: FONT.serif, fontSize: 16, lineHeight: 1.7, color: COLOR.inkSoft }}>
-          MFC is a premium cocktail maker — real ingredients, in-house production, partnerships we
-          are proud to put on a bottle — and the RRP reflects that position, not a cost-plus formula.{" "}
+          MFC is a premium cocktail maker, real ingredients, in-house production, partnerships we
+          are proud to put on a bottle, and the RRP reflects that position, not a cost-plus formula.{" "}
           <strong style={{ color: COLOR.accent }}>COGS × 1.40 + shipping is the floor underneath</strong>,
           the cost discipline that keeps the position profitable; the headroom above it is the
           strategic surface area. See the{" "}
@@ -332,7 +330,7 @@ export default function RrpClient({
         ].map(({ label, key }) => (
           <label key={key} style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 110 }}>
             <span style={{ fontSize: 10, color: COLOR.muted, ...smallCaps }}>{label}</span>
-            <PercentInput value={config[key]} onChange={(n) => saveConfig({ ...config, [key]: n })} />
+            <PercentInput value={whatIf[key]} onChange={(n) => saveWhatIf({ ...whatIf, [key]: n })} />
           </label>
         ))}
         <span
@@ -345,9 +343,9 @@ export default function RrpClient({
             maxWidth: 380,
           }}
         >
-          Shared with the{" "}
-          <Link href="/finances/pricing" style={{ color: COLOR.accent }}>wholesale tool</Link> — edit
-          in either place.
+          What-if only, shared with the{" "}
+          <Link href="/finances/pricing" style={{ color: COLOR.accent }}>wholesale tool</Link>. The
+          stored config lives in the database.
         </span>
       </section>
 
@@ -374,10 +372,17 @@ export default function RrpClient({
         >
           <Dot color={allHealthy ? COLOR.accent : negative > 0 ? COLOR.flag : COLOR.accentSoft} filled />
           {allHealthy
-            ? `All ${rows.length} RRPs clear the floor with healthy headroom.`
-            : negative > 0
-            ? `${negative} RRP${negative > 1 ? "s" : ""} below the floor; ${thinOrNegative} with thin or negative headroom.`
-            : `${thinOrNegative} RRP${thinOrNegative > 1 ? "s" : ""} with thin headroom (under £0.50).`}
+            ? `All ${rows.length} RRPs agreed and clear of the floor.`
+            : [
+                negative > 0
+                  ? `${negative} agreed RRP${negative > 1 ? "s" : ""} below the floor`
+                  : thinOrNegative > 0
+                  ? `${thinOrNegative} with thin headroom (under £0.50)`
+                  : null,
+                noRrp > 0 ? `${noRrp} SKU${noRrp > 1 ? "s" : ""} with no agreed RRP` : null,
+              ]
+                .filter(Boolean)
+                .join("; ") + "."}
         </span>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", rowGap: 8 }}>
@@ -415,9 +420,6 @@ export default function RrpClient({
           <TextButton onClick={() => setPanelOpen(true)} color={COLOR.inkSoft}>
             Push to Shopify{hasBaseline ? ` (${pending.length})` : ""}
           </TextButton>
-          <TextButton onClick={handleResetRrp} color={COLOR.muted} disabled={isPending}>
-            Reset RRP overrides
-          </TextButton>
           <TextButton onClick={handleResetAmazon} color={COLOR.muted} disabled={isPending}>
             Reset Amazon overrides
           </TextButton>
@@ -432,9 +434,9 @@ export default function RrpClient({
               {[
                 { label: "Cocktail", align: "left" as const },
                 { label: "Size", align: "left" as const },
-                { label: "RRP inc VAT", align: "right" as const },
+                { label: "RRP inc VAT (agreed)", align: "right" as const },
                 { label: "RRP ex VAT", align: "right" as const },
-                { label: "Wholesale floor", align: "right" as const },
+                { label: "Rule floor", align: "right" as const },
                 { label: "Retailer +30% +VAT", align: "right" as const },
                 { label: "Headroom", align: "right" as const },
                 { label: "Amazon +15%", align: "right" as const },
@@ -464,62 +466,77 @@ export default function RrpClient({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
-              const { p } = r;
-              const isEditRrp = editingId === p.id && editingField === "rrp";
-              const isEditAmazon = editingId === p.id && editingField === "amazon";
-              const isEditNote = editingId === p.id && editingField === "note";
-              const hasRrpOverride =
-                localRrpEdits[p.id] !== undefined || serverRrpOverrides[p.id] !== undefined;
-              const isUnsavedRrp = localRrpEdits[p.id] !== undefined;
-              const isUnsavedAmazon = localAmazonEdits[p.id] !== undefined;
-              const isUnsavedNote = localNoteEdits[p.id] !== undefined;
+            {rows.map((x) => {
+              const { r } = x;
+              const isEditRrp = editingId === r.skuId && editingField === "rrp";
+              const isEditAmazon = editingId === r.skuId && editingField === "amazon";
+              const isEditNote = editingId === r.skuId && editingField === "note";
+              const isUnsavedRrp = localRrpEdits[r.skuId] !== undefined;
+              const isUnsavedAmazon = localAmazonEdits[r.code] !== undefined;
+              const isUnsavedNote = localNoteEdits[r.code] !== undefined;
               const headColor =
-                r.headroom < 0 ? COLOR.flag : r.headroom < 0.5 ? COLOR.accentSoft : COLOR.positive;
+                x.headroom === null
+                  ? COLOR.mutedLight
+                  : x.headroom < 0
+                  ? COLOR.flag
+                  : x.headroom < 0.5
+                  ? COLOR.accentSoft
+                  : COLOR.positive;
 
               return (
-                <tr key={p.id} style={{ borderBottom: `1px solid ${COLOR.rule}` }} className="rrp-row">
+                <tr key={r.skuId} style={{ borderBottom: `1px solid ${COLOR.rule}` }} className="rrp-row">
                   <td style={{ padding: "16px 12px", color: COLOR.ink, fontFamily: FONT.serif, fontSize: 17 }}>
-                    {p.name}
-                    {p.gtin && (
-                      <div
-                        style={{
-                          fontFamily: FONT.mono,
-                          fontSize: 10,
-                          color: COLOR.mutedLight,
-                          marginTop: 4,
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {p.gtin}
-                      </div>
-                    )}
+                    {r.name}
+                    <div
+                      style={{
+                        fontFamily: FONT.mono,
+                        fontSize: 10,
+                        color: COLOR.mutedLight,
+                        marginTop: 4,
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {[r.clientName, r.gtin].filter(Boolean).join(" · ")}
+                    </div>
                   </td>
                   <td style={{ padding: "16px 12px", color: COLOR.muted, fontFamily: FONT.mono, fontSize: 12, ...smallCaps }}>
-                    {p.size}
+                    {r.size}
                   </td>
 
-                  {/* RRP inc VAT — editable */}
-                  <EditableNumCell
-                    editing={isEditRrp}
-                    value={editValue}
-                    display={GBP(r.rrp)}
-                    color={isUnsavedRrp ? COLOR.flag : hasRrpOverride ? COLOR.accent : COLOR.ink}
-                    weight={hasRrpOverride || isUnsavedRrp ? 600 : 400}
-                    onStart={() => startEdit(p.id, "rrp", r.rrp.toFixed(2))}
-                    onChange={setEditValue}
-                    onCommit={commitEdit}
-                    onCancel={cancelEdit}
-                  />
+                  {/* RRP inc VAT, editable, agreed */}
+                  <td
+                    style={{
+                      padding: "16px 12px",
+                      textAlign: "right",
+                      fontFamily: FONT.mono,
+                      cursor: isEditRrp ? "default" : "text",
+                      color: isUnsavedRrp ? COLOR.flag : x.rrp === null ? COLOR.mutedLight : COLOR.ink,
+                      fontWeight: isUnsavedRrp ? 600 : 400,
+                    }}
+                    onClick={() => !isEditRrp && startEdit(r.skuId, "rrp", x.rrp === null ? "" : x.rrp.toFixed(2))}
+                  >
+                    {isEditRrp ? (
+                      <EditInput value={editValue} onChange={setEditValue} onCommit={commitEdit} onCancel={cancelEdit} />
+                    ) : x.rrp === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic" }}>none agreed</span>
+                    ) : (
+                      <span style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}>
+                        {GBP(x.rrp)}
+                      </span>
+                    )}
+                  </td>
 
                   <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.mutedLight }}>
-                    {GBP(r.rrpExVat)}
+                    {x.rrpExVat === null ? "·" : GBP(x.rrpExVat)}
                   </td>
-                  <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.inkSoft }}>
-                    {GBP(r.floor)}
+                  <td
+                    style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.inkSoft }}
+                    title="COGS x markup + shipping. Formula output, not an agreed price."
+                  >
+                    {GBP(x.floor)}
                   </td>
                   <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.muted }}>
-                    {GBP(r.retailerTest)}
+                    {GBP(x.retailerTest)}
                   </td>
                   <td
                     style={{
@@ -527,30 +544,50 @@ export default function RrpClient({
                       textAlign: "right",
                       fontFamily: FONT.mono,
                       color: headColor,
-                      fontWeight: r.headroom < 0.5 ? 600 : 400,
+                      fontWeight: x.headroom !== null && x.headroom < 0.5 ? 600 : 400,
                     }}
                   >
-                    {r.headroom >= 0 ? "+" : ""}
-                    {GBP(r.headroom)}
+                    {x.headroom === null
+                      ? "·"
+                      : `${x.headroom >= 0 ? "+" : ""}${GBP(x.headroom)}`}
                   </td>
 
-                  {/* Amazon — editable */}
-                  <EditableNumCell
-                    editing={isEditAmazon}
-                    value={editValue}
-                    display={GBP(r.amazon)}
-                    color={isUnsavedAmazon ? COLOR.flag : r.amazonOverridden ? COLOR.accent : COLOR.muted}
-                    weight={r.amazonOverridden || isUnsavedAmazon ? 600 : 400}
-                    onStart={() => startEdit(p.id, "amazon", r.amazon.toFixed(2))}
-                    onChange={setEditValue}
-                    onCommit={commitEdit}
-                    onCancel={cancelEdit}
-                  />
+                  {/* Amazon, editable */}
+                  <td
+                    style={{
+                      padding: "16px 12px",
+                      textAlign: "right",
+                      fontFamily: FONT.mono,
+                      cursor: isEditAmazon ? "default" : "text",
+                      color: isUnsavedAmazon
+                        ? COLOR.flag
+                        : x.amazon === null
+                        ? COLOR.mutedLight
+                        : x.amazonOverridden
+                        ? COLOR.accent
+                        : COLOR.muted,
+                      fontWeight: x.amazonOverridden || isUnsavedAmazon ? 600 : 400,
+                    }}
+                    onClick={() =>
+                      !isEditAmazon &&
+                      startEdit(r.skuId, "amazon", x.amazon === null ? "" : x.amazon.toFixed(2))
+                    }
+                  >
+                    {isEditAmazon ? (
+                      <EditInput value={editValue} onChange={setEditValue} onCommit={commitEdit} onCancel={cancelEdit} />
+                    ) : x.amazon === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic", fontWeight: 400 }}>needs RRP</span>
+                    ) : (
+                      <span style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}>
+                        {GBP(x.amazon)}
+                      </span>
+                    )}
+                  </td>
 
-                  {/* Notes — editable text */}
+                  {/* Notes, editable text */}
                   <td
                     style={{ padding: "16px 12px", fontFamily: FONT.serif, fontSize: 13, color: isUnsavedNote ? COLOR.flag : COLOR.muted, minWidth: 180, cursor: isEditNote ? "default" : "text" }}
-                    onClick={() => !isEditNote && startEdit(p.id, "note", r.note)}
+                    onClick={() => !isEditNote && startEdit(r.skuId, "note", x.note)}
                   >
                     {isEditNote ? (
                       <input
@@ -574,8 +611,8 @@ export default function RrpClient({
                           outline: "none",
                         }}
                       />
-                    ) : r.note ? (
-                      <span style={{ borderBottom: `1px dotted ${COLOR.rule}` }}>{r.note}</span>
+                    ) : x.note ? (
+                      <span style={{ borderBottom: `1px dotted ${COLOR.rule}` }}>{x.note}</span>
                     ) : (
                       <span style={{ color: COLOR.mutedLight, fontStyle: "italic" }}>add note</span>
                     )}
@@ -595,8 +632,16 @@ export default function RrpClient({
       {/* Push to Shopify drawer */}
       {panelOpen && (
         <ShopifyPanel
-          rows={rows.map((r) => ({ id: r.p.id, name: r.p.name, size: r.p.size, gtin: r.p.gtin, rrp: r.rrp }))}
-          pendingIds={new Set(pending.map((r) => r.p.id))}
+          rows={rows
+            .filter((x) => x.rrp !== null)
+            .map((x) => ({
+              id: x.r.code,
+              name: x.r.name,
+              size: x.r.size,
+              gtin: x.r.gtin ?? undefined,
+              rrp: x.rrp as number,
+            }))}
+          pendingIds={new Set(pending.map((x) => x.r.code))}
           hasBaseline={hasBaseline}
           isPending={isPending}
           onClose={() => setPanelOpen(false)}
@@ -615,7 +660,7 @@ export default function RrpClient({
   );
 }
 
-// ─── Push to Shopify drawer ───────────────────────────────────────────────────
+// ─── Push to Shopify drawer ────────────────────────────────────────────────────
 
 function ShopifyPanel({
   rows,
@@ -680,7 +725,7 @@ function ShopifyPanel({
         <p style={{ fontFamily: FONT.serif, fontStyle: "italic", fontSize: 14, color: COLOR.muted, lineHeight: 1.6, marginBottom: 24 }}>
           {hasBaseline
             ? "Copy these as CSV, update the prices in Shopify, then mark them synced. This page never writes to Shopify directly."
-            : "Mark the current RRPs as the baseline once Shopify matches them — future changes will then surface here for syncing."}
+            : "Mark the current RRPs as the baseline once Shopify matches them; future changes will then surface here for syncing."}
         </p>
 
         {pending.length > 0 && (
@@ -744,66 +789,40 @@ function ShopifyPanel({
 
 // ─── Shared small components (mirrors the wholesale pricing tool) ──────────────
 
-function EditableNumCell({
-  editing,
+function EditInput({
   value,
-  display,
-  color,
-  weight,
-  onStart,
   onChange,
   onCommit,
   onCancel,
 }: {
-  editing: boolean;
   value: string;
-  display: string;
-  color: string;
-  weight: number;
-  onStart: () => void;
   onChange: (v: string) => void;
   onCommit: () => void;
   onCancel: () => void;
 }) {
   return (
-    <td
+    <input
+      autoFocus
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onCommit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onCommit();
+        if (e.key === "Escape") onCancel();
+      }}
       style={{
-        padding: "16px 12px",
+        width: 72,
         textAlign: "right",
         fontFamily: FONT.mono,
-        cursor: editing ? "default" : "text",
-        color,
-        fontWeight: weight,
+        fontSize: 14,
+        fontWeight: 600,
+        color: COLOR.accent,
+        background: COLOR.paperDeep,
+        border: `1px solid ${COLOR.accent}`,
+        padding: "4px 6px",
+        outline: "none",
       }}
-      onClick={() => !editing && onStart()}
-    >
-      {editing ? (
-        <input
-          autoFocus
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onCommit();
-            if (e.key === "Escape") onCancel();
-          }}
-          style={{
-            width: 72,
-            textAlign: "right",
-            fontFamily: FONT.mono,
-            fontSize: 14,
-            fontWeight: 600,
-            color: COLOR.accent,
-            background: COLOR.paperDeep,
-            border: `1px solid ${COLOR.accent}`,
-            padding: "4px 6px",
-            outline: "none",
-          }}
-        />
-      ) : (
-        <span style={{ borderBottom: `1px dotted ${COLOR.ruleBold}`, paddingBottom: 1 }}>{display}</span>
-      )}
-    </td>
+    />
   );
 }
 

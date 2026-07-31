@@ -1,0 +1,8 @@
+
+> back-bar@0.1.0 typecheck
+> tsc --noEmit
+
+scripts/erp/_reconcile-masters.ts(6,36): error TS2306: File '/Users/gilbertrolfe/code/myattsfields/back-bar/src/data/ingredients.ts' is not a module.
+scripts/erp/_reconcile-masters.ts(7,39): error TS2306: File '/Users/gilbertrolfe/code/myattsfields/back-bar/src/lib/ingredients.ts' is not a module.
+scripts/erp/_reconcile-masters.ts(93,27): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+scripts/erp/seed-sku-prices.ts(21,50): error TS2306: File '/Users/gilbertrolfe/code/myattsfields/back-bar/src/lib/pricing-data.ts' is not a module.

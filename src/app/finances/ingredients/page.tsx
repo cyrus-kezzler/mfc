@@ -1,22 +1,91 @@
+import { eq } from "drizzle-orm";
+
 import Nav from "@/components/Nav";
+import { db } from "@/db";
 import {
-  INGREDIENTS,
-  PRICE_HISTORY,
-  getRecipesUsingIngredient,
-} from "@/lib/ingredients";
-import IngredientsClient from "./IngredientsClient";
+  clients,
+  componentPriceHistory,
+  drinks,
+  recipeLines,
+  recipes,
+  skuComponents,
+} from "@/db/schema";
+import { listIngredients } from "@/lib/erp/ingredients";
+import IngredientsClient, {
+  type ClientIngredient,
+  type ClientPriceHistoryRow,
+  type RecipeUsageRow,
+} from "./IngredientsClient";
 import { COLOR, FONT, smallCaps } from "@/lib/design";
 
-export default function IngredientsPage() {
-  const usageCounts = Object.fromEntries(
-    INGREDIENTS.map((i) => [i.id, getRecipesUsingIngredient(i.id).length]),
-  );
+export const dynamic = "force-dynamic";
 
-  const lastUpdated = [...INGREDIENTS]
-    .map((i) => i.currentPriceSetAt)
-    .concat(PRICE_HISTORY.map((e) => e.date))
-    .sort()
-    .pop();
+export default async function IngredientsPage() {
+  const ingredients = await listIngredients({ includeInactive: false });
+
+  // Full price history in one query; the client filters per selection.
+  const historyRows = await db.select().from(componentPriceHistory);
+  const priceHistory: ClientPriceHistoryRow[] = historyRows
+    .map((h) => ({
+      componentId: h.componentId,
+      date: h.effectiveDate,
+      unitCost: Number(h.unitCost),
+      source: h.source,
+      note: h.notes,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  // Which current recipes use each component, and at what share. Drives both
+  // the "used in" count and the price-impact preview.
+  const usageRows = await db
+    .select({
+      componentId: recipeLines.componentId,
+      percentage: recipeLines.percentage,
+      drinkName: drinks.name,
+      clientName: clients.name,
+    })
+    .from(recipeLines)
+    .innerJoin(recipes, eq(recipeLines.recipeId, recipes.id))
+    .innerJoin(drinks, eq(recipes.drinkId, drinks.id))
+    .innerJoin(clients, eq(recipes.clientId, clients.id))
+    .where(eq(recipes.isCurrent, true));
+
+  const recipeUsage: RecipeUsageRow[] = usageRows.map((u) => ({
+    componentId: u.componentId,
+    drinkName: u.drinkName,
+    clientName: u.clientName,
+    percentage: Number(u.percentage),
+  }));
+
+  // Bill-of-materials usage (dry goods and packaging on SKUs) counts towards
+  // "used in" so a bottle or label does not look orphaned.
+  const bomRows = await db
+    .select({ componentId: skuComponents.componentId })
+    .from(skuComponents);
+
+  const usageCounts: Record<number, number> = {};
+  for (const u of recipeUsage) {
+    usageCounts[u.componentId] = (usageCounts[u.componentId] ?? 0) + 1;
+  }
+  for (const b of bomRows) {
+    usageCounts[b.componentId] = (usageCounts[b.componentId] ?? 0) + 1;
+  }
+
+  const clientIngredients: ClientIngredient[] = ingredients.map((i) => ({
+    id: i.id,
+    name: i.name,
+    type: i.type,
+    uom: i.uom,
+    packSize: i.packSize,
+    packCost: i.packCost,
+    unitCost: i.unitCost,
+    unitCostSetAt: i.unitCostSetAt,
+    provenance: i.provenance,
+    isSubRecipe: i.isSubRecipe,
+    notes: i.notes,
+  }));
+
+  const lastUpdated = priceHistory[0]?.date ?? null;
 
   return (
     <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
@@ -53,9 +122,9 @@ export default function IngredientsPage() {
             marginBottom: 40,
           }}
         >
-          The canonical list of everything we buy. Every price change is stamped and stored
-          in an append-only history. Click any ingredient to model a change and see which
-          drinks it affects before you save. See also{" "}
+          The register, read live from the database. Every price carries its
+          provenance and an append-only dated history. Click any ingredient to
+          model a change and see which drinks it affects before you save. See also{" "}
           <a
             href="/finances/profitability"
             style={{
@@ -64,14 +133,15 @@ export default function IngredientsPage() {
               textUnderlineOffset: 2,
             }}
           >
-            COGS reconciliation
+            the COGS build
           </a>
-          . Last updated {lastUpdated}.
+          {lastUpdated ? `. Last price movement ${lastUpdated}.` : "."}
         </p>
 
         <IngredientsClient
-          ingredients={INGREDIENTS}
-          priceHistory={PRICE_HISTORY}
+          ingredients={clientIngredients}
+          priceHistory={priceHistory}
+          recipeUsage={recipeUsage}
           usageCounts={usageCounts}
         />
       </main>

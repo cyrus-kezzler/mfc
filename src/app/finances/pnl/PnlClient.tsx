@@ -3,11 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  PricingConfig,
-  PricingProduct,
-  calcWholesale,
-} from "@/lib/pricing-data";
-import {
   CostScenario,
   COST_SCENARIOS,
   BoxOptionKey,
@@ -17,6 +12,7 @@ import {
   wholesaleLine,
   shopifyShippingCost,
 } from "@/lib/pnl-data";
+import type { PricingConfigView, SkuRow } from "../finance-types";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
 
 const GBP = (n: number) =>
@@ -26,14 +22,26 @@ type Channel = "shopify" | "wholesale";
 type SpecialBasket = "chooseSix" | "boxset" | null;
 
 type Props = {
-  products: PricingProduct[];
-  defaultConfig: PricingConfig;
+  rows: SkuRow[];
+  config: PricingConfigView;
+};
+
+type PnlRow = {
+  r: SkuRow;
+  cogs: number;
+  cogsDelta: number;
+  /** Null when the price this channel needs has not been agreed. */
+  revenue: number | null;
+  fulfilment: number | null;
+  contribution: number | null;
+  contributionPct: number | null;
+  shopify: ReturnType<typeof shopifyLine> | null;
+  missing: string | null;
 };
 
 const BASKET_PILLS = [1, 2, 4, 6];
 
-export default function PnlClient({ products, defaultConfig }: Props) {
-  const config = defaultConfig; // assumptions are owned by the pricing/RRP tools; read-only here
+export default function PnlClient({ rows: serverRows, config }: Props) {
   const [scenario, setScenario] = useState<CostScenario>("today");
   const [channel, setChannel] = useState<Channel>("shopify");
   const [basket, setBasket] = useState<number>(6);
@@ -41,19 +49,33 @@ export default function PnlClient({ products, defaultConfig }: Props) {
   const [special, setSpecial] = useState<SpecialBasket>(null);
   const [box, setBox] = useState<BoxOptionKey>("smallSixBottle700");
   const [densityHigh, setDensityHigh] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(products[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<number | null>(serverRows[0]?.skuId ?? null);
 
   const bottles = special ? 6 : basket;
 
-  // Build a per-drink line for the active channel + scenario.
-  const rows = products.map((p) => {
-    const cogs = scenarioCogs(p.cogs, p.id, scenario);
-    const todayCogs = p.cogs;
-    const cogsDelta = Math.round((cogs - todayCogs) * 100) / 100;
+  // Build a per-drink line for the active channel + scenario. Agreed prices
+  // only: a SKU with no agreed RRP (Shopify) or no agreed wholesale price
+  // (wholesale) shows that it has none rather than borrowing the rule price.
+  const rows: PnlRow[] = serverRows.map((r) => {
+    const cogs = scenarioCogs(r.cogs, r.code, scenario);
+    const cogsDelta = Math.round((cogs - r.cogs) * 100) / 100;
     if (channel === "shopify") {
-      const line = shopifyLine(p.rrp, cogs, config.vat, bottles, box);
+      if (r.rrp === null) {
+        return {
+          r,
+          cogs,
+          cogsDelta,
+          revenue: null,
+          fulfilment: null,
+          contribution: null,
+          contributionPct: null,
+          shopify: null,
+          missing: "No agreed RRP",
+        };
+      }
+      const line = shopifyLine(r.rrp, cogs, config.vat, bottles, box);
       return {
-        p,
+        r,
         cogs,
         cogsDelta,
         revenue: line.revenueExVat,
@@ -61,12 +83,25 @@ export default function PnlClient({ products, defaultConfig }: Props) {
         contribution: line.contribution,
         contributionPct: line.contributionPct,
         shopify: line,
+        missing: null,
       };
     }
-    const ws = calcWholesale(p, config);
-    const line = wholesaleLine(ws, cogs, densityHigh);
+    if (r.wholesale === null) {
+      return {
+        r,
+        cogs,
+        cogsDelta,
+        revenue: null,
+        fulfilment: null,
+        contribution: null,
+        contributionPct: null,
+        shopify: null,
+        missing: "No agreed wholesale price",
+      };
+    }
+    const line = wholesaleLine(r.wholesale, cogs, densityHigh);
     return {
-      p,
+      r,
       cogs,
       cogsDelta,
       revenue: line.wholesale,
@@ -74,18 +109,21 @@ export default function PnlClient({ products, defaultConfig }: Props) {
       contribution: line.contribution,
       contributionPct: line.contributionPct,
       shopify: null,
+      missing: null,
     };
   });
 
-  const selected = rows.find((r) => r.p.id === selectedId) ?? rows[0];
+  const selected = rows.find((x) => x.r.skuId === selectedId) ?? rows[0];
 
   // Free-shipping hurdle (Shopify only): does basket contribution cover the carrier cost?
-  const basketContribution = selected
-    ? Math.round(selected.contribution * bottles * 100) / 100
-    : 0;
-  const carrierCost = selected ? shopifyShippingCost(bottles, selected.p.size) : 0;
-  const basketValue = selected ? Math.round(selected.p.rrp * bottles * 100) / 100 : 0;
-  const hurdleCovered = basketContribution >= carrierCost;
+  const basketContribution =
+    selected && selected.contribution !== null
+      ? Math.round(selected.contribution * bottles * 100) / 100
+      : null;
+  const carrierCost = selected ? shopifyShippingCost(bottles, selected.r.size) : 0;
+  const basketValue =
+    selected && selected.r.rrp !== null ? Math.round(selected.r.rrp * bottles * 100) / 100 : null;
+  const hurdleCovered = basketContribution !== null && basketContribution >= carrierCost;
 
   return (
     <main className="pnl-main" style={{ maxWidth: 1240, margin: "0 auto", padding: "48px 40px 96px" }}>
@@ -118,10 +156,11 @@ export default function PnlClient({ products, defaultConfig }: Props) {
             fontWeight: 300,
           }}
         >
-          Contribution margin per drink by channel, under three cost scenarios. Today&apos;s cost
-          reflects what we actually pay now, including any written-off legacy inventory. True
-          variable cost prices every input at replacement. Forward cost is the post-rebrand
-          assumption.
+          Contribution margin per drink by channel, on agreed prices and database COGS
+          (liquid, primary packaging and wastage), under three cost scenarios. Today&apos;s
+          cost reflects what we actually pay now, including any written-off legacy
+          inventory. True variable cost prices every input at replacement. Forward cost is
+          the post-rebrand assumption.
         </p>
       </section>
 
@@ -147,7 +186,7 @@ export default function PnlClient({ products, defaultConfig }: Props) {
         <Pill active={channel === "wholesale"} onClick={() => setChannel("wholesale")}>
           B2B Wholesale
         </Pill>
-        <Pill active={false} disabled title="Awareness channel — not modelled.">
+        <Pill active={false} disabled title="Awareness channel, not modelled.">
           Amazon
         </Pill>
       </ToggleRow>
@@ -234,7 +273,7 @@ export default function PnlClient({ products, defaultConfig }: Props) {
         </ToggleRow>
       )}
 
-      {/* RRP construction breakdown card */}
+      {/* Breakdown card */}
       {special ? (
         <FiftyMlTbdCard kind="breakdown" />
       ) : (
@@ -257,9 +296,9 @@ export default function PnlClient({ products, defaultConfig }: Props) {
               {[
                 { label: "Cocktail", align: "left" as const },
                 { label: "Size", align: "left" as const },
-                { label: "RRP", align: "right" as const },
+                { label: "RRP (agreed)", align: "right" as const },
                 { label: "COGS", align: "right" as const },
-                { label: channel === "shopify" ? "Revenue ex VAT" : "Wholesale", align: "right" as const },
+                { label: channel === "shopify" ? "Revenue ex VAT" : "Wholesale (agreed)", align: "right" as const },
                 { label: channel === "shopify" ? "Fulfilment" : "Freight", align: "right" as const },
                 { label: "Contribution", align: "right" as const },
                 { label: "Contribution %", align: "right" as const },
@@ -288,14 +327,14 @@ export default function PnlClient({ products, defaultConfig }: Props) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
-              const isSel = !special && r.p.id === selected?.p.id;
+            {rows.map((x) => {
+              const isSel = !special && x.r.skuId === selected?.r.skuId;
               return (
                 <tr
-                  key={r.p.id}
+                  key={x.r.skuId}
                   onClick={() => {
                     setSpecial(null);
-                    setSelectedId(r.p.id);
+                    setSelectedId(x.r.skuId);
                   }}
                   className="pnl-row"
                   style={{
@@ -305,49 +344,77 @@ export default function PnlClient({ products, defaultConfig }: Props) {
                   }}
                 >
                   <td style={{ padding: "16px 12px", color: COLOR.ink, fontFamily: FONT.serif, fontSize: 17 }}>
-                    {r.p.name}
-                  </td>
-                  <td style={{ padding: "16px 12px", color: COLOR.muted, fontFamily: FONT.mono, fontSize: 12, ...smallCaps }}>
-                    {r.p.size}
-                  </td>
-                  <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.inkSoft }}>
-                    {GBP(r.p.rrp)}
-                  </td>
-                  <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.inkSoft }}>
-                    {GBP(r.cogs)}
-                    {scenario !== "today" && r.cogsDelta !== 0 && (
-                      <span style={{ color: r.cogsDelta > 0 ? COLOR.flag : COLOR.positive, fontSize: 11, marginLeft: 6 }}>
-                        {r.cogsDelta > 0 ? "+" : ""}
-                        {GBP(r.cogsDelta)}
+                    {x.r.name}
+                    {x.r.clientName && (
+                      <span style={{ marginLeft: 8, fontSize: 10, color: COLOR.mutedLight, fontFamily: FONT.mono }}>
+                        {x.r.clientName}
                       </span>
                     )}
                   </td>
+                  <td style={{ padding: "16px 12px", color: COLOR.muted, fontFamily: FONT.mono, fontSize: 12, ...smallCaps }}>
+                    {x.r.size}
+                  </td>
+                  <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: x.r.rrp === null ? COLOR.mutedLight : COLOR.inkSoft }}>
+                    {x.r.rrp === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic" }}>none</span>
+                    ) : (
+                      GBP(x.r.rrp)
+                    )}
+                  </td>
                   <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.inkSoft }}>
-                    {GBP(r.revenue)}
+                    {GBP(x.cogs)}
+                    {scenario !== "today" && x.cogsDelta !== 0 && (
+                      <span style={{ color: x.cogsDelta > 0 ? COLOR.flag : COLOR.positive, fontSize: 11, marginLeft: 6 }}>
+                        {x.cogsDelta > 0 ? "+" : ""}
+                        {GBP(x.cogsDelta)}
+                      </span>
+                    )}
+                    {(x.r.unsourced.length > 0 || x.r.placeholders.length > 0) && (
+                      <span
+                        title={[...x.r.unsourced.map((u) => `Unsourced: ${u}`), ...x.r.placeholders.map((p) => `Placeholder: ${p}`)].join("\n")}
+                        style={{ marginLeft: 6, fontSize: 10, color: COLOR.flag, cursor: "help" }}
+                      >
+                        ⚑
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: x.revenue === null ? COLOR.mutedLight : COLOR.inkSoft }}>
+                    {x.revenue === null ? (
+                      <span style={{ fontSize: 11, fontStyle: "italic" }}>{x.missing}</span>
+                    ) : (
+                      GBP(x.revenue)
+                    )}
                   </td>
                   <td style={{ padding: "16px 12px", textAlign: "right", fontFamily: FONT.mono, color: COLOR.muted }}>
-                    {GBP(r.fulfilment)}
+                    {x.fulfilment === null ? "·" : GBP(x.fulfilment)}
                   </td>
                   <td
                     style={{
                       padding: "16px 12px",
                       textAlign: "right",
                       fontFamily: FONT.mono,
-                      color: r.contribution < 0 ? COLOR.flag : r.contribution < 2 ? COLOR.accentSoft : COLOR.positive,
+                      color:
+                        x.contribution === null
+                          ? COLOR.mutedLight
+                          : x.contribution < 0
+                          ? COLOR.flag
+                          : x.contribution < 2
+                          ? COLOR.accentSoft
+                          : COLOR.positive,
                       fontWeight: 600,
                     }}
                   >
-                    {GBP(r.contribution)}
+                    {x.contribution === null ? "·" : GBP(x.contribution)}
                   </td>
                   <td
                     style={{
                       padding: "16px 12px",
                       textAlign: "right",
                       fontFamily: FONT.mono,
-                      color: r.contributionPct < 0 ? COLOR.flag : COLOR.muted,
+                      color: x.contributionPct === null ? COLOR.mutedLight : x.contributionPct < 0 ? COLOR.flag : COLOR.muted,
                     }}
                   >
-                    {r.contributionPct.toFixed(1)}%
+                    {x.contributionPct === null ? "·" : `${x.contributionPct.toFixed(1)}%`}
                   </td>
                 </tr>
               );
@@ -374,7 +441,9 @@ export default function PnlClient({ products, defaultConfig }: Props) {
           style={{
             marginTop: 40,
             border: `1px solid ${COLOR.rule}`,
-            borderLeft: `3px solid ${hurdleCovered ? COLOR.positive : COLOR.flag}`,
+            borderLeft: `3px solid ${
+              basketContribution === null ? COLOR.rule : hurdleCovered ? COLOR.positive : COLOR.flag
+            }`,
             padding: "22px 26px",
             maxWidth: 820,
           }}
@@ -382,21 +451,27 @@ export default function PnlClient({ products, defaultConfig }: Props) {
           <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 12, ...smallCaps }}>
             Free shipping hurdle
           </p>
-          <p style={{ fontFamily: FONT.serif, fontSize: 17, lineHeight: 1.7, color: COLOR.inkSoft }}>
-            A {bottles}-bottle basket of <strong>{selected.p.name}</strong> ({COST_SCENARIOS[scenario].label})
-            generates <strong style={{ color: COLOR.ink }}>{GBP(basketContribution)}</strong> of contribution
-            against a carrier cost of <strong style={{ color: COLOR.ink }}>{GBP(carrierCost)}</strong> to ship it
-            free. Basket value: {GBP(basketValue)}.{" "}
-            <strong style={{ color: hurdleCovered ? COLOR.positive : COLOR.flag }}>
-              {hurdleCovered ? "Covered." : "Not covered."}
-            </strong>
-          </p>
+          {basketContribution === null || basketValue === null ? (
+            <p style={{ fontFamily: FONT.serif, fontSize: 17, lineHeight: 1.7, color: COLOR.muted, fontStyle: "italic" }}>
+              <strong>{selected.r.name}</strong> has no agreed RRP, so there is no basket to model.
+            </p>
+          ) : (
+            <p style={{ fontFamily: FONT.serif, fontSize: 17, lineHeight: 1.7, color: COLOR.inkSoft }}>
+              A {bottles}-bottle basket of <strong>{selected.r.name}</strong> ({COST_SCENARIOS[scenario].label})
+              generates <strong style={{ color: COLOR.ink }}>{GBP(basketContribution)}</strong> of contribution
+              against a carrier cost of <strong style={{ color: COLOR.ink }}>{GBP(carrierCost)}</strong> to ship it
+              free. Basket value: {GBP(basketValue)}.{" "}
+              <strong style={{ color: hurdleCovered ? COLOR.positive : COLOR.flag }}>
+                {hurdleCovered ? "Covered." : "Not covered."}
+              </strong>
+            </p>
+          )}
         </section>
       )}
 
       <p style={{ marginTop: 36, fontSize: 12, color: COLOR.mutedLight, fontStyle: "italic", fontFamily: FONT.serif, maxWidth: 820 }}>
         Carrier shipping is customer-paid and nets to zero on contribution; inbound shipping stays in
-        COGS this iteration. Labour {GBP(20)}/hr and Shopify Payments 2% + {GBP(0.25)} are placeholders —
+        COGS this iteration. Labour {GBP(20)}/hr and Shopify Payments 2% + {GBP(0.25)} are placeholders,
         edit in <Link href="https://github.com/cyrusgilbertrolfe/back-bar/blob/main/src/lib/pnl-data.ts" style={{ color: COLOR.accent }}>lib/pnl-data.ts</Link>.
       </p>
 
@@ -410,17 +485,7 @@ export default function PnlClient({ products, defaultConfig }: Props) {
   );
 }
 
-// ─── RRP construction breakdown ───────────────────────────────────────────────
-
-type Row = {
-  p: PricingProduct;
-  cogs: number;
-  revenue: number;
-  fulfilment: number;
-  contribution: number;
-  contributionPct: number;
-  shopify: ReturnType<typeof shopifyLine> | null;
-};
+// ─── Breakdown card ───────────────────────────────────────────────────────────
 
 function BreakdownCard({
   row,
@@ -429,7 +494,7 @@ function BreakdownCard({
   vat,
   bottles,
 }: {
-  row: Row;
+  row: PnlRow;
   channel: Channel;
   scenario: CostScenario;
   vat: number;
@@ -437,9 +502,35 @@ function BreakdownCard({
 }) {
   const lines: { label: string; value: string; strong?: boolean; muted?: boolean; rule?: boolean }[] = [];
 
+  if (row.missing) {
+    return (
+      <section
+        style={{
+          marginTop: 36,
+          border: `1px dashed ${COLOR.ruleBold}`,
+          padding: "24px 28px",
+          maxWidth: 640,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+          <h2 style={{ fontFamily: FONT.serif, fontSize: 24, fontWeight: 500, color: COLOR.ink, letterSpacing: "-0.015em" }}>
+            {row.r.name}
+          </h2>
+          <span style={{ fontFamily: FONT.mono, fontSize: 12, color: COLOR.muted, ...smallCaps }}>
+            {row.r.size} · {channel === "shopify" ? "D2C" : "Wholesale"}
+          </span>
+        </div>
+        <p style={{ fontFamily: FONT.serif, fontSize: 16, fontStyle: "italic", color: COLOR.flag, lineHeight: 1.6 }}>
+          {row.missing}. Nothing is modelled for this SKU on this channel until a price is
+          agreed; the rule price is deliberately not used as a stand-in.
+        </p>
+      </section>
+    );
+  }
+
   if (channel === "shopify" && row.shopify) {
     const s = row.shopify;
-    lines.push({ label: "RRP (inc VAT)", value: GBP(s.rrpIncVat) });
+    lines.push({ label: "RRP inc VAT (agreed)", value: GBP(s.rrpIncVat) });
     lines.push({ label: `− VAT (1/${Math.round(vat / (vat - 1))})`, value: `− ${GBP(s.vatAmount)}`, muted: true });
     lines.push({ label: "= Revenue ex VAT", value: GBP(s.revenueExVat), rule: true });
     lines.push({ label: `− COGS (${COST_SCENARIOS[scenario].label})`, value: `− ${GBP(s.cogs)}`, muted: true });
@@ -449,8 +540,8 @@ function BreakdownCard({
       muted: true,
     });
     lines.push({ label: "= Contribution", value: GBP(s.contribution), strong: true, rule: true });
-  } else {
-    lines.push({ label: "Wholesale price", value: GBP(row.revenue) });
+  } else if (row.revenue !== null && row.fulfilment !== null && row.contribution !== null) {
+    lines.push({ label: "Wholesale price (agreed)", value: GBP(row.revenue) });
     lines.push({ label: `− COGS (${COST_SCENARIOS[scenario].label})`, value: `− ${GBP(row.cogs)}`, muted: true });
     lines.push({ label: "− Freight allocation (per bottle)", value: `− ${GBP(row.fulfilment)}`, muted: true });
     lines.push({ label: "= Contribution", value: GBP(row.contribution), strong: true, rule: true });
@@ -468,10 +559,10 @@ function BreakdownCard({
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <h2 style={{ fontFamily: FONT.serif, fontSize: 24, fontWeight: 500, color: COLOR.ink, letterSpacing: "-0.015em" }}>
-          {row.p.name}
+          {row.r.name}
         </h2>
         <span style={{ fontFamily: FONT.mono, fontSize: 12, color: COLOR.muted, ...smallCaps }}>
-          {row.p.size} · {channel === "shopify" ? "D2C" : "Wholesale"}
+          {row.r.size} · {channel === "shopify" ? "D2C" : "Wholesale"}
         </span>
       </div>
       <div>
@@ -501,7 +592,11 @@ function BreakdownCard({
               style={{
                 fontFamily: FONT.mono,
                 fontSize: l.strong ? 18 : 14,
-                color: l.strong ? (row.contribution < 0 ? COLOR.flag : COLOR.positive) : COLOR.inkSoft,
+                color: l.strong
+                  ? (row.contribution ?? 0) < 0
+                    ? COLOR.flag
+                    : COLOR.positive
+                  : COLOR.inkSoft,
                 fontWeight: l.strong ? 600 : 400,
                 whiteSpace: "nowrap",
                 ...tabularNums,
@@ -517,11 +612,11 @@ function BreakdownCard({
             style={{
               fontFamily: FONT.mono,
               fontSize: 13,
-              color: row.contributionPct < 0 ? COLOR.flag : COLOR.muted,
+              color: (row.contributionPct ?? 0) < 0 ? COLOR.flag : COLOR.muted,
               ...tabularNums,
             }}
           >
-            {row.contributionPct.toFixed(1)}%
+            {row.contributionPct === null ? "·" : `${row.contributionPct.toFixed(1)}%`}
           </span>
         </div>
       </div>
@@ -537,7 +632,7 @@ function FiftyMlTbdCard({ kind }: { kind: "breakdown" | "card" }) {
         border: `1px dashed ${COLOR.ruleBold}`,
         padding: "24px 28px",
         maxWidth: 820,
-        textAlign: kind === "breakdown" ? "left" : "left",
+        textAlign: "left",
       }}
     >
       <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 10, ...smallCaps }}>
@@ -546,7 +641,7 @@ function FiftyMlTbdCard({ kind }: { kind: "breakdown" | "card" }) {
       <p style={{ fontFamily: FONT.serif, fontSize: 16, fontStyle: "italic", color: COLOR.muted, lineHeight: 1.6 }}>
         <strong style={{ color: COLOR.inkSoft, fontStyle: "normal" }}>TBD.</strong> Needs 50ml COGS input. See the
         DTC strategy section on{" "}
-        <Link href="/strategy#dtc" style={{ color: COLOR.accent }}>/strategy</Link> for context — the 50ml format
+        <Link href="/strategy#dtc" style={{ color: COLOR.accent }}>/strategy</Link> for context; the 50ml format
         is flattered by zero-cost glass today. Populate{" "}
         <span style={{ fontFamily: FONT.mono, fontSize: 13 }}>PRODUCT_SCENARIO_ADJUSTMENTS</span> in lib/pnl-data.ts
         to model it.

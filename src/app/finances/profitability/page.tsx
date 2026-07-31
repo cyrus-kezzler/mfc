@@ -1,11 +1,39 @@
 import Nav from "@/components/Nav";
-import { computeAllSkuBreakdowns, computeSummary } from "@/lib/cogs";
-import ProfitabilityClient from "./ProfitabilityClient";
+import { computeAllSkuCosts } from "@/lib/erp/cogs";
+import ProfitabilityClient, { type CogsPageSummary } from "./ProfitabilityClient";
 import { COLOR, FONT, smallCaps } from "@/lib/design";
 
-export default function ProfitabilityPage() {
-  const breakdowns = computeAllSkuBreakdowns();
-  const summary = computeSummary(breakdowns);
+export const dynamic = "force-dynamic";
+
+export default async function ProfitabilityPage() {
+  const breakdowns = await computeAllSkuCosts();
+
+  const totalSubtotal = breakdowns.reduce((s, b) => s + b.subtotal, 0);
+  const totalInvoiceBacked = breakdowns.reduce(
+    (s, b) => s + (b.invoiceBackedPct / 100) * b.subtotal,
+    0,
+  );
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  const summary: CogsPageSummary = {
+    totalSkus: breakdowns.length,
+    clean: breakdowns.filter(
+      (b) => b.unsourced.length === 0 && b.placeholders.length === 0 && b.problems.length === 0,
+    ).length,
+    withUnsourced: breakdowns.filter((b) => b.unsourced.length > 0).length,
+    withPlaceholders: breakdowns.filter((b) => b.placeholders.length > 0).length,
+    withProblems: breakdowns.filter((b) => b.problems.length > 0).length,
+    totalCogs: round2(breakdowns.reduce((s, b) => s + b.total, 0)),
+    totalLiquid: round2(breakdowns.reduce((s, b) => s + b.liquidTotal, 0)),
+    totalPackaging: round2(breakdowns.reduce((s, b) => s + b.packagingTotal, 0)),
+    totalWastage: round2(breakdowns.reduce((s, b) => s + b.wastage, 0)),
+    invoiceBackedPct:
+      totalSubtotal > 0 ? Math.round((totalInvoiceBacked / totalSubtotal) * 1000) / 10 : 0,
+    wastagePct: breakdowns[0]?.wastagePct ?? 0,
+    unsourcedNames: [...new Set(breakdowns.flatMap((b) => b.unsourced))].sort(),
+    placeholderNames: [...new Set(breakdowns.flatMap((b) => b.placeholders))].sort(),
+  };
+
   return (
     <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
       <Nav />
@@ -14,7 +42,7 @@ export default function ProfitabilityPage() {
         style={{ maxWidth: 1180, margin: "0 auto", padding: "48px 40px 96px" }}
       >
         <p style={{ fontSize: 10, color: COLOR.muted, marginBottom: 20, ...smallCaps }}>
-          Finances · COGS reconciliation
+          Finances · COGS build
         </p>
         <h1
           style={{
@@ -27,7 +55,7 @@ export default function ProfitabilityPage() {
             color: COLOR.ink,
           }}
         >
-          COGS reconciliation
+          COGS build
         </h1>
         <p
           style={{
@@ -41,11 +69,10 @@ export default function ProfitabilityPage() {
             marginBottom: 40,
           }}
         >
-          Derived COGS — liquid from the ingredient master times recipe ratios, plus
-          labour — compared to the hardcoded values in the wholesale pricing model.
-          Packaging (bottle, label, hygiene) is tracked separately; it belongs in
-          channel P&amp;L, not COGS, because it varies by delivery method. Click any
-          SKU for the full ingredient-level breakdown.
+          Every SKU costed line by line from the database: liquid from the live recipe,
+          primary packaging from the bill of materials, and wastage on top. Carriage is the
+          only thing out. Each line carries its provenance, so a hand-typed figure can never
+          pass as an invoice-backed one. Click any SKU for the full breakdown.
         </p>
         <ProfitabilityClient breakdowns={breakdowns} summary={summary} />
       </main>

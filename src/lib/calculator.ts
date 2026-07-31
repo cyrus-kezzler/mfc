@@ -1,8 +1,17 @@
 import { Recipe, Ingredient, BatchCalculation, AppSettings, IngredientType } from '@/types';
-import { getIngredient } from '@/data/ingredients';
 
+/**
+ * Legacy batch maths for the old client-side calculator component.
+ *
+ * The checked-in ingredient register (src/data/ingredients.ts) is gone: the
+ * live register is the database (see @/lib/erp/ingredients), and the live
+ * calculator page at /calculator reads recipes and costs from there. This
+ * module survives only for the legacy Calculator component, so ingredient
+ * metadata now comes solely from the user's local settings overrides, with a
+ * plain 700ml bottle as the default.
+ */
 function resolveIngredient(name: string, settings: AppSettings): Ingredient {
-  const base = getIngredient(name) ?? {
+  const base: Ingredient = {
     name,
     type: 'bottle' as IngredientType,
     bottleSize: 700,
@@ -72,39 +81,19 @@ export function calculateBatch(
       }
 
       case 'house-made': {
-        const hmResult: typeof result.houseMade[0] = {
+        // Sub-recipe expansion used to come from the checked-in register; the
+        // database sub-recipe planner (@/lib/erp/sub-recipes planBatch) is the
+        // live replacement, so here a house-made line is just its volume.
+        result.houseMade.push({
           ingredientName: ri.ingredientName,
           ml,
           note: ri.note,
-        };
-        if (ingredient.subRecipe) {
-          const scaleFactor = ml / ingredient.subRecipe.baseBatchMl;
-          hmResult.subRecipeItems = ingredient.subRecipe.ingredients.map((sri) => {
-            const scaledG = parseFloat((sri.amountPer326ml * scaleFactor).toFixed(1));
-            if (
-              ingredient.subRecipe?.hasPhosphoricBreakdown &&
-              sri.name === 'Phosphoric acid 1.25% solution'
-            ) {
-              // 1.25g 75%-acid + 100g water = 101.25g solution
-              const acidG = parseFloat((scaledG * (1.25 / 101.25)).toFixed(2));
-              const waterG = parseFloat((scaledG * (100 / 101.25)).toFixed(2));
-              return {
-                ingredientName: sri.name,
-                amountG: scaledG,
-                unit: 'g' as const,
-                isPhosphoricSolution: true,
-                phosphoricBreakdown: { acidG, waterG },
-              };
-            }
-            return { ingredientName: sri.name, amountG: scaledG, unit: 'g' as const };
-          });
-        }
-        result.houseMade.push(hmResult);
+        });
         break;
       }
 
       case 'dashes':
-        // Ratio-driven dashes are unusual — treat as house-made ml
+        // Ratio-driven dashes are unusual, treat as house-made ml
         result.houseMade.push({ ingredientName: ri.ingredientName, ml });
         break;
     }

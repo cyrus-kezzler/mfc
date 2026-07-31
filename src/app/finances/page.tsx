@@ -22,15 +22,15 @@ const MODULES: HubModule[] = [
     label: "Wholesale Pricing",
     sublabel: "Live COGS → wholesale",
     description:
-      "COGS derived from the ingredient master, markup and retailer test applied. The opening position for any new or existing wholesale partner.",
+      "Agreed wholesale prices beside the formula rule price, with database COGS and the retailer test. The opening position for any new or existing wholesale partner.",
     status: "live",
   },
   {
     href: "/finances/profitability",
-    label: "COGS Reconciliation",
-    sublabel: "Derived vs legacy",
+    label: "COGS Build",
+    sublabel: "Line-level cost of goods",
     description:
-      "Derived COGS (liquid + labour) compared to legacy hardcoded values. Use this to audit and validate the model.",
+      "Every SKU costed line by line from the database: liquid, primary packaging and wastage, with the provenance of every figure. The audit view of the cost engine.",
     status: "live",
   },
   {
@@ -46,7 +46,7 @@ const MODULES: HubModule[] = [
     label: "Per-drink P&L",
     sublabel: "What we earn",
     description:
-      "Contribution margin per drink by channel under three cost scenarios — D2C Shopify vs B2B Wholesale, with basket, density, and the free-shipping hurdle. Scenario-aware so sunk-inventory effects don't hide.",
+      "Contribution margin per drink by channel under three cost scenarios: D2C Shopify vs B2B Wholesale, with basket, density, and the free-shipping hurdle. Scenario-aware so sunk-inventory effects don't hide.",
     status: "live",
   },
   {
@@ -88,7 +88,7 @@ export default function FinancesPage() {
     <HubPage
       eyebrow="Finances"
       title="Money in, money out"
-      intro="Profitability, audit, and the live read on where the business makes — and loses — money."
+      intro="Profitability, audit, and the live read on where the business makes, and loses, money."
       modules={MODULES}
     />
   );

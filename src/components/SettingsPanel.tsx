@@ -1,11 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { MASTER_INGREDIENTS } from "@/data/ingredients";
 import { RECIPES } from "@/data/recipes";
 import { useSettings } from "@/hooks/useSettings";
 import { IngredientType, Client, RecipeIngredient } from "@/types";
 import { COLOR, FONT, smallCaps, tabularNums } from "@/lib/design";
+
+/**
+ * Ingredient defaults now arrive as props from the server page, read from the
+ * database register (the checked-in MASTER_INGREDIENTS list is gone). Local
+ * overrides still live in this browser via useSettings.
+ */
+export type SettingsIngredient = {
+  name: string;
+  type: IngredientType;
+  bottleSize: number;
+};
 
 const CLIENTS: Client[] = [
   "Myatt's Fields",
@@ -23,7 +33,7 @@ const TYPE_LABELS: Record<IngredientType, string> = {
   dashes: "Dashes",
 };
 
-export default function SettingsPanel() {
+export default function SettingsPanel({ ingredients }: { ingredients: SettingsIngredient[] }) {
   const { settings, updateBottleSize, updateIngredientType } = useSettings();
   const [activeTab, setActiveTab] = useState<"ingredients" | "recipes">("ingredients");
   const [recipeFilter, setRecipeFilter] = useState<Client | "all">("all");
@@ -31,14 +41,14 @@ export default function SettingsPanel() {
   const [localRecipes, setLocalRecipes] = useState(RECIPES);
   const [search, setSearch] = useState("");
 
-  const filtered = MASTER_INGREDIENTS.filter((i) =>
+  const filtered = ingredients.filter((i) =>
     i.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   function resolvedType(name: string): IngredientType {
     return (
       settings.ingredientOverrides[name]?.type ??
-      MASTER_INGREDIENTS.find((i) => i.name === name)?.type ??
+      ingredients.find((i) => i.name === name)?.type ??
       "bottle"
     );
   }
@@ -46,7 +56,7 @@ export default function SettingsPanel() {
   function resolvedBottleSize(name: string): number {
     return (
       settings.ingredientOverrides[name]?.bottleSize ??
-      MASTER_INGREDIENTS.find((i) => i.name === name)?.bottleSize ??
+      ingredients.find((i) => i.name === name)?.bottleSize ??
       700
     );
   }
@@ -361,7 +371,7 @@ export default function SettingsPanel() {
               lineHeight: 1.55,
             }}
           >
-            Note — recipe edits here are display-only in this session. To persist,
+            Note: recipe edits here are display-only in this session. To persist,
             update <code style={{ fontFamily: FONT.mono, fontSize: 12, color: COLOR.accent }}>src/data/recipes.ts</code>.
           </p>
         </div>
