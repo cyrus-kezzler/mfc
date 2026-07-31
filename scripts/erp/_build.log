@@ -1,0 +1,69 @@
+
+> back-bar@0.1.0 build
+> next build
+
+▲ Next.js 16.2.0 (Turbopack)
+- Environments: .env.production.local, .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.4s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/24) ...
+  Generating static pages using 9 workers (6/24) 
+  Generating static pages using 9 workers (12/24) 
+  Generating static pages using 9 workers (18/24) 
+✓ Generating static pages using 9 workers (24/24) in 1293ms
+  Finalizing page optimization ...
+
+Route (app)                                          Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /.well-known/oauth-authorization-server
+├ ƒ /api/choose-six/drinks
+├ ƒ /api/dick
+├ ƒ /api/mcp
+├ ƒ /api/mcp/.well-known/oauth-authorization-server
+├ ƒ /api/mcp/oauth/authorize
+├ ƒ /api/mcp/oauth/register
+├ ƒ /api/mcp/oauth/token
+├ ƒ /api/qb-auth
+├ ƒ /api/qb-callback
+├ ƒ /api/shopify/theme-asset
+├ ○ /apple-icon
+├ ƒ /calculator
+├ ○ /dashboard                                              30m      1y
+├ ƒ /drinks
+├ ƒ /drinks/[slug]
+├ ƒ /drinks/[slug]/edit
+├ ƒ /drinks/[slug]/new
+├ ƒ /erp
+├ ƒ /erp/components
+├ ƒ /erp/components/[id]
+├ ƒ /erp/components/new
+├ ƒ /erp/settings
+├ ƒ /erp/suppliers
+├ ƒ /erp/suppliers/[id]
+├ ○ /erp/suppliers/new
+├ ○ /finances
+├ ○ /finances/ingredients
+├ ○ /finances/pnl
+├ ○ /finances/pricing
+├ ○ /finances/profitability
+├ ○ /finances/rrp
+├ ƒ /login
+├ ○ /production
+├ ○ /recipes
+├ ○ /sales
+├ ƒ /sales/accounts
+├ ƒ /sales/accounts/[id]
+├ ○ /settings
+└ ○ /strategy
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

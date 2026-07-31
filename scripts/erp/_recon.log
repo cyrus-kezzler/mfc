@@ -1,0 +1,67 @@
+COUNTS
+  DB components          92
+  ingredients.json       45
+  MASTER_INGREDIENTS     72
+  RECIPE_INGREDIENT_MAP  61
+
+DUPLICATE-LOOKING NAMES INSIDE THE DB
+  vodka: 73 "Vodka (Thames NGS)" | 2 "Vodka (Bimber - stock only, no reorder)"
+  espresso: 23 "Espresso (house-brewed)" | 51 "Espresso"
+  gin: 1 "Gin (in-house)" | 62 "Gin (Amalthea)"
+
+IN ingredients.json BUT NOT MATCHED IN THE DB
+  Cocchi Vermouth di Torino          £18.05 / 750ml  (set 2026-04-11)
+  Scratch White Rum                  £23.67 / 1000ml  (set 2026-06-16)
+  Yuzu Sake                          £21.94 / 500ml  (set 2026-04-11)
+  Sours (house-made)                 £5 / 1000ml  (set 2026-04-11)
+  Grapefruit                         £4 / 1000ml  (set 2026-04-11)
+  Coffee                             £4 / 1000ml  (set 2026-04-11)
+
+PRICE DISAGREEMENTS, json versus DB (per ml or per each)
+  Fino Sherry                        json 0.013771  db 0.012853  +7.1%
+  Heering Cherry                     json 0.031786  db 0.029667  +7.1%
+
+IN MASTER_INGREDIENTS BUT NOT MATCHED IN THE DB
+  Absinthe
+  Amalthea Gin Ginger Edition
+  Scratch White Rum
+  Black Button Bourbon
+  Cocchi Vermouth di Torino
+  Conotto
+  Cranberry
+  Curacao
+  Dry Vermouth
+  English Whisky
+  Fernet
+  Havana Club
+  Heering
+  Lillet
+  Lychee
+  Maraschino
+  Mozart
+  Old Tom
+  Passoa
+  Pisco
+  Rum
+  Sweet Vermouth
+  Tequila
+  Verjus
+  Yuzu Sake
+  Sours
+  Agave
+  Apple
+  Bramley Apple
+  Cherry
+  Coffee
+  Grenadine
+  Hibiscus Cranberry Syrup
+  Kecello
+  Lime
+  Oat
+  Peel Infused Gin
+  Saline 1:1
+  Simple Syrup
+  Bob's Vanilla Bitters
+
+RECIPE_INGREDIENT_MAP TARGETS NOT IN ingredients.json
+  none

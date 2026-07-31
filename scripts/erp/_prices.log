@@ -1,0 +1,60 @@
+=== DRY RUN ===
+
+Effective from 2026-04-05 (DEFAULT_CONFIG.lastUpdated).
+NOTE: the file header says "Confirmed May 2026", which disagrees. Flagged, not resolved.
+
+Would write 31 wholesale and 31 RRP rows.
+
+In pricing-data.ts but no SKU in the database (4):
+   margarita-700 (Margarita 700ml)
+   rum-old-fashioned-700 (Rum Old Fashioned 700ml)
+   vesper-700 (Vesper 700ml)
+   martini-flight (Martini Flight set)
+
+(dry run, so the list below reflects pre-existing rows only)
+
+SKUs in the database with no price row (36):
+   baby-otis-250
+   baby-otis-500
+   cold-brew-negroni-250
+   corpse-reviver-250
+   dempsey-250
+   dempsey-500
+   desert-negroni-250
+   desert-negroni-500
+   espresso-martini-250
+   espresso-martini-500
+   gibson-martini-250
+   lychee-martini-250
+   manhattan-250
+   manhattan-500
+   margarita-250
+   naked-and-famous-250
+   negroni-250
+   negroni-500
+   pisco-martini-250
+   pisco-martini-500
+   red-hook-250
+   rum-old-fashioned-250
+   rum-old-fashioned-500
+   sakura-martini-250
+   trident-250
+   trident-500
+   tuxedo-250
+   vesper-250
+   vesper-500
+   espresso-martini-700-cripps
+   negroni-700-cripps
+   robin-roy-350-fm
+   espresso-daiquiri-350-fm
+   vesper-martini-350-fm
+   apples-and-pears-350-fm
+   christmas-gingertini-350-fm
+
+Pricing config into system_settings:
+   pricing_markup                   1.4
+   pricing_retailer_margin          1.3
+   pricing_vat                      1.2
+   pricing_list_effective_from      2026-04-05
+
+DRY RUN.

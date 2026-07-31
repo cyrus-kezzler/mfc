@@ -40,7 +40,17 @@ export const componentTypeEnum = pgEnum("component_type", [
 
 export const uomEnum = pgEnum("uom", ["ml", "g", "each", "m"]);
 
-export const priceSourceEnum = pgEnum("price_source", ["inbound", "manual"]);
+/**
+ * Where a price came from.
+ *
+ * "inbound" arrived through a goods-receipt record. "manual" was entered by a
+ * person, usually from a supplier invoice in hand. "placeholder" is neither: it
+ * is a number standing in until a real one exists, and it must never be
+ * mistaken for either of the other two. Added 30 Jul 2026 so a figure like the
+ * £4 per litre on house-brewed espresso, which is waiting on a yield
+ * experiment, is visibly a stand-in rather than quietly authoritative.
+ */
+export const priceSourceEnum = pgEnum("price_source", ["inbound", "manual", "placeholder"]);
 
 /**
  * What job a component does on a SKU's bill of materials.
@@ -209,6 +219,55 @@ export const componentRecipes = pgTable(
     uniqueIndex("component_recipes_parent_child_uq").on(t.parentComponentId, t.childComponentId),
     check("component_recipes_qty_positive", sql`${t.quantity} > 0`),
     check("component_recipes_no_self_ref", sql`${t.parentComponentId} <> ${t.childComponentId}`),
+  ],
+);
+
+/** What kind of price a sku_prices row records. */
+export const priceTypeEnum = pgEnum("sku_price_type", ["wholesale", "rrp"]);
+
+/**
+ * Agreed prices for a SKU, with the period they apply to. Added 30 Jul 2026.
+ *
+ * The important thing this encodes (Cyrus, 30 Jul 2026): wholesale prices are
+ * REISSUED ONCE A YEAR, after the government announces the annual duty rise.
+ * They are a commitment to a retailer for a period, not an output of a formula.
+ * So the price lives here as a fact with an effective date, and the formula
+ * price (COGS x markup + shipping) is computed live for comparison only and is
+ * never written anywhere.
+ *
+ * That comparison is the point. Between annual reviews, costs move and the
+ * agreed price does not, so the gap between the two IS the margin erosion, and
+ * it is what tells us what to ask for at the next review.
+ *
+ * Client scoping comes free: a SKU already carries client_id, so the Cripps
+ * 700ml and the own-brand 500ml are different rows by construction.
+ */
+export const skuPrices = pgTable(
+  "sku_prices",
+  {
+    id: serial("id").primaryKey(),
+    skuId: integer("sku_id")
+      .notNull()
+      .references(() => skus.id, { onDelete: "cascade" }),
+    priceType: priceTypeEnum("price_type").notNull(),
+    /** Wholesale is ex VAT. RRP is inc VAT, as printed to the customer. */
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    effectiveFrom: date("effective_from").notNull(),
+    /** Null means this is the price in force now. */
+    effectiveTo: date("effective_to"),
+    /** Per-bottle shipping assumed when this price was agreed. */
+    shipping: numeric("shipping", { precision: 12, scale: 4 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("sku_prices_sku_idx").on(t.skuId),
+    index("sku_prices_type_idx").on(t.priceType),
+    uniqueIndex("sku_prices_current_uq")
+      .on(t.skuId, t.priceType)
+      .where(sql`${t.effectiveTo} is null`),
+    check("sku_prices_amount_positive", sql`${t.amount} > 0`),
   ],
 );
 
@@ -428,6 +487,9 @@ export type NewSkuComponent = typeof skuComponents.$inferInsert;
 export type ComponentRecipe = typeof componentRecipes.$inferSelect;
 export type NewComponentRecipe = typeof componentRecipes.$inferInsert;
 
+export type SkuPrice = typeof skuPrices.$inferSelect;
+export type NewSkuPrice = typeof skuPrices.$inferInsert;
+
 // ─── Setting keys ───────────────────────────────────────────────────────────
 
 export const SETTING_KEYS = {
@@ -437,6 +499,14 @@ export const SETTING_KEYS = {
   LABOUR_RATE_GBP_PER_HOUR: "labour_rate_gbp_per_hour",
   /** Next bottle-serial suffix to issue. Global counter. Stored as integer string, e.g. "35001". */
   NEXT_SERIAL_NUMBER: "next_serial_number",
+  /** Wholesale markup on COGS, e.g. "1.40". Used for the rule price, never written to a price. */
+  PRICING_MARKUP: "pricing_markup",
+  /** Margin a retailer is assumed to add, e.g. "1.30". Used by the retailer test. */
+  PRICING_RETAILER_MARGIN: "pricing_retailer_margin",
+  /** VAT multiplier, e.g. "1.20". */
+  PRICING_VAT: "pricing_vat",
+  /** Date the current wholesale price list took effect. Reissued annually after the duty rise. */
+  PRICING_LIST_EFFECTIVE_FROM: "pricing_list_effective_from",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

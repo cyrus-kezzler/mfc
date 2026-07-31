@@ -1,0 +1,23 @@
+
+> back-bar@0.1.0 db:generate
+> drizzle-kit generate
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/Users/gilbertrolfe/code/myattsfields/back-bar/drizzle.config.ts'
+◇ injected env (8) from .env.local // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+12 tables
+clients 7 columns 0 indexes 0 fks
+component_price_history 11 columns 2 indexes 2 fks
+component_recipes 8 columns 3 indexes 2 fks
+components 22 columns 3 indexes 1 fks
+drinks 7 columns 0 indexes 0 fks
+recipe_lines 5 columns 1 indexes 2 fks
+recipes 9 columns 3 indexes 2 fks
+sku_components 9 columns 3 indexes 2 fks
+sku_prices 10 columns 3 indexes 1 fks
+skus 9 columns 2 indexes 2 fks
+suppliers 11 columns 0 indexes 0 fks
+system_settings 3 columns 0 indexes 0 fks
+
+[✓] Your SQL migration file ➜ drizzle/0008_silly_blazing_skull.sql 🚀

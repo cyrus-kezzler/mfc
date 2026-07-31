@@ -32,7 +32,7 @@ import {
   SETTING_KEYS,
 } from "@/db/schema";
 
-export type CostSource = "inbound" | "manual" | "unsourced";
+export type CostSource = "inbound" | "manual" | "placeholder" | "unsourced";
 
 export interface CostLine {
   /** 'liquid' for recipe ingredients, otherwise the bill-of-materials role. */
@@ -73,6 +73,12 @@ export interface SkuCost {
   invoiceBackedPct: number;
   /** Lines whose cost is hand-typed or missing. Named, never silently absorbed. */
   unsourced: string[];
+  /**
+   * Lines standing on a placeholder. Separated from `unsourced` because a
+   * placeholder is a known stand-in with someone actively working on it, not
+   * an oversight, and the two deserve different attention.
+   */
+  placeholders: string[];
   /** Structural problems, e.g. no current recipe for this client. */
   problems: string[];
 }
@@ -254,8 +260,11 @@ export async function computeSkuCost(skuId: number): Promise<SkuCost> {
     .filter((l) => l.source === "inbound")
     .reduce((s, l) => s + l.cost, 0);
   const unsourced = inCogs
-    .filter((l) => l.source !== "inbound")
+    .filter((l) => l.source !== "inbound" && l.source !== "placeholder")
     .map((l) => `${l.name} (${l.source}, £${round(l.cost, 2).toFixed(2)})`);
+  const placeholders = inCogs
+    .filter((l) => l.source === "placeholder")
+    .map((l) => `${l.name} (£${round(l.cost, 2).toFixed(2)})`);
 
   const pct = await wastagePct();
   const wastage = subtotal * pct;
@@ -277,6 +286,7 @@ export async function computeSkuCost(skuId: number): Promise<SkuCost> {
     total: round(subtotal + wastage),
     invoiceBackedPct: subtotal > 0 ? round((invoiceBacked / subtotal) * 100, 1) : 0,
     unsourced,
+    placeholders,
     problems,
   };
 }
