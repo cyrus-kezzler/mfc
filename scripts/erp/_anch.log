@@ -1,0 +1,21 @@
+
+Anchor options for sakura-martini [mfc]:
+    41 Ginjo Sake                            61%   pack 300 ml
+     1 Gin (in-house)                        24%   pack 1000 ml
+    61 Water                                  9%   pack 1000 ml
+    40 Luxardo Maraschino                     6%   pack 700 ml
+
+=== Sakura Martini [Myatt's Fields], anchored on 1 x Ginjo Sake ===
+300 of Ginjo Sake at 61% makes 0.492 litres
+
+   ingredient                           share       need   open     left     cost
+   ------------------------------------------------------------------------------
+   Ginjo Sake  <-- anchor                 61%     300 ml      1        0    £9.98
+   Gin (in-house)                         24%     118 ml      1      882    £2.66
+   Luxardo Maraschino                      6%    29.5 ml      1    670.5    £1.14
+   Water                                   9%    44.3 ml      1    955.7    £0.00
+
+   Batch cost £13.78, £28.02 per litre
+
+   Yields:
+      1 x 250ml (sakura-martini-250), 241.8ml over

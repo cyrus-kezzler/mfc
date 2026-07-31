@@ -7,6 +7,7 @@ import {
   listClientsWithRecipes,
   listDrinksForClient,
 } from "@/lib/drinks-db";
+import { listAnchorOptions, planBatchFromAnchor, type AnchorPlan } from "@/lib/erp/batch";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,16 @@ function parseLitres(raw: string | undefined): number {
 export default async function CalculatorPage({
   searchParams,
 }: {
-  searchParams: Promise<{ client?: string; drink?: string; litres?: string }>;
+  searchParams: Promise<{
+    client?: string;
+    drink?: string;
+    litres?: string;
+    anchor?: string;
+    bottles?: string;
+  }>;
 }) {
-  const { client, drink, litres: litresRaw } = await searchParams;
+  const { client, drink, litres: litresRaw, anchor: anchorRaw, bottles: bottlesRaw } =
+    await searchParams;
   const litres = parseLitres(litresRaw);
 
   const ready = dbConfigured();
@@ -38,6 +46,18 @@ export default async function CalculatorPage({
   const activeDrink = drink && drinks.find((d) => d.slug === drink) ? drink : undefined;
 
   const recipe = activeClient && activeDrink ? await getCalcRecipe(activeClient, activeDrink) : null;
+
+  // Anchored batching: size the batch around one bottle of one ingredient
+  // rather than around a target volume. The constraint on a short run is
+  // usually a single awkward bottle, not a number of litres.
+  const anchorOptions =
+    activeClient && activeDrink ? await listAnchorOptions(activeClient, activeDrink) : [];
+  const anchorId = Number(anchorRaw);
+  const bottles = Math.max(1, Math.min(50, Number(bottlesRaw) || 1));
+  const anchorPlan =
+    activeClient && activeDrink && Number.isFinite(anchorId) && anchorId > 0
+      ? await planBatchFromAnchor(activeClient, activeDrink, anchorId, bottles)
+      : null;
 
   return (
     <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
@@ -155,11 +175,80 @@ export default async function CalculatorPage({
                     Calculate
                   </button>
                 </form>
+
+                {/* Or anchor the batch on one bottle of one ingredient. For a
+                    short run the binding constraint is usually a single bottle
+                    of something awkward, not a round number of litres. */}
+                {anchorOptions.length > 0 && (
+                  <form
+                    method="get"
+                    action="/calculator"
+                    style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 18, flexWrap: "wrap" }}
+                  >
+                    <input type="hidden" name="client" value={activeClient} />
+                    <input type="hidden" name="drink" value={activeDrink} />
+                    <span style={{ fontSize: 13, color: COLOR.muted }}>or build the batch around</span>
+                    <input
+                      type="number"
+                      name="bottles"
+                      min="1"
+                      max="50"
+                      step="1"
+                      defaultValue={bottles}
+                      aria-label="Number of containers"
+                      style={{
+                        width: 64,
+                        padding: "12px 10px",
+                        fontSize: 15,
+                        fontFamily: FONT.mono,
+                        background: "transparent",
+                        color: COLOR.ink,
+                        border: `1px solid ${COLOR.rule}`,
+                        outline: "none",
+                        minHeight: 48,
+                        ...tabularNums,
+                      }}
+                    />
+                    <select
+                      name="anchor"
+                      defaultValue={anchorPlan ? String(anchorId) : ""}
+                      aria-label="Anchor ingredient"
+                      style={{
+                        padding: "12px 14px",
+                        fontSize: 14,
+                        background: "transparent",
+                        color: COLOR.ink,
+                        border: `1px solid ${COLOR.rule}`,
+                        outline: "none",
+                        minHeight: 48,
+                        maxWidth: 300,
+                      }}
+                    >
+                      <option value="">choose an ingredient</option>
+                      {anchorOptions.map((o) => (
+                        <option key={o.componentId} value={o.componentId} disabled={!o.packSize}>
+                          {o.name}
+                          {o.packSize ? ` (${o.packSize} ${o.uom})` : " (no pack size)"}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="submit"
+                      style={{ padding: "12px 22px", fontSize: 11, background: "transparent", color: COLOR.ink, border: `1px solid ${COLOR.rule}`, cursor: "pointer", minHeight: 48, ...smallCaps }}
+                    >
+                      Build around it
+                    </button>
+                  </form>
+                )}
               </section>
             )}
 
             {/* Step 4 — Output */}
-            {recipe && <Output recipe={recipe} litres={litres} />}
+            {anchorPlan ? (
+              <AnchorOutput plan={anchorPlan} />
+            ) : (
+              recipe && <Output recipe={recipe} litres={litres} />
+            )}
           </div>
         )}
       </main>
@@ -262,6 +351,138 @@ function Output({
           <p style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 10, fontStyle: "italic" }}>
             Ingredient cost only — packaging, labels, and labour are not included here.
           </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The batch sheet when it has been built around one bottle rather than a target
+ * volume. Adds the two things you need at the bench and nowhere else: how many
+ * containers of each other ingredient to open, and how many finished bottles
+ * this actually yields, including the awkward remainder.
+ */
+function AnchorOutput({ plan }: { plan: AnchorPlan }) {
+  const anchorLine = plan.lines.find((l) => l.isAnchor);
+
+  return (
+    <section>
+      <StepHeader step={4} label="Batch sheet" />
+      <p style={{ fontSize: 13, color: COLOR.muted, margin: "12px 0 4px" }}>
+        {plan.drinkName} · built around {plan.anchorBottles}{" "}
+        {plan.anchorBottles === 1 ? "container" : "containers"} of {plan.anchorName}
+      </p>
+      <p style={{ fontFamily: FONT.serif, fontSize: 17, color: COLOR.ink, margin: "0 0 20px" }}>
+        {plan.anchorQuantity.toLocaleString()} {anchorLine?.uom ?? "ml"} of {plan.anchorName} at{" "}
+        {anchorLine?.percentage}% makes{" "}
+        <strong>
+          {plan.batchLitres} litres ({plan.batchMl.toLocaleString()} ml)
+        </strong>
+      </p>
+
+      {plan.method && (
+        <div
+          style={{
+            border: `1px solid ${COLOR.rule}`,
+            borderLeft: `3px solid ${COLOR.accent}`,
+            background: COLOR.paperDeep,
+            padding: "14px 16px",
+            margin: "0 0 24px",
+          }}
+        >
+          <h3 style={{ fontSize: 10, color: COLOR.muted, marginBottom: 6, ...smallCaps }}>Method</h3>
+          <p style={{ fontFamily: FONT.serif, fontSize: 15, lineHeight: 1.55, color: COLOR.ink, whiteSpace: "pre-wrap", margin: 0 }}>
+            {plan.method}
+          </p>
+        </div>
+      )}
+
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, ...tabularNums }}>
+        <thead>
+          <tr style={{ borderTop: `2px solid ${COLOR.ink}`, borderBottom: `1px solid ${COLOR.ruleBold}` }}>
+            <Th>Ingredient</Th>
+            <Th align="right">%</Th>
+            <Th align="right">Need</Th>
+            <Th align="right">Open</Th>
+            <Th align="right">Left in last</Th>
+            <Th align="right">Line cost</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {plan.lines.map((l) => (
+            <tr
+              key={l.componentId}
+              style={{
+                borderBottom: `1px solid ${COLOR.rule}`,
+                background: l.isAnchor ? COLOR.paperDeep : undefined,
+              }}
+            >
+              <Td>
+                <span style={{ fontFamily: FONT.serif, fontSize: 16 }}>{l.name}</span>
+                {l.isAnchor && (
+                  <span style={{ marginLeft: 8, fontSize: 10, color: COLOR.accent, ...smallCaps }}>anchor</span>
+                )}
+              </Td>
+              <Td align="right" muted>{l.percentage.toFixed(1)}%</Td>
+              <Td align="right">{l.quantity.toLocaleString()} {l.uom}</Td>
+              <Td align="right" muted>{l.bottlesToOpen ?? "—"}</Td>
+              <Td align="right" muted>{l.leftover === null ? "—" : `${l.leftover.toLocaleString()} ${l.uom}`}</Td>
+              <Td align="right">£{l.cost.toFixed(2)}</Td>
+            </tr>
+          ))}
+          <tr style={{ borderTop: `2px solid ${COLOR.ink}` }}>
+            <Td><span style={{ ...smallCaps, fontSize: 11, color: COLOR.muted }}>Ingredient cost</span></Td>
+            <Td align="right" />
+            <Td align="right" muted>{plan.batchMl.toLocaleString()} ml</Td>
+            <Td align="right" />
+            <Td align="right" muted>£{plan.costPerLitre.toFixed(2)}/L</Td>
+            <Td align="right"><strong>£{plan.totalCost.toFixed(2)}</strong></Td>
+          </tr>
+        </tbody>
+      </table>
+
+      {plan.yields.length > 0 && (
+        <div style={{ marginTop: 28 }}>
+          <h3 style={{ fontSize: 11, color: COLOR.muted, marginBottom: 10, ...smallCaps }}>
+            This batch fills
+          </h3>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {plan.yields.map((y) => (
+              <div key={y.code} style={{ border: `1px solid ${COLOR.rule}`, padding: "12px 16px", minWidth: 130 }}>
+                <div style={{ fontFamily: FONT.mono, fontSize: 20, ...tabularNums }}>{y.wholeBottles}</div>
+                <div style={{ fontSize: 11, color: COLOR.muted, marginTop: 2 }}>
+                  × {y.sizeMl} ml
+                </div>
+                {y.remainderMl > 0 && (
+                  <div style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 4 }}>
+                    {y.remainderMl.toLocaleString()} ml over
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 10, fontStyle: "italic" }}>
+            Ingredient cost only. Packaging and labels are not included here.
+          </p>
+        </div>
+      )}
+
+      {plan.warnings.length > 0 && (
+        <div
+          style={{
+            marginTop: 24,
+            border: `1px solid ${COLOR.rule}`,
+            borderLeft: `3px solid ${COLOR.accent}`,
+            padding: "14px 16px",
+          }}
+        >
+          <h3 style={{ fontSize: 10, color: COLOR.muted, marginBottom: 8, ...smallCaps }}>Check</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6, color: COLOR.ink }}>
+            {plan.warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
         </div>
       )}
     </section>
