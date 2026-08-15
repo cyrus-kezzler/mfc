@@ -293,6 +293,17 @@ export const systemSettings = pgTable("system_settings", {
 
 export const drinkStatusEnum = pgEnum("drink_status", ["active", "archived"]);
 
+/**
+ * How a drink is served: straight from the freezer, over ice in the glass, or
+ * shaken. TYPED, not derived — Cyrus decides by tasting, and the value is a
+ * fact he asserts, never a formula output. A water line in the recipe was
+ * tested as a rule on 15 Aug 2026 and rejected: the Cold Brew Negroni carries
+ * no water by any route and freezes well, while the Negroni also carries none
+ * and does not. The water percentage is still computed as a diagnostic (see
+ * src/lib/erp/canon.ts) but it does not decide the serve.
+ */
+export const serveMethodEnum = pgEnum("serve_method", ["freezer", "ice_in_glass", "shake"]);
+
 /** Clients a recipe can be scoped to. Exactly three seeded: mfc, fm, cripps. */
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
@@ -305,13 +316,98 @@ export const clients = pgTable("clients", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-/** A cocktail. Just slug + name + status for now (garnish/glassware come later). */
+/**
+ * A cocktail. Slug + name + status since slice 1; the canon columns below were
+ * added 15 Aug 2026 so that what we SAY about a drink — serve, garnish, story,
+ * copy — lives on the drink and not scattered across Shopify, the Choose Six
+ * API and people's heads. Everything canon is nullable: an empty field means
+ * "not yet decided", and the generators must treat it that way rather than
+ * inventing a value.
+ *
+ * Two of these columns are TYPED where a formula was tempting, and the reason
+ * is recorded on each. The derived counterparts (ABV, water percentage, the
+ * rest-weeks floor) are computed at read time in src/lib/erp/canon.ts and are
+ * never stored, on the same principle as the rule price in sku_prices: a fact
+ * someone asserted and a number a formula produced must never share a column.
+ */
 export const drinks = pgTable("drinks", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   status: drinkStatusEnum("status").notNull().default("active"),
   notes: text("notes"),
+
+  // ── Serve ─────────────────────────────────────────────────────────────────
+
+  /**
+   * TYPED, not derived — see the note on serveMethodEnum. Cyrus decides by
+   * tasting; the water diagnostic in the canon lib informs the tasting, it
+   * does not make the call.
+   */
+  serveMethod: serveMethodEnum("serve_method"),
+  /** Why the serve is what it is, where it would surprise someone. */
+  serveNote: text("serve_note"),
+  glass: text("glass"),
+  garnish: text("garnish"),
+  /**
+   * Whether the garnish ships in the box. Kept apart from `garnish` because a
+   * customer reading "Sakura blossom" needs to know if they must go and buy
+   * one, and the answer can differ by format — hence the note alongside.
+   */
+  garnishSupplied: boolean("garnish_supplied"),
+  /** e.g. Sakura blossom ships with the 250ml, not the minis. */
+  garnishSuppliedNote: text("garnish_supplied_note"),
+
+  // ── Rest ──────────────────────────────────────────────────────────────────
+
+  /**
+   * TYPED, only Cyrus fills this. The derived floor (6 weeks when vermouth or
+   * sherry is present, see canon.ts) is computed, never stored: vermouth is a
+   * trigger, not a limit (Cyrus, 14 Aug 2026), and drinks without it are aged
+   * anyway. This column is the confirmed answer for one drink, from tasting.
+   */
+  restWeeksConfirmed: integer("rest_weeks_confirmed"),
+  /** When Cyrus confirmed it, so a stale confirmation is visible as stale. */
+  restConfirmedOn: timestamp("rest_confirmed_on", { withTimezone: true }),
+
+  /**
+   * Why a printed label legitimately differs from the computed figure. Exists
+   * so a label/database mismatch can be a recorded decision rather than a
+   * defect someone "fixes" by overwriting the computed truth.
+   */
+  labelVarianceNote: text("label_variance_note"),
+
+  // ── Story ─────────────────────────────────────────────────────────────────
+
+  originPlace: text("origin_place"),
+  /** TEXT, not integer: real values are "1890s", "circa 1938". */
+  originYear: text("origin_year"),
+  originPerson: text("origin_person"),
+  /** The one true thing about this drink that only we can say. */
+  ownableTruth: text("ownable_truth"),
+  /** Claims we must never make — the guard rail for every generator and draft. */
+  neverSay: text("never_say"),
+
+  // ── Copy ──────────────────────────────────────────────────────────────────
+
+  lede: text("lede"),
+  description: text("description"),
+  detailedDescription: text("detailed_description"),
+
+  // ── Joins outward ─────────────────────────────────────────────────────────
+
+  /**
+   * The join to Shopify. Generation resolves by handle, never by a remembered
+   * numeric id, because ids drift when products are recreated and a wrong id
+   * fails silently onto the wrong product.
+   */
+  shopifyHandle: text("shopify_handle"),
+  /**
+   * The Choose Six configurator's handle. Kept separate because it genuinely
+   * differs from our slug: Baby Otis is baby-otis-cuban-rum-manhattan there.
+   */
+  chooseSixHandle: text("choose_six_handle"),
+
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
