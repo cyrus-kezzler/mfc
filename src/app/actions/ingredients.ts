@@ -63,9 +63,25 @@ export async function updateIngredientPrice(
 
     const packSize = Number(existing.packSize ?? 0);
     const pricedByPack = Number.isFinite(packSize) && packSize > 1;
+    /**
+     * A pack size of exactly 1 means pack cost and unit cost are the SAME
+     * FACT, so both have to move together.
+     *
+     * They did not, until 19 Aug 2026. `pricedByPack` was the only thing
+     * gating the packCost write, and it is false at packSize 1, so every
+     * each-priced dry good written through this action or the MCP kept its
+     * original packCost for ever while unitCost moved underneath it. Found
+     * when the 500ml bottle went to £1.0616 and sat next to a packCost of
+     * £0.54, the retired China price, on the same row. That is the
+     * one-place-per-fact rule broken by the function whose job is to
+     * maintain it.
+     *
+     * A null pack size is different and is left alone: there is no pack, so
+     * there is no pack cost to keep true.
+     */
+    const hasUnitPack = Number.isFinite(packSize) && packSize === 1;
 
     const rounded = Math.round(newPrice * 10000) / 10000;
-    const newPackCost = pricedByPack ? rounded : null;
     const newUnitCost = pricedByPack ? rounded / packSize : rounded;
     const unitCostStr = newUnitCost.toFixed(4);
     const now = new Date();
@@ -74,7 +90,7 @@ export async function updateIngredientPrice(
     await db
       .update(components)
       .set({
-        ...(pricedByPack ? { packCost: rounded.toFixed(2) } : {}),
+        ...(pricedByPack || hasUnitPack ? { packCost: rounded.toFixed(2) } : {}),
         unitCost: unitCostStr,
         unitCostSetAt: now,
         updatedAt: now,
@@ -114,8 +130,14 @@ export async function updateIngredientPrice(
       ingredient: {
         id: existing.id,
         name: existing.name,
-        packSize: pricedByPack ? packSize : null,
-        packCost: newPackCost,
+        // Report what the row now actually holds. Until 19 Aug 2026 these two
+        // reported null for any component not priced by pack, so a packSize-1
+        // dry good came back as `packSize: null, packCost: null` while the
+        // database held 1 and a real cost. A write confirmation that misstates
+        // the row it just wrote is worse than a terse one, because it is the
+        // thing a caller checks the write against.
+        packSize: existing.packSize === null ? null : packSize,
+        packCost: pricedByPack || hasUnitPack ? rounded : null,
         unitCost: newUnitCost,
         unitCostSetAt: today,
       },

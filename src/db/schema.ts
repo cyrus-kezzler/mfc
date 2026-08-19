@@ -536,6 +536,29 @@ export const skuComponents = pgTable(
     quantity: numeric("quantity", { precision: 12, scale: 4 }).notNull().default("1"),
     role: skuComponentRoleEnum("role").notNull(),
     includeInCogs: boolean("include_in_cogs").notNull().default(true),
+    /**
+     * The customer supplies this component, so we never pay for it. Added
+     * 19 Aug 2026, named as a needed column by the 12 Aug order model.
+     *
+     * This is NOT the same thing as include_in_cogs being false, and
+     * conflating the two is why it needed its own column. A false
+     * include_in_cogs says "we pay for this and it belongs in the Channel
+     * P&L rather than COGS", which is true of a mailer. This says "we do not
+     * pay for this at all", which is true of Fortnum's glass, corks and
+     * labels on the distillery editions (Cyrus, confirmed 12 Aug 2026, per
+     * Stina Lundberg's line of 10 Jul).
+     *
+     * The row survives rather than being deleted, deliberately, so a later
+     * reader can tell a component we do not pay for from one nobody
+     * remembered to add. That distinction is exactly what the 12 Aug audit
+     * of PU215780 could not make, and the Angostura it found missing from
+     * the Apples & Pears bill of materials is the case it could not tell
+     * apart.
+     *
+     * Consequence worth holding: EPR follows the component. If Fortnum's
+     * supply the glass, the EPR liability is theirs under the 22 Jul split.
+     */
+    suppliedByCustomer: boolean("supplied_by_customer").notNull().default(false),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

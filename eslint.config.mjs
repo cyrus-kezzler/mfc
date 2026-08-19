@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Stale agent worktrees carry their own .next build output, which is not
+    // under ".next/**" from the repo root and floods lint with ~40k problems.
+    ".claude/**",
   ]),
 ]);
 

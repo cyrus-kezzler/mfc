@@ -48,7 +48,10 @@ async function one(code: string) {
   console.log(`  ${pad("", 14)}${pad("PACKAGING SUBTOTAL", 40)}${pad("", 11)}${pad("", 10)}${money(c.packagingTotal, 4)}`);
 
   if (c.excluded.length > 0) {
-    console.log("\n  Excluded from COGS (carriage):");
+    // Two different reasons live in this bucket and they must not be blurred:
+    // secondary packaging we DO pay for (mailers, carriage, Channel P&L), and
+    // components the customer supplies that we never buy at all.
+    console.log("\n  Excluded from COGS (secondary packaging, or customer-supplied):");
     for (const l of c.excluded) console.log(`    ${pad(l.name, 40)}${money(l.cost, 4)}`);
   }
 

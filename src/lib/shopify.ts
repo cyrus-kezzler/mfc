@@ -108,8 +108,8 @@ async function fetchOrdersForYear(year: number): Promise<ShopifyOrder[]> {
   const allOrders: ShopifyOrder[] = []
   const since = `${year}-01-01T00:00:00Z`
   const before = `${year}-12-31T23:59:59Z`
-  let pageInfo: string | null = null
-  let url = `orders.json?status=any&created_at_min=${since}&created_at_max=${before}&limit=250&fields=id,name,created_at,email,total_price,financial_status,fulfillment_status,line_items`
+  const pageInfo: string | null = null
+  const url = `orders.json?status=any&created_at_min=${since}&created_at_max=${before}&limit=250&fields=id,name,created_at,email,total_price,financial_status,fulfillment_status,line_items`
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

@@ -46,6 +46,12 @@ export interface CostLine {
   cost: number;
   source: CostSource;
   setAt: string | null;
+  /**
+   * True when the customer supplies this component and we never pay for it.
+   * Such a line is excluded from COGS but kept visible, so the absence is a
+   * recorded fact rather than a gap. Added 19 Aug 2026.
+   */
+  suppliedByCustomer?: boolean;
 }
 
 export interface SkuCost {
@@ -234,8 +240,12 @@ export async function computeSkuCost(skuId: number): Promise<SkuCost> {
       cost,
       source: "unsourced",
       setAt: c.unitCostSetAt ? c.unitCostSetAt.toISOString().slice(0, 10) : null,
+      suppliedByCustomer: b.suppliedByCustomer,
     };
-    if (b.includeInCogs) {
+    // A customer-supplied component never enters COGS, whatever its role says,
+    // because we do not buy it. It stays on the bill of materials as a visible
+    // zero so the absence reads as a decision rather than an omission.
+    if (b.includeInCogs && !b.suppliedByCustomer) {
       packagingTotal += cost;
       packaging.push(line);
     } else {
@@ -292,10 +302,37 @@ export async function computeSkuCost(skuId: number): Promise<SkuCost> {
 }
 
 /** Every active SKU, costed. */
+/**
+ * How many SKU rollups to run at once.
+ *
+ * Measured 19 Aug 2026: the fully sequential version took 7.2s for 103 SKUs,
+ * warm and cold alike, which rules out Neon scale-to-zero as the cause and
+ * confirms the N+1 named as diagnosis 3 in the 11 Aug release plan. Each
+ * computeSkuCost issues roughly seven round trips over Neon's HTTP driver, so
+ * the wall time is almost entirely latency and not work.
+ *
+ * 8 is deliberately modest. The driver is connectionless so there is no pool
+ * to exhaust, but Neon still rate-limits, and the point is to remove the
+ * eight-second wait rather than to win a benchmark.
+ */
+const ROLLUP_CONCURRENCY = 8;
+
 export async function computeAllSkuCosts(): Promise<SkuCost[]> {
   const rows = await db.select().from(skus).where(eq(skus.active, true));
-  const out: SkuCost[] = [];
-  for (const r of rows) out.push(await computeSkuCost(r.id));
+
+  // Bounded parallelism. Results are written back by index so the order is
+  // deterministic regardless of which rollup finishes first; the sort below
+  // then applies as it always did.
+  const out: SkuCost[] = new Array(rows.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(ROLLUP_CONCURRENCY, rows.length) }, async () => {
+      for (let i = next++; i < rows.length; i = next++) {
+        out[i] = await computeSkuCost(rows[i].id);
+      }
+    }),
+  );
+
   return out.sort(
     (a, b) =>
       (a.clientName ?? "").localeCompare(b.clientName ?? "") ||

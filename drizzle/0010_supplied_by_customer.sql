@@ -1,0 +1,1 @@
+ALTER TABLE "sku_components" ADD COLUMN "supplied_by_customer" boolean DEFAULT false NOT NULL;
