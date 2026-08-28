@@ -13,6 +13,7 @@ import { ingredientTools } from "./ingredients";
 import { revenueTools } from "./revenue";
 import { writeTools } from "./writes";
 import { salesTools } from "./sales";
+import { recipeTools } from "./recipes";
 
 export const TOOL_MODULES: ToolModule[] = [
   { domain: "pricing", tools: pricingTools },
@@ -20,4 +21,5 @@ export const TOOL_MODULES: ToolModule[] = [
   { domain: "revenue", tools: revenueTools },
   { domain: "writes", tools: writeTools },
   { domain: "sales", tools: salesTools },
+  { domain: "recipes", tools: recipeTools },
 ];

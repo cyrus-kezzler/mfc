@@ -3,8 +3,9 @@
  *
  * Backed by the database: COGS from the live recipe and bill of materials,
  * agreed prices from sku_prices, config from system_settings. This mirrors
- * exactly what the Finances pages show. Recipe internals are never exposed,
- * only the COGS total and its quality flags.
+ * exactly what the Finances pages show: COGS total and its quality flags,
+ * not the recipe lines behind it. For the recipe itself, see get_recipe in
+ * ./recipes.ts.
  *
  * Two prices, never conflated: `wholesale` and `rrp` are AGREED prices and are
  * null when nothing has been agreed; `rulePrice` is what the markup formula

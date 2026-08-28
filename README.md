@@ -33,7 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 The app exposes a Model Context Protocol server at `/api/mcp` so trusted AI
 agents can read and write Back Bar business data (pricing, ingredients,
-revenue). There are two ways to connect:
+recipes, revenue). There are two ways to connect:
 
 - **Bearer (programmatic).** Call `/api/mcp` directly with
   `Authorization: Bearer <MCP_TOKEN>` (full read+write) or

@@ -25,8 +25,8 @@ export const SERVER_INFO = {
 export const SERVER_INSTRUCTIONS =
   "Back Bar is the internal operations system for Myatt's Fields Cocktails. " +
   "Use the read tools to look up drinks/SKUs, wholesale and RRP pricing, the " +
-  "ingredient master, and revenue. Use the write tools to update prices — every " +
-  "write is committed to git and is fully auditable. Recipes are never exposed.";
+  "ingredient master, recipes, and revenue. Use the write tools to update " +
+  "prices: every write is committed to git and is fully auditable.";
 
 /** A JSON-RPC request or notification (notification = no `id`). */
 export interface JsonRpcMessage {

@@ -1,0 +1,10 @@
+import { neon } from "@neondatabase/serverless";
+import { readFileSync } from "node:fs";
+const env = readFileSync(new URL("../../.env.local", import.meta.url), "utf8");
+const url = (env.match(/^DATABASE_URL=(.*)$/m)?.[1] || "").trim().replace(/^["']|["']$/g, "");
+const sql = neon(url);
+console.log("mini bottle history:", JSON.stringify(await sql`select * from component_price_history where component_id=13 order by effective_date`, null, 1));
+console.log("watchstrap history:", JSON.stringify(await sql`select id,unit_cost,effective_date,source from component_price_history where component_id=77`));
+console.log("settings:", JSON.stringify(await sql`select * from system_settings`));
+console.log("clients:", JSON.stringify(await sql`select id,slug,name from clients`));
+console.log("cap components:", JSON.stringify(await sql`select id,name,unit_cost from components where name ilike '%cap%' or name ilike '%jerry%' or name ilike '%hygiene%'`));

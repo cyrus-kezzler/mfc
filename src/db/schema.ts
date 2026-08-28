@@ -571,6 +571,226 @@ export const skuComponents = pgTable(
   ],
 );
 
+// ─── Wholesale orders ───────────────────────────────────────────────────────
+// Design: Projects/Cocktails/Back Bar/2026-08-21 Wholesale orders in Back Bar,
+// the record, the states and the migration [Design].md. SPECIFIED there, not
+// yet built: this schema and migration 0011 exist on disk but the migration
+// has not been applied.
+//
+// Five tables. `customers` is the customer master that did not exist before
+// this: the wholesale accounts (Fortnum & Mason, Bayley & Sage, Cripps,
+// Macknade, Italo) previously lived only in QuickBooks. `wholesale_orders`
+// and `wholesale_order_lines` are the order and its keyed lines, read from a
+// supplier PDF by a person, never machine parsed. `wholesale_order_bookings`
+// is a child row per delivery slot, because a delivery gets booked, rebooked
+// and sometimes split. `purchase_commitments` answers "did we buy it" and
+// deliberately stops short of "do we have it": a row is written at the
+// moment of ordering and never becomes a receipt.
+
+export const wholesaleOrderStatusEnum = pgEnum("wholesale_order_status", [
+  "received",
+  "acknowledged",
+  "priced",
+  "committed",
+  "in_production",
+  "dispatched",
+  "invoiced",
+  "closed",
+]);
+
+export const purchaseCommitmentStatusEnum = pgEnum("purchase_commitment_status", [
+  "placed",
+  "arrived",
+  "cancelled",
+]);
+
+/**
+ * The customer master. Minimal on purpose: QuickBooks remains the financial
+ * master, this exists only to give a wholesale order somewhere to point.
+ *
+ * Deliberately not merged with `accounts`, the wholesale outreach tracker: a
+ * prospect and a customer are different objects with different lifecycles.
+ * Cross-reference them, never fuse them (design doc, 21 Aug 2026).
+ */
+export const customers = pgTable("customers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  quickbooksCustomerId: text("quickbooks_customer_id"),
+  /** Their code for us, e.g. MY010 at Fortnum's. */
+  accountCode: text("account_code"),
+  isActive: boolean("is_active").notNull().default(true),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const wholesaleOrders = pgTable(
+  "wholesale_orders",
+  {
+    id: serial("id").primaryKey(),
+    customerId: integer("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "restrict" }),
+    /** Their order number, e.g. PU215780, PO113429. */
+    orderNumber: text("order_number").notNull(),
+    /** The date on their document. */
+    raisedOn: date("raised_on"),
+    /** When it hit the mailbox. */
+    receivedAt: timestamp("received_at", { withTimezone: true }),
+    /** The Superhuman thread id, the permanent link back to the world. */
+    sourceThreadId: text("source_thread_id"),
+    /** The attachment filename. */
+    documentRef: text("document_ref"),
+    status: wholesaleOrderStatusEnum("status").notNull().default("received"),
+    requestedDeliveryFrom: date("requested_delivery_from"),
+    requestedDeliveryTo: date("requested_delivery_to"),
+    bookingDeadline: timestamp("booking_deadline", { withTimezone: true }),
+    deliveryAddress: text("delivery_address"),
+    bookingChannel: text("booking_channel"),
+    /**
+     * When the customer's own glass, corks and labels reach us, for an
+     * own-label edition. On PU215780 this has never been requested, has no
+     * date and is on nobody's list, while every downstream date depends on
+     * it (design doc, 21 Aug 2026).
+     */
+    customerSuppliedComponentsDue: date("customer_supplied_components_due"),
+    /**
+     * The shelf price the customer intends. Their number, not ours, and the
+     * only correct input to pricing an own-label edition.
+     */
+    customerRrp: numeric("customer_rrp", { precision: 12, scale: 2 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("wholesale_orders_status_idx").on(t.status),
+    uniqueIndex("wholesale_orders_customer_order_uq").on(t.customerId, t.orderNumber),
+  ],
+);
+
+export const wholesaleOrderLines = pgTable(
+  "wholesale_order_lines",
+  {
+    id: serial("id").primaryKey(),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => wholesaleOrders.id, { onDelete: "cascade" }),
+    lineNo: integer("line_no"),
+    /** Their code, e.g. 5246820. */
+    customerItemCode: text("customer_item_code"),
+    /**
+     * VERBATIM off their document. What makes the format check possible:
+     * "Gingertini Christmas Cocktail 17.6% 50cl" against a Back Bar SKU that
+     * said 350ml is how the 12 Aug session found the wrong bottle in twenty
+     * minutes. Paraphrase it and the check dies.
+     */
+    customerDescription: text("customer_description"),
+    /**
+     * Nullable, deliberately: an unmatched line is an honest state the
+     * schema should be able to hold. A schema that demands a match invites
+     * a guess (design doc, 21 Aug 2026).
+     */
+    skuId: integer("sku_id").references(() => skus.id, { onDelete: "set null" }),
+    qty: numeric("qty", { precision: 12, scale: 2 }).notNull(),
+    /** e.g. "Case 6". */
+    unitDescription: text("unit_description"),
+    unitsPerCase: integer("units_per_case"),
+    /**
+     * What their PO says, e.g. £0.00 on PU215780. A different fact from
+     * unitPriceQuoted, and merging them loses the disagreement, which is
+     * the point.
+     */
+    unitPriceStated: numeric("unit_price_stated", { precision: 12, scale: 4 }),
+    unitPriceQuoted: numeric("unit_price_quoted", { precision: 12, scale: 4 }),
+    quotedOn: date("quoted_on"),
+  },
+  (t) => [index("wholesale_order_lines_order_idx").on(t.orderId)],
+);
+
+/**
+ * A child row per delivery slot rather than columns on the order, because a
+ * delivery gets booked, rebooked and sometimes split.
+ *
+ * cases/pallets are stored rather than derived, a deliberate exception to
+ * the derive-everything rule: they are not a calculation, they are what we
+ * told a third party, and the number that matters when a delivery is turned
+ * away is the number on the booking, not the number the recipe implies.
+ */
+export const wholesaleOrderBookings = pgTable(
+  "wholesale_order_bookings",
+  {
+    id: serial("id").primaryKey(),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => wholesaleOrders.id, { onDelete: "cascade" }),
+    /** A timestamp, because 14:30 is part of the commitment. */
+    bookedFor: timestamp("booked_for", { withTimezone: true }),
+    /** e.g. FM127958. */
+    reference: text("reference"),
+    /** e.g. Pallet Track. */
+    haulier: text("haulier"),
+    cases: integer("cases"),
+    pallets: integer("pallets"),
+    bookedAt: timestamp("booked_at", { withTimezone: true }).notNull().defaultNow(),
+    bookedBy: text("booked_by"),
+    isCurrent: boolean("is_current").notNull().default(true),
+  },
+  (t) => [
+    index("wholesale_order_bookings_order_current_idx")
+      .on(t.orderId)
+      .where(sql`${t.isCurrent}`),
+  ],
+);
+
+/**
+ * Records that we placed an order: supplier, what, how much, when placed,
+ * when expected, and which wholesale order it serves. Answers "did we buy
+ * it" and deliberately refuses to answer "do we have it". A row is not a
+ * receipt and never becomes one; a short delivery is a note and a second
+ * commitment, not a schema feature (design doc, 21 Aug 2026).
+ *
+ * unitPrice here is a different fact from components.unitCost: that column
+ * holds what a thing costs for costing purposes, this holds what we
+ * actually agreed to pay on one occasion. Where they disagree, the
+ * component price is stale.
+ */
+export const purchaseCommitments = pgTable(
+  "purchase_commitments",
+  {
+    id: serial("id").primaryKey(),
+    supplierName: text("supplier_name").notNull(),
+    /** Nullable: you can commit to something the register does not carry yet. */
+    componentId: integer("component_id").references(() => components.id, {
+      onDelete: "set null",
+    }),
+    description: text("description"),
+    qty: numeric("qty", { precision: 12, scale: 3 }).notNull(),
+    /**
+     * Free text, not the existing `uom` enum: that enum covers ml/g/each/m
+     * and a purchase commitment needs units it does not carry, e.g. litres
+     * on the 118L Ginger Amalthea Gin order. Left as text per the design
+     * doc rather than widening the enum, which is a separate decision.
+     */
+    uom: text("uom"),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 4 }),
+    totalPrice: numeric("total_price", { precision: 12, scale: 2 }),
+    orderedOn: date("ordered_on").notNull(),
+    expectedOn: date("expected_on"),
+    /** Nullable: not every purchase serves a specific order. */
+    wholesaleOrderId: integer("wholesale_order_id").references(() => wholesaleOrders.id, {
+      onDelete: "set null",
+    }),
+    /** Their proforma or order number. */
+    reference: text("reference"),
+    status: purchaseCommitmentStatusEnum("status").notNull().default("placed"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("purchase_commitments_wholesale_order_idx").on(t.wholesaleOrderId),
+    index("purchase_commitments_status_idx").on(t.status),
+  ],
+);
+
 // ─── Inferred types ─────────────────────────────────────────────────────────
 
 export type Supplier = typeof suppliers.$inferSelect;
@@ -608,6 +828,21 @@ export type NewComponentRecipe = typeof componentRecipes.$inferInsert;
 
 export type SkuPrice = typeof skuPrices.$inferSelect;
 export type NewSkuPrice = typeof skuPrices.$inferInsert;
+
+export type Customer = typeof customers.$inferSelect;
+export type NewCustomer = typeof customers.$inferInsert;
+
+export type WholesaleOrder = typeof wholesaleOrders.$inferSelect;
+export type NewWholesaleOrder = typeof wholesaleOrders.$inferInsert;
+
+export type WholesaleOrderLine = typeof wholesaleOrderLines.$inferSelect;
+export type NewWholesaleOrderLine = typeof wholesaleOrderLines.$inferInsert;
+
+export type WholesaleOrderBooking = typeof wholesaleOrderBookings.$inferSelect;
+export type NewWholesaleOrderBooking = typeof wholesaleOrderBookings.$inferInsert;
+
+export type PurchaseCommitment = typeof purchaseCommitments.$inferSelect;
+export type NewPurchaseCommitment = typeof purchaseCommitments.$inferInsert;
 
 // ─── Setting keys ───────────────────────────────────────────────────────────
 

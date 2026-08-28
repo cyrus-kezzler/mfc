@@ -1,0 +1,1001 @@
+{
+  "component12": [
+    {
+      "id": 12,
+      "name": "500ml bottle",
+      "type": "dry_good",
+      "uom": "each",
+      "pack_size": "1.000",
+      "pack_cost": "0.54",
+      "unit_cost": "1.0616",
+      "unit_cost_set_at": "2026-08-19T10:22:34.320Z",
+      "notes": "LEGACY China-container price (tens of thousands per shipment); that supply is over and stock is exhausted. Interim UK/EU supplier being sourced; expected ~£2.00/bottle; replace this price the day the interim quote lands (Cyrus, 22 Jul 2026)."
+    }
+  ],
+  "priceHistory12": [
+    {
+      "effective_date": "2026-08-18T23:00:00.000Z",
+      "unit_cost": "1.0616",
+      "source": "manual",
+      "notes": "Croxsons 500ml Apollo cork mouth, landed. Replaces the legacy China-container pr"
+    }
+  ],
+  "skus500": [
+    {
+      "id": 2,
+      "code": "baby-otis-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 6,
+      "code": "dempsey-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 8,
+      "code": "desert-negroni-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 10,
+      "code": "espresso-martini-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 14,
+      "code": "manhattan-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 18,
+      "code": "negroni-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 20,
+      "code": "pisco-martini-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 23,
+      "code": "rum-old-fashioned-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 26,
+      "code": "trident-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 29,
+      "code": "vesper-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 128,
+      "code": "cold-brew-negroni-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 132,
+      "code": "corpse-reviver-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 145,
+      "code": "gibson-martini-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 149,
+      "code": "lychee-martini-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 156,
+      "code": "margarita-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 160,
+      "code": "naked-and-famous-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 170,
+      "code": "red-hook-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 177,
+      "code": "sakura-martini-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    },
+    {
+      "id": 184,
+      "code": "tuxedo-500",
+      "size_ml": 500,
+      "active": true,
+      "client": "Myatt's Fields"
+    }
+  ],
+  "bom500": [
+    {
+      "sku_id": 2,
+      "code": "baby-otis-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 2,
+      "code": "baby-otis-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 2,
+      "code": "baby-otis-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 6,
+      "code": "dempsey-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 6,
+      "code": "dempsey-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 6,
+      "code": "dempsey-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 8,
+      "code": "desert-negroni-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 8,
+      "code": "desert-negroni-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 8,
+      "code": "desert-negroni-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 10,
+      "code": "espresso-martini-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 10,
+      "code": "espresso-martini-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 10,
+      "code": "espresso-martini-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 14,
+      "code": "manhattan-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 14,
+      "code": "manhattan-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 14,
+      "code": "manhattan-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 18,
+      "code": "negroni-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 18,
+      "code": "negroni-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 18,
+      "code": "negroni-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 20,
+      "code": "pisco-martini-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 20,
+      "code": "pisco-martini-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 20,
+      "code": "pisco-martini-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 23,
+      "code": "rum-old-fashioned-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 23,
+      "code": "rum-old-fashioned-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 23,
+      "code": "rum-old-fashioned-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 26,
+      "code": "trident-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 26,
+      "code": "trident-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 26,
+      "code": "trident-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 29,
+      "code": "vesper-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 29,
+      "code": "vesper-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 29,
+      "code": "vesper-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 128,
+      "code": "cold-brew-negroni-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 128,
+      "code": "cold-brew-negroni-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 128,
+      "code": "cold-brew-negroni-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 132,
+      "code": "corpse-reviver-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 132,
+      "code": "corpse-reviver-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 132,
+      "code": "corpse-reviver-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 145,
+      "code": "gibson-martini-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 145,
+      "code": "gibson-martini-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 145,
+      "code": "gibson-martini-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 149,
+      "code": "lychee-martini-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 149,
+      "code": "lychee-martini-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 149,
+      "code": "lychee-martini-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 156,
+      "code": "margarita-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 156,
+      "code": "margarita-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 156,
+      "code": "margarita-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 160,
+      "code": "naked-and-famous-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 160,
+      "code": "naked-and-famous-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 160,
+      "code": "naked-and-famous-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 170,
+      "code": "red-hook-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 170,
+      "code": "red-hook-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 170,
+      "code": "red-hook-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 177,
+      "code": "sakura-martini-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 177,
+      "code": "sakura-martini-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 177,
+      "code": "sakura-martini-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 184,
+      "code": "tuxedo-500",
+      "component_id": 12,
+      "component": "500ml bottle",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 184,
+      "code": "tuxedo-500",
+      "component_id": 81,
+      "component": "Front label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "sku_id": 184,
+      "code": "tuxedo-500",
+      "component_id": 84,
+      "component": "Hygiene label - Myatt's Fields",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    }
+  ],
+  "roleCoverage500": [
+    {
+      "code": "baby-otis-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "cold-brew-negroni-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "corpse-reviver-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "dempsey-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "desert-negroni-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "espresso-martini-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "gibson-martini-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "lychee-martini-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "manhattan-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "margarita-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "naked-and-famous-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "negroni-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "pisco-martini-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "red-hook-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "rum-old-fashioned-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "sakura-martini-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "trident-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "tuxedo-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    },
+    {
+      "code": "vesper-500",
+      "bottle": "1",
+      "closure": "0",
+      "epr": "0",
+      "front_label": "1",
+      "hygiene_label": "1"
+    }
+  ],
+  "fmSeasonals": [
+    {
+      "id": 122,
+      "code": "apples-and-pears-350-fm",
+      "size_ml": 350,
+      "gtin": null,
+      "active": true,
+      "client": "Fortnum & Mason"
+    },
+    {
+      "id": 123,
+      "code": "christmas-gingertini-350-fm",
+      "size_ml": 350,
+      "gtin": null,
+      "active": true,
+      "client": "Fortnum & Mason"
+    }
+  ],
+  "fmSeasonalBom": [
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 15,
+      "component": "F&M 350ml bottle (Apollo VB003)",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 76,
+      "component": "Cork 19mm wood-top",
+      "quantity": "1.0000",
+      "role": "closure",
+      "include_in_cogs": true
+    },
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 82,
+      "component": "Front label - Fortnum & Mason",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 85,
+      "component": "Hygiene label - Fortnum & Mason",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 80,
+      "component": "EPR - F&M 350ml (bottle+cork)",
+      "quantity": "1.0000",
+      "role": "epr",
+      "include_in_cogs": true
+    },
+    {
+      "code": "apples-and-pears-350-fm",
+      "component_id": 19,
+      "component": "F&M 12-box outer carton",
+      "quantity": "0.0833",
+      "role": "outer_carton",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 15,
+      "component": "F&M 350ml bottle (Apollo VB003)",
+      "quantity": "1.0000",
+      "role": "bottle",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 76,
+      "component": "Cork 19mm wood-top",
+      "quantity": "1.0000",
+      "role": "closure",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 82,
+      "component": "Front label - Fortnum & Mason",
+      "quantity": "1.0000",
+      "role": "front_label",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 85,
+      "component": "Hygiene label - Fortnum & Mason",
+      "quantity": "1.0000",
+      "role": "hygiene_label",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 80,
+      "component": "EPR - F&M 350ml (bottle+cork)",
+      "quantity": "1.0000",
+      "role": "epr",
+      "include_in_cogs": true
+    },
+    {
+      "code": "christmas-gingertini-350-fm",
+      "component_id": 19,
+      "component": "F&M 12-box outer carton",
+      "quantity": "0.0833",
+      "role": "outer_carton",
+      "include_in_cogs": true
+    }
+  ],
+  "corkEprCandidates": [
+    {
+      "id": 75,
+      "name": "Cork 30x12mm micro-agglomerated",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.1850",
+      "notes": "G&C Packaging invoice 26GC/A-0350, 02/07/2026. Fits the 700ml Blackwell bottle."
+    },
+    {
+      "id": 76,
+      "name": "Cork 19mm wood-top",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.1650",
+      "notes": "G&C Packaging invoice 26GC/A-0280, 21/05/2026. Fits the F&M 350ml bottle."
+    },
+    {
+      "id": 79,
+      "name": "EPR - 700ml Blackwell (glass+wood+cork)",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.1113",
+      "notes": "G&C 26GC/A-0350: glass £0.10115 + wood £0.00751 + cork £0.00259 per bottle. EPR is not yet passed through to Cripps/F&M and the legislation is not yet understood - open project. F&M split: bottles F&M procure themselves carry their EPR; the 350ml own-brand we procure carries ours (Cyrus, 22 Jul 2026)."
+    },
+    {
+      "id": 80,
+      "name": "EPR - F&M 350ml (bottle+cork)",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.0823",
+      "notes": "Pattesons 226031: bottle £0.08122 + cork £0.00103 per unit. Same ruling as the 700ml Blackwell EPR line: EPR is its own cost line, aspire to pass it through; not yet passed through to Cripps/F&M; F&M split per Cyrus, 22 Jul 2026."
+    },
+    {
+      "id": 99,
+      "name": "Tapered cork 25-35 x 27 (World of Bottles 100002310)",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.2600",
+      "notes": "World of Bottles basket, 30 units, quoted 14 Aug 2026, GBP 0.2583 ex VAT on the VAT-inclusive reading. Press cork, cork granules. Open question with Clemency on whether a press cork holds a 3L under its own head of liquid, and on granule taint if the bottle sits."
+    },
+    {
+      "id": 101,
+      "name": "EPR - 3L Big Joe (glass+cork)",
+      "type": "dry_good",
+      "uom": "each",
+      "unit_cost": "0.2900",
+      "notes": "PLACEHOLDER, 14 Aug 2026. Inferred, not sourced. Component 79 carries GBP 0.10115 glass EPR on the 700ml Blackwell but Canon holds no Blackwell bottle weight, so there is no verified rate to scale from. 0.29 is arithmetic on the World of Bottles shipment weight (46.38 kg for 30 bottles plus 30 corks, so roughly 1.5 kg gross a bottle against a 700ml spirits bottle at roughly half a kilo). Needs the actual Big Joe bottle weight to settle."
+    }
+  ],
+  "counts": [
+    {
+      "components": "103",
+      "skus": "103",
+      "bom_lines": "349",
+      "price_rows": "128"
+    }
+  ]
+}

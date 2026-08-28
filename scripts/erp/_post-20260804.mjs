@@ -1,0 +1,12 @@
+import { neon } from "@neondatabase/serverless";
+import { readFileSync, writeFileSync } from "node:fs";
+const env = readFileSync(new URL("../../.env.local", import.meta.url), "utf8");
+const url = (env.match(/^DATABASE_URL=(.*)$/m)?.[1] || "").trim().replace(/^["']|["']$/g, "");
+const sql = neon(url);
+const dump = {};
+for (const t of ["components","skus","sku_components","sku_prices"]) dump[t] = await sql.query(`select * from ${t} order by id`);
+writeFileSync("/sessions/magical-intelligent-davinci/mnt/outputs/backbar-postflight-20260804.json", JSON.stringify(dump, null, 2));
+console.log("COUNTS", Object.fromEntries(Object.entries(dump).map(([k,v])=>[k,v.length])));
+const [mini] = await sql`select id,name,unit_cost,pack_cost from components where id=13`;
+console.log("mini:", JSON.stringify(mini));
+console.log("mini history rows:", (await sql`select count(*) c from component_price_history where component_id=13`)[0].c);
