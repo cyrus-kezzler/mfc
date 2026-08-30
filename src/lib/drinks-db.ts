@@ -12,6 +12,7 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { clients, components, drinks, recipeLines, recipes, skus } from "@/db/schema";
+import { abvComputed, declaredAbvFor, gateOne } from "@/lib/erp/canon";
 
 /** True when a Postgres connection string is configured. Lets pages degrade to
  * a setup state instead of throwing when the DB isn't wired yet. */
@@ -113,6 +114,28 @@ export async function listDrinks(): Promise<DrinkListRow[]> {
 
 export type RecipeLineView = { componentName: string; percentage: number };
 export type RecipeVersionView = { version: number; isCurrent: boolean; createdAt: Date; createdBy: string | null };
+/**
+ * The label figure beside the computed one, and the verdict between them.
+ *
+ * `declared: null` is a first-class state, not a missing value to be papered
+ * over: it means nobody has read the bottle. The page must render it as
+ * "not recorded" and the recipe as unverified — never as a blank, never as a
+ * zero, and never as agreement.
+ */
+export type AbvView = {
+  /** Summed from the current recipe. Always present. */
+  computed: number;
+  /** What the physical label says, or null when nobody has read it. */
+  declared: number | null;
+  /** |computed - declared| at label precision, or null when declared is null. */
+  gap: number | null;
+  status: "pass" | "fail" | "unverified";
+  declaredSource: string | null;
+  declaredNoted: string | null;
+  /** Components with no ABV recorded — these understate `computed`. */
+  nullAbvComponents: string[];
+};
+
 export type ClientRecipeView = {
   clientId: number;
   clientSlug: string;
@@ -123,6 +146,7 @@ export type ClientRecipeView = {
   method: string | null;
   lines: RecipeLineView[];
   history: RecipeVersionView[];
+  abv: AbvView;
 };
 export type DrinkDetail = {
   id: number;
@@ -194,6 +218,15 @@ export async function getDrinkDetail(slug: string): Promise<DrinkDetail | null> 
         method: null,
         lines: [],
         history: [],
+        abv: {
+          computed: 0,
+          declared: null,
+          gap: null,
+          status: "unverified",
+          declaredSource: null,
+          declaredNoted: null,
+          nullAbvComponents: [],
+        },
       };
       byClient.set(r.clientId, cv);
     }
@@ -204,6 +237,24 @@ export async function getDrinkDetail(slug: string): Promise<DrinkDetail | null> 
       cv.method = r.method;
       cv.lines = linesByRecipe.get(r.recipeId) ?? [];
     }
+  }
+
+  // Computed vs declared, per client. Read at request time and never stored,
+  // on the same principle as the rest of canon.ts: the moment a derived figure
+  // gets a column of its own it can drift from the recipe that produced it.
+  for (const cv of byClient.values()) {
+    const computed = await abvComputed(drink.id, cv.clientSlug);
+    const { value: declared } = await declaredAbvFor(drink.id, cv.clientId);
+    const verdict = gateOne(computed.abv, declared?.declared ?? null);
+    cv.abv = {
+      computed: verdict.computed,
+      declared: verdict.declared,
+      gap: verdict.gap,
+      status: verdict.status,
+      declaredSource: declared?.source ?? null,
+      declaredNoted: declared?.noted ?? null,
+      nullAbvComponents: computed.nullAbvComponents.map((c) => c.name),
+    };
   }
 
   return {

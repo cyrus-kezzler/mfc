@@ -502,6 +502,40 @@ export const skus = pgTable(
     sizeMl: integer("size_ml").notNull(),
     gtin: text("gtin"),
     active: boolean("active").notNull().default(true),
+
+    /**
+     * What the PHYSICAL LABEL says. Added 30 Aug 2026.
+     *
+     * This is not the computed ABV and must never be confused with it. Back
+     * Bar derives an ABV from the recipe (see abvComputed in lib/erp/canon);
+     * the bottle carries a printed figure that somebody chose and a printer
+     * set in ink. They are two different facts, and until this column existed
+     * the database had room for only one of them.
+     *
+     * That is not hypothetical. At 14:53:08 on 14 Aug 2026 seventeen of
+     * twenty `custom.abv` metafields on Shopify were overwritten in a single
+     * write with values computed from the recipe database, and because
+     * `custom.abv` was the only place the label figure lived, nine drinks
+     * lost their number outright. They were recoverable only by asking
+     * Cyrus. This column is the place that can never happen to again.
+     *
+     * NULL means NOBODY HAS READ THE BOTTLE. It does not mean "agrees with
+     * computed", and it must NEVER be filled by copying the computed value —
+     * that single act is the mistake the column exists to prevent. Gate 1
+     * cannot run against a NULL, so such a recipe saves but is flagged
+     * unverified rather than passing silently.
+     */
+    declaredAbv: numeric("declared_abv", { precision: 4, scale: 1 }),
+    /**
+     * Where the figure came from, so a reading off a bottle and a figure
+     * taken from a printer's artwork stay distinguishable later. Free text on
+     * purpose: the provenance of a recovered number is a sentence, not an
+     * enum, and flattening it to a code is how provenance gets lost.
+     */
+    declaredAbvSource: text("declared_abv_source"),
+    /** When it was read or recorded, so a stale reading is visible as stale. */
+    declaredAbvNoted: date("declared_abv_noted"),
+
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

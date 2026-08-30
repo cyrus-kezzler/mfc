@@ -28,7 +28,7 @@
  *   rest_weeks_confirmed on the drink, typed by Cyrus after tasting.
  */
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -37,6 +37,7 @@ import {
   componentRecipes,
   recipes,
   recipeLines,
+  skus,
 } from "@/db/schema";
 
 /**
@@ -169,22 +170,46 @@ export async function abvComputed(drinkId: number, clientSlug?: string): Promise
   if ("problem" in resolved) {
     return { abv: 0, nullAbvComponents: [], problems: [resolved.problem] };
   }
+  return abvFromLines(resolved.lines, await componentAbvById());
+}
 
-  const allComponents = await db.select().from(components);
-  const compById = new Map(allComponents.map((c) => [c.id, c]));
+/** componentId -> { name, abv } for every component. One query, reused. */
+export async function componentAbvById(): Promise<Map<number, { name: string; abv: string | null }>> {
+  const rows = await db.select().from(components);
+  return new Map(rows.map((c) => [c.id, { name: c.name, abv: c.abv }]));
+}
 
+/**
+ * The summation itself, pure and synchronous: sum of component abv x line
+ * percentage / 100.
+ *
+ * Split out from abvComputed on 30 Aug 2026 so that Gate 1 can weigh the lines
+ * a person is ABOUT to save — which are not in the database yet and so cannot
+ * be read back — against exactly the arithmetic the drink page will show once
+ * they are. Two summations that were meant to agree and quietly drifted is a
+ * failure mode worth designing out; there is now one.
+ *
+ * A NULL component abv contributes nothing to the sum AND lands in
+ * nullAbvComponents, because the two failure modes must stay distinct: an
+ * ingredient that genuinely carries no alcohol has abv "0.00", an ingredient
+ * nobody has measured has NULL, and only the second blocks publishing.
+ */
+export function abvFromLines(
+  lines: { componentId: number; percentage: string | number }[],
+  compById: Map<number, { name: string; abv: string | null }>,
+): AbvResult {
   const problems: string[] = [];
   const nullAbvComponents: NullAbvComponent[] = [];
   let abv = 0;
 
-  for (const line of resolved.lines) {
+  for (const line of lines) {
     const c = compById.get(line.componentId);
     if (!c) {
       problems.push(`Recipe line references missing component ${line.componentId}`);
       continue;
     }
     if (c.abv === null) {
-      nullAbvComponents.push({ componentId: c.id, name: c.name });
+      nullAbvComponents.push({ componentId: line.componentId, name: c.name });
       continue;
     }
     abv += (n(c.abv) * n(line.percentage)) / 100;
@@ -335,5 +360,134 @@ export async function canonReport(drinkId: number, clientSlug?: string): Promise
     waterPct: water.waterPct,
     restFloorWeeks: floor,
     problems: [...new Set([...abv.problems, ...water.problems])],
+  };
+}
+
+// ─── Gate 1: the declared-vs-computed check ─────────────────────────────────
+// Brief: Projects/Cocktails/Back Bar/`2026-08-30 declared_abv - the build brief
+// and the recovered label figures [Brief].md`.
+//
+// Back Bar computes an ABV from the recipe. The bottle carries a printed one.
+// Gate 1 refuses a recipe save that would push those two more than 0.3
+// percentage points apart, which is the legal tolerance for spirit drinks.
+//
+// It is not a correctness check on the recipe. It is a disagreement detector:
+// when it fires, two numbers that describe the same liquid do not match and
+// nobody has yet established which is right. On the day it was switched on it
+// fired for twelve of nineteen drinks, and that is the finding, not a bug.
+
+/**
+ * The legal tolerance for spirit drinks, in percentage points.
+ *
+ * STRICTLY GREATER THAN fails. Four drinks — the Desert Negroni, the Pisco
+ * Martini, the Dempsey and (in the brief, though it has no Back Bar record)
+ * the Negroni Starter — sit at exactly 0.3, so ">= 0.3 fails" would flip all
+ * four on a rounding decision rather than on a fact. Do not loosen this to
+ * >= without a ruling from Cyrus.
+ */
+export const GATE_1_TOLERANCE_POINTS = 0.3;
+
+/**
+ * Gap arithmetic is done on values rounded to one decimal place — the
+ * precision a label is actually printed at, and the precision declared_abv is
+ * stored at, numeric(4,1). Comparing a raw 27.5896 against a printed 27.6
+ * would manufacture a 0.0104 discrepancy out of nothing but float tail.
+ */
+function toLabelPrecision(x: number): number {
+  return Math.round(x * 10) / 10;
+}
+
+export type GateOneVerdict =
+  /** Declared and computed agree inside tolerance. */
+  | { status: "pass"; computed: number; declared: number; gap: number }
+  /** They differ by more than the tolerance. The save must be refused. */
+  | { status: "fail"; computed: number; declared: number; gap: number; message: string }
+  /**
+   * No declared figure exists, so the gate CANNOT RUN. The save is allowed and
+   * the recipe is flagged unverified. This is emphatically not a pass: a NULL
+   * means nobody has read the bottle, and letting it read as agreement is the
+   * exact confusion the declared_abv column was built to end.
+   */
+  | { status: "unverified"; computed: number; declared: null; gap: null; reason: string };
+
+/**
+ * Run Gate 1 for one computed ABV against one declared figure.
+ *
+ * Pass `declared: null` when nothing has been read off a bottle. There is
+ * deliberately no third argument that lets a caller substitute the computed
+ * value for a missing declared one.
+ */
+export function gateOne(computed: number, declared: number | null): GateOneVerdict {
+  const c = toLabelPrecision(computed);
+  if (declared === null) {
+    return {
+      status: "unverified",
+      computed: c,
+      declared: null,
+      gap: null,
+      reason:
+        "No declared ABV recorded for this drink, so the label and the recipe " +
+        "cannot be compared. Saved, but unverified — this is not agreement.",
+    };
+  }
+  const d = toLabelPrecision(declared);
+  const gap = toLabelPrecision(Math.abs(c - d));
+  if (gap > GATE_1_TOLERANCE_POINTS) {
+    return {
+      status: "fail",
+      computed: c,
+      declared: d,
+      gap,
+      message:
+        `This recipe computes to ${c.toFixed(1)}% ABV, but the label declares ` +
+        `${d.toFixed(1)}%. That is a gap of ${gap.toFixed(1)} points, over the ` +
+        `${GATE_1_TOLERANCE_POINTS.toFixed(1)}-point legal tolerance for spirit drinks. ` +
+        `Saving is refused. Either the recipe is wrong or the label is — establish ` +
+        `which before changing anything, and never edit one to match the other.`,
+    };
+  }
+  return { status: "pass", computed: c, declared: d, gap };
+}
+
+export interface DeclaredAbv {
+  declared: number;
+  source: string | null;
+  noted: string | null;
+}
+
+/**
+ * The declared ABV for a (drink, client), read from that client's SKUs.
+ *
+ * Returns null when no SKU carries one — which is the honest answer for the
+ * Fortnum's and Cripps bottles, whose labels nobody has read.
+ *
+ * Every size of a drink is filled from one batch of one liquid, so the sizes
+ * are expected to agree. If they ever do not, that is a data fault and this
+ * returns the STRICTEST reading — the one furthest from the computed figure is
+ * chosen by the caller — rather than silently picking a row. Disagreeing
+ * labels are surfaced through `conflicts`.
+ */
+export async function declaredAbvFor(
+  drinkId: number,
+  clientId: number,
+): Promise<{ value: DeclaredAbv | null; conflicts: number[] }> {
+  const rows = await db
+    .select({
+      declaredAbv: skus.declaredAbv,
+      source: skus.declaredAbvSource,
+      noted: skus.declaredAbvNoted,
+    })
+    .from(skus)
+    .where(
+      and(eq(skus.drinkId, drinkId), eq(skus.clientId, clientId), isNotNull(skus.declaredAbv)),
+    );
+
+  if (rows.length === 0) return { value: null, conflicts: [] };
+
+  const distinct = [...new Set(rows.map((r) => Number(r.declaredAbv)))].sort((a, b) => a - b);
+  const first = rows[0];
+  return {
+    value: { declared: Number(first.declaredAbv), source: first.source, noted: first.noted },
+    conflicts: distinct.length > 1 ? distinct : [],
   };
 }

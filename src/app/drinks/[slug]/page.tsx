@@ -6,8 +6,10 @@ import {
   dbConfigured,
   getDrinkDetail,
   listAllClients,
+  type AbvView,
   type ClientRecipeView,
 } from "@/lib/drinks-db";
+import { GATE_1_TOLERANCE_POINTS } from "@/lib/erp/canon";
 
 export const dynamic = "force-dynamic";
 
@@ -159,6 +161,8 @@ function RecipePanel({
         </tbody>
       </table>
 
+      <AbvPanel abv={recipe.abv} />
+
       {/* Production method / instructions */}
       {recipe.method && (
         <div style={{ marginTop: 24 }}>
@@ -185,6 +189,123 @@ function RecipePanel({
             ))}
           </ul>
         </details>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Computed beside declared, with the gap and the verdict.
+ *
+ * The three states are visually distinct on purpose, and the third is the
+ * reason the panel exists:
+ *
+ *   pass        the two numbers agree inside the legal tolerance
+ *   fail        they disagree by more than it — the recipe cannot be saved
+ *   unverified  NOBODY HAS READ THE BOTTLE. Rendered as an explicit
+ *               "not recorded", never as a blank, a dash or a zero, and never
+ *               styled to resemble agreement. A null that looks like a pass is
+ *               precisely the confusion that let seventeen label figures be
+ *               overwritten on 14 Aug 2026 without anyone noticing.
+ */
+function AbvPanel({ abv }: { abv: AbvView }) {
+  const notRecorded = abv.declared === null;
+  const failed = abv.status === "fail";
+
+  const tone = failed ? COLOR.flag : notRecorded ? COLOR.muted : COLOR.positive;
+  const verdict = failed
+    ? `Over tolerance by ${(abv.gap! - GATE_1_TOLERANCE_POINTS).toFixed(1)}`
+    : notRecorded
+      ? "Unverified"
+      : "Within tolerance";
+
+  return (
+    <section
+      style={{
+        marginTop: 24,
+        border: `1px solid ${failed ? COLOR.flag : COLOR.rule}`,
+        borderLeft: `3px solid ${tone}`,
+        padding: "16px 18px",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <h3 style={{ fontSize: 10, color: COLOR.muted, ...smallCaps, margin: 0 }}>Alcoholic strength</h3>
+        <span style={{ fontSize: 10, color: tone, fontWeight: 500, ...smallCaps }}>{verdict}</span>
+      </div>
+
+      <div style={{ display: "flex", gap: 32, flexWrap: "wrap", ...tabularNums }}>
+        <div>
+          <div style={{ fontSize: 10, color: COLOR.muted, ...smallCaps, marginBottom: 4 }}>Computed</div>
+          <div style={{ fontFamily: FONT.serif, fontSize: 26, color: COLOR.ink }}>
+            {abv.computed.toFixed(1)}%
+          </div>
+          <div style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 2 }}>from this recipe</div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: 10, color: COLOR.muted, ...smallCaps, marginBottom: 4 }}>Declared</div>
+          {notRecorded ? (
+            <>
+              <div style={{ fontFamily: FONT.serif, fontSize: 20, fontStyle: "italic", color: COLOR.muted }}>
+                Not recorded
+              </div>
+              <div style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 2 }}>nobody has read the bottle</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontFamily: FONT.serif, fontSize: 26, color: COLOR.ink }}>
+                {abv.declared!.toFixed(1)}%
+              </div>
+              <div style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 2 }}>
+                on the label
+                {abv.declaredNoted ? ` · read ${abv.declaredNoted}` : ""}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div>
+          <div style={{ fontSize: 10, color: COLOR.muted, ...smallCaps, marginBottom: 4 }}>Gap</div>
+          {notRecorded ? (
+            <div style={{ fontFamily: FONT.serif, fontSize: 20, fontStyle: "italic", color: COLOR.muted }}>—</div>
+          ) : (
+            <div style={{ fontFamily: FONT.serif, fontSize: 26, color: failed ? COLOR.flag : COLOR.ink }}>
+              {abv.gap!.toFixed(1)}
+            </div>
+          )}
+          <div style={{ fontSize: 11, color: COLOR.mutedLight, marginTop: 2 }}>
+            tolerance {GATE_1_TOLERANCE_POINTS.toFixed(1)} points
+          </div>
+        </div>
+      </div>
+
+      {notRecorded && (
+        <p style={{ fontSize: 12, color: COLOR.muted, lineHeight: 1.55, margin: "14px 0 0" }}>
+          No declared ABV is recorded, so the label and the recipe cannot be compared and this
+          recipe is <strong style={{ color: COLOR.inkSoft }}>unverified</strong>. Edits will still
+          save. This is not agreement — it means the check has never been run.
+        </p>
+      )}
+
+      {failed && (
+        <p style={{ fontSize: 12, color: COLOR.flag, lineHeight: 1.55, margin: "14px 0 0" }}>
+          The recipe and the label disagree by more than the {GATE_1_TOLERANCE_POINTS.toFixed(1)}-point
+          legal tolerance for spirit drinks, so recipe edits are refused. One of the two numbers is
+          wrong and nobody has established which. Never edit one to match the other.
+        </p>
+      )}
+
+      {abv.declaredSource && !notRecorded && (
+        <p style={{ fontSize: 11, color: COLOR.mutedLight, margin: "12px 0 0" }}>
+          Declared figure source: {abv.declaredSource}
+        </p>
+      )}
+
+      {abv.nullAbvComponents.length > 0 && (
+        <p style={{ fontSize: 12, color: COLOR.flag, lineHeight: 1.55, margin: "12px 0 0" }}>
+          {abv.nullAbvComponents.join(", ")} {abv.nullAbvComponents.length === 1 ? "has" : "have"} no
+          ABV recorded, so the computed figure above is understated.
+        </p>
       )}
     </section>
   );

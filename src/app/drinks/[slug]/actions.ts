@@ -5,10 +5,65 @@ import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { clients, drinks, recipeLines, recipes } from "@/db/schema";
+import { abvFromLines, componentAbvById, declaredAbvFor, gateOne } from "@/lib/erp/canon";
 
 export type RecipeLineInput = { componentId: number; percentage: number };
 
 export type SaveState = { error: string } | null;
+
+/**
+ * Gate 1, run against the lines about to be written.
+ *
+ * The new recipe is not in the database yet, so its ABV is summed from the
+ * submitted lines with abvFromLines — the same arithmetic the drink page uses,
+ * deliberately shared rather than reimplemented here.
+ *
+ * Three outcomes, and the third is the one that matters:
+ *   fail        -> return an error string; the save never happens
+ *   pass        -> null; carry on
+ *   unverified  -> null; carry on. No declared figure exists, so the gate
+ *                  cannot run. The save is allowed and the drink page renders
+ *                  the recipe as UNVERIFIED, derived at read time from the
+ *                  absent declared_abv. It is never recorded as a pass, and a
+ *                  NULL is never permitted to read as agreement.
+ *
+ * On the day this was switched on it refused twelve of nineteen drinks. That
+ * is the intended result: it means twelve drinks carry two numbers that
+ * disagree and nobody has established which is right. Nothing should be
+ * "fixed" to bring that count down, and in particular neither number should
+ * ever be edited to match the other.
+ */
+async function gateOneCheck(
+  drinkId: number,
+  clientId: number,
+  lines: RecipeLineInput[],
+): Promise<string | null> {
+  const { value: declared, conflicts } = await declaredAbvFor(drinkId, clientId);
+  if (conflicts.length > 1) {
+    return (
+      `The SKUs for this drink carry disagreeing declared ABVs (${conflicts
+        .map((c) => c.toFixed(1))
+        .join("%, ")}%). Every size is filled from one batch of one liquid, so ` +
+      `they cannot all be right. Resolve the labels before saving a recipe.`
+    );
+  }
+
+  const { abv, nullAbvComponents } = abvFromLines(lines, await componentAbvById());
+  if (nullAbvComponents.length > 0) {
+    // A NULL component ABV understates the sum, so gating on it would compare
+    // the label against a number known to be too low. Refusing here is not
+    // Gate 1 firing — it is Gate 1 declining to run on a figure it cannot trust.
+    return (
+      `Cannot check this recipe against the label: ` +
+      `${nullAbvComponents.map((c) => c.name).join(", ")} ` +
+      `${nullAbvComponents.length === 1 ? "has" : "have"} no ABV recorded, which ` +
+      `silently understates the computed strength. Record the missing ABV first.`
+    );
+  }
+
+  const verdict = gateOne(abv, declared?.declared ?? null);
+  return verdict.status === "fail" ? verdict.message : null;
+}
 
 /**
  * Validate a set of recipe lines against the brief's rules:
@@ -82,6 +137,9 @@ export async function saveRecipeEdit(
 
   const { drinkId, clientId } = await resolveIds(drinkSlug, clientSlug);
 
+  const gateError = await gateOneCheck(drinkId, clientId, lines);
+  if (gateError) return { error: gateError };
+
   const [current] = await db
     .select({ id: recipes.id, version: recipes.version })
     .from(recipes)
@@ -133,6 +191,9 @@ export async function createRecipeForClient(
     .where(and(eq(recipes.drinkId, drinkId), eq(recipes.clientId, clientId), eq(recipes.isCurrent, true)))
     .limit(1);
   if (existing) return { error: "This client already has a recipe for this drink." };
+
+  const gateError = await gateOneCheck(drinkId, clientId, lines);
+  if (gateError) return { error: gateError };
 
   await createRecipe(drinkId, clientId, lines, method, String(form.get("createdBy") ?? "") || null);
 
