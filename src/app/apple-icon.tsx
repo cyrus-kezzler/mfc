@@ -22,7 +22,6 @@ export default function AppleIcon() {
           padding: 24,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={base64}
           alt="MFC"

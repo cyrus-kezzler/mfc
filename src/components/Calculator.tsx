@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Client, Recipe, BatchCalculation } from "@/types";
 import { RECIPES } from "@/data/recipes";
 import { calculateBatch } from "@/lib/calculator";
@@ -27,7 +27,6 @@ export default function Calculator() {
   const [activeLitres, setActiveLitres] = useState<number>(DEFAULT_LITRES);
   const [customInput, setCustomInput] = useState<string>("");
   const [customError, setCustomError] = useState<string>("");
-  const [result, setResult] = useState<BatchCalculation | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   const filteredRecipes = useMemo(() => {
@@ -35,16 +34,16 @@ export default function Calculator() {
     return RECIPES.filter((r) => r.clients.includes(selectedClient));
   }, [selectedClient]);
 
-  useEffect(() => {
-    if (selectedRecipe) {
-      setResult(calculateBatch(selectedRecipe, activeLitres, settings));
-    }
-  }, [selectedRecipe, activeLitres, settings]);
+  // Purely derived: no recipe selected means no batch. Previously an effect
+  // that called setResult, which cost an extra render on every change.
+  const result = useMemo<BatchCalculation | null>(
+    () => (selectedRecipe ? calculateBatch(selectedRecipe, activeLitres, settings) : null),
+    [selectedRecipe, activeLitres, settings]
+  );
 
   function handleClientSelect(client: Client) {
     setSelectedClient(client);
     setSelectedRecipe(null);
-    setResult(null);
     setCustomInput("");
     setCustomError("");
     setActiveLitres(DEFAULT_LITRES);

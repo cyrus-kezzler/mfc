@@ -180,7 +180,7 @@
           window.openCartDrawer()
         } else {
           // Fire a PUB-SUB event some Dawn-based themes listen on, then navigate.
-          try { document.dispatchEvent(new CustomEvent('cart:refresh')) } catch (e) {}
+          try { document.dispatchEvent(new CustomEvent('cart:refresh')) } catch {}
           window.location.href = '/cart'
         }
       })

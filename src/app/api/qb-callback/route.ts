@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(`Token exchange failed: ${JSON.stringify(tokenData)}`, { status: 500 })
   }
 
-  const { refresh_token, access_token } = tokenData
+  const { refresh_token } = tokenData
 
   // Display the tokens — copy these to Vercel env vars
   return new NextResponse(

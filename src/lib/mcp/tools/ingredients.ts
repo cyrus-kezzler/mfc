@@ -28,9 +28,12 @@ export const ingredientTools: ToolDefinition[] = [
     title: "List ingredients",
     description:
       "List every ingredient in the buying master with pack size, pack cost, " +
-      "per-UOM unit cost, when the price was set, and its provenance " +
-      "(inbound = from a supplier invoice, manual, placeholder, or none). " +
-      "Optionally filter by name substring or to unsourced entries only.",
+      "per-UOM unit cost, when the price was set, its provenance " +
+      "(inbound = from a supplier invoice, manual, placeholder, or none), and " +
+      "its ABV. abvMissing is true when a component of type 'ingredient' " +
+      "(the type that should carry alcohol) has no ABV recorded, so a gap is " +
+      "visible without doing the arithmetic. Optionally filter by name " +
+      "substring or to unsourced entries only.",
     access: "read",
     inputSchema: {
       type: "object",
@@ -68,6 +71,8 @@ export const ingredientTools: ToolDefinition[] = [
           packCost: r.packCost,
           unitCost: r.unitCost,
           unitCostSetAt: r.unitCostSetAt,
+          abv: r.abv,
+          abvMissing: r.type === "ingredient" && (r.abv === null || r.abv === 0),
           provenance: r.provenance,
           isSubRecipe: r.isSubRecipe,
           notes: r.notes,
