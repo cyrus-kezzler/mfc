@@ -7,7 +7,13 @@ export type HubModule = {
   label: string;
   sublabel: string;
   description: string;
-  status: "live" | "building" | "soon";
+  /**
+   * "parked" is not a weaker "soon". It means we have deliberately stopped
+   * work on it and said so, per the scope cut in docs/roadmap.md. Keeping the
+   * two apart is the point: a plan nobody is working on should not be able to
+   * hide inside a list of things that are coming.
+   */
+  status: "live" | "building" | "soon" | "parked";
 };
 
 type Props = {
@@ -19,7 +25,15 @@ type Props = {
 
 export default function HubPage({ eyebrow, title, intro, modules }: Props) {
   const liveCount = modules.filter((m) => m.status === "live").length;
-  const plannedCount = modules.length - liveCount;
+  const parkedCount = modules.filter((m) => m.status === "parked").length;
+  const plannedCount = modules.length - liveCount - parkedCount;
+  const tally = [
+    `${liveCount} live`,
+    plannedCount > 0 ? `${plannedCount} planned` : null,
+    parkedCount > 0 ? `${parkedCount} parked` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div style={{ background: COLOR.paper, color: COLOR.ink, minHeight: "100vh" }}>
@@ -80,7 +94,7 @@ export default function HubPage({ eyebrow, title, intro, modules }: Props) {
             }}
           >
             <h2 style={{ fontSize: 11, color: COLOR.muted, ...smallCaps }}>
-              In this section — {liveCount} live, {plannedCount} planned
+              In this section — {tally}
             </h2>
           </div>
 
@@ -187,11 +201,12 @@ function HubRow({ module: m, index }: { module: HubModule; index: number }) {
   );
 }
 
-function StatusTag({ status }: { status: "live" | "building" | "soon" }) {
+function StatusTag({ status }: { status: HubModule["status"] }) {
   const config = {
     live: { color: COLOR.accent, label: "Live", filled: true },
     building: { color: COLOR.accentSoft, label: "In progress", filled: true },
     soon: { color: COLOR.mutedLight, label: "Planned", filled: false },
+    parked: { color: COLOR.mutedLight, label: "Parked", filled: false },
   }[status];
 
   return (
