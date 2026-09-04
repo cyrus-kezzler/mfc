@@ -84,10 +84,16 @@ import {
   type Recipe,
   type RecipeLine,
 } from "../../src/db/schema";
-import { abvComputed, waterPct as canonWaterPct } from "../../src/lib/erp/canon";
+import {
+  abvComputed,
+  waterPct as canonWaterPct,
+  gateOne,
+  GATE_1_TOLERANCE_POINTS,
+} from "../../src/lib/erp/canon";
 
 const PCT_SUM_TOLERANCE = 0.01;
-const ABV_GAP_FAIL_THRESHOLD = 0.3;
+/** The app owns this number; the audit must not keep a second copy of it. */
+const ABV_GAP_FAIL_THRESHOLD = GATE_1_TOLERANCE_POINTS;
 const WATER_MIN = 8;
 const WATER_MAX = 17;
 const SUB_RECIPE_DEPTH_CAP = 8;
@@ -275,10 +281,19 @@ async function main() {
     }
 
     // Gate 1: the computed ABV against what the bottle actually says.
+    //
+    // The verdict comes from the app's own gateOne, never from arithmetic
+    // repeated here. gateOne rounds both figures to label precision (1dp)
+    // before comparing, because that is the precision a label is printed at
+    // and declared_abv is stored at. An earlier version of this script
+    // compared at 2dp and reported seven failures that gateOne does not:
+    // a tool that is stricter than the gate it reports on is just as wrong
+    // as one that is more lenient.
     const declared = declaredByDrinkClient.get(dcKey(recipe.drinkId, recipe.clientId));
     const distinct = [...new Set((declared?.values ?? []).map((v) => round(v, 1)))];
     const declaredAbv = distinct.length > 0 ? distinct[0] : null;
-    const gap = declaredAbv === null ? null : round(Math.abs(abv - declaredAbv), 2);
+    const verdict = gateOne(abv, declaredAbv);
+    const gap = verdict.gap;
 
     reports.push({
       recipe,
@@ -296,7 +311,7 @@ async function main() {
       declaredDisagrees: distinct.length > 1,
       skusMissingDeclared: declared?.missing ?? 0,
       gap,
-      gapFail: gap === null ? null : gap > ABV_GAP_FAIL_THRESHOLD,
+      gapFail: verdict.status === "unverified" ? null : verdict.status === "fail",
       crossCheck,
     });
   }
