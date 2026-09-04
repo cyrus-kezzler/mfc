@@ -109,6 +109,10 @@ These are well understood. They are not lost work. They are parked (§4).
 
 ### 2.4 Known defects and debt
 
+*This section records the state at the moment of the audit. Items fixed in
+week 1 are marked ✅ rather than deleted, so the record of what was wrong
+survives the fixing of it.*
+
 **Data gaps (4 found, all small):**
 - `Chinotto Nero` has no ABV recorded. It appears in all three Clementini
   recipes, so computed ABV is understated on our F&M flagship.
@@ -117,25 +121,34 @@ These are well understood. They are not lost work. They are parked (§4).
 - 29 of 40 recipes fall outside the 8–17% water band. Probably fine — the band
   may simply be wrong for freezer-door serves — but it has never been ruled on.
 
-**The audit tool is already stale.** `audit-recipes.ts` is uncommitted and
-reports "0 of 40 recipes have a declared ABV to check against — no such column
-exists." That is wrong: `skus.declared_abv` exists and is populated on 95 rows.
-The script was written 28 Aug, the column landed 30 Aug, and the tool that
-proves our data is correct is itself incorrect.
+**The audit tool is already stale.** ✅ *Fixed, week 1.* `audit-recipes.ts` was
+uncommitted and reported "0 of 40 recipes have a declared ABV to check against —
+no such column exists." That was wrong: `skus.declared_abv` exists and is
+populated on 95 rows. The script was written 28 Aug, the column landed 30 Aug,
+and the tool that proves our data is correct was itself incorrect. It now reads
+the column, and the first thing it found is §6.1.
 
-**Repository floor:**
+**Repository floor:** — all ✅ *fixed, week 1*
 - 4 × `DELETE-ME_*.txt` files in the project root
 - `tmp_q_components.cjs` in the root
 - ~60 `_`-prefixed one-off scripts and `.log` files committed under `scripts/erp/`
-- 13 stale branches, the oldest from April, several never merged or deleted
+  (68 of them, moved to `scripts/archive/`)
+- 13 stale branches, the oldest from April (15 deleted; 3 kept, see below)
 - 5 ESLint errors (4 × setState-in-effect, 1 × `require()` in the stray temp file)
 
-**Documentation that misleads:**
+Three branches were deliberately kept: `fix/boxset-gift-card-product` carries one
+unmerged commit, and `claude/tender-wilbur-cc56bb` and
+`claude/xenodochial-heisenberg-d6e7c4` have uncommitted work sitting in their
+worktrees (an unfinished "headlines" feature, and 13 modified files). Someone
+should decide what those are worth before they are lost.
+
+**Documentation that misleads:** — all ✅ *fixed, week 1*
 - `README.md` is still `create-next-app` boilerplate with an MCP section bolted on
 - The `/erp` landing page lists Recipes and Cost rollup as "Planned". They are
   built. The page lies to the people using it.
 - `docs/erp-dogfood.md` tells Clemency to `cd` into a worktree path that no
-  longer applies
+  longer applies, and never mentions `AUTH_SECRET`, without which local login
+  throws an error — which is why local dogfooding kept stalling.
 
 ### 2.5 The diagnosis
 
@@ -226,7 +239,9 @@ and the `/erp` page will say so.
 **Definition of done, every week:**
 1. `npm run typecheck` clean
 2. `npm run lint` clean
-3. `npm run audit` green
+3. `npm run audit` runs, and every failure it reports is one we have seen and
+   accepted — never one we silenced. Green is the goal from week 2 onward; it
+   is red today for a real reason (§6.1).
 4. Deployed to `admin.myattsfields.com`
 5. Tagged, with one paragraph saying what changed and what it means
 
@@ -258,10 +273,36 @@ and verifiable, and together they convert *I am not sure what I have* into
 6. **Fix the docs.** Mark `erp-spec.md` superseded by this file. Correct the
    stale worktree path in `erp-dogfood.md`.
 7. **Branch hygiene.** Delete the 13 stale branches.
-8. **Tag `v0.1`.**
+8. **The top nav becomes the four surfaces** — Make, Buy, Sell, Analyse — so the
+   app states the model instead of listing whatever got built. Added mid-week at
+   Cyrus's request; it belongs here because it is the same job as the rest of the
+   week: making the thing honest about itself.
+9. **Tag `v0.1`.**
 
-**Done when:** typecheck clean, lint clean, `npm run audit` green, README true,
-tagged, deployed.
+**Done when:** typecheck clean, lint clean, `npm run audit` running and its
+failures understood, README true, tagged, deployed.
+
+### 6.1 What week 1 found — Gate 1 fails on 19 recipes
+
+Fixing the audit tool immediately produced the largest finding of the audit, and
+it is a live compliance question rather than a tidiness one.
+
+Of the 25 recipes that can be checked against a label figure, **19 are further
+than the 0.3-point legal tolerance from what the bottle says**, several by a
+wide margin: Naked & Famous by 6.40 points, Corpse Reviver by 5.76, Gibson
+Martini by 4.74, Baby Otis by 3.89, Sakura Martini by 3.18. A further 15 recipes
+are UNVERIFIED — no SKU carries a label figure at all, so nobody has read those
+bottles.
+
+**It is not yet known which side is wrong,** and that distinction is the whole
+job. The gaps run in both directions, and 29 of 40 recipes record a water
+percentage outside the 8–17% band, many of them at 0.0% — meaning dilution is
+very likely not modelled in the recipe at all. Where that is so, the *computed*
+figure is the unreliable one, not the label.
+
+This is the top of week 2. It needs a ruling per drink, not a bulk edit, and
+under no circumstances a copy of the computed value into the declared column —
+that single act is what `skus.declared_abv` exists to prevent.
 
 ### Week 2 — Close the data gaps (18 Sept)
 Chinotto Nero's ABV. The 9 SKUs missing a declared ABV. The 6 components with no
