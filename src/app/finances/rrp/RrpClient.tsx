@@ -61,9 +61,13 @@ export default function RrpClient({
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
+  // localStorage does not exist during the server render, so the saved what-if
+  // config can only be read after mount. The page holds back its real render
+  // until `hydrated` is true, so this cannot mismatch the server HTML.
   useEffect(() => {
     try {
       const sc = localStorage.getItem(STORAGE_CONFIG_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration read; see above
       if (sc) setWhatIf((prev) => ({ ...prev, ...JSON.parse(sc) }));
     } catch {}
     setHydrated(true);

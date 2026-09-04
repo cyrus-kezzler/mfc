@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { COLOR, FONT, smallCaps, tabularNums } from '@/lib/design'
 

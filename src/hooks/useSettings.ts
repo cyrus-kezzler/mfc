@@ -10,9 +10,13 @@ export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(getDefaultSettings());
   const [loaded, setLoaded] = useState(false);
 
+  // localStorage does not exist during the server render, so the stored
+  // settings can only be read after mount. The extra render this costs is the
+  // price of not mismatching the server HTML, not an oversight.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration read; see above
       if (raw) setSettings(JSON.parse(raw));
     } catch {
       // ignore

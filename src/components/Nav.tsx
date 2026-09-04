@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COLOR, FONT, smallCaps } from "@/lib/design";
+import { COLOR, FONT } from "@/lib/design";
 
 export type NavSection = {
   label: string;
@@ -11,23 +11,57 @@ export type NavSection = {
   match: string[];
 };
 
+/**
+ * The four surfaces. Cyrus, 4 Sept 2026: "Back Bar is to keep track of make,
+ * sell, buy, and analyse, and those are four different surfaces for the
+ * business." The nav is those four and nothing else, so the top of the app
+ * states the model rather than listing whatever happened to get built.
+ *
+ * Each `match` list carries the older routes that surface absorbed, so a
+ * bookmark or a deep link still highlights the right section. The old hub
+ * pages (/finances, /production, /sales) still work; they are simply no
+ * longer the way in. See docs/roadmap.md.
+ */
 export const NAV_SECTIONS: NavSection[] = [
-  { label: "Strategy", href: "/strategy", match: ["/strategy"] },
-  { label: "Finances", href: "/finances", match: ["/finances", "/dashboard"] },
-  { label: "Production", href: "/production", match: ["/production", "/calculator"] },
-  { label: "Sales", href: "/sales", match: ["/sales"] },
-  { label: "Drinks", href: "/drinks", match: ["/drinks", "/recipes"] },
+  {
+    label: "Make",
+    href: "/make",
+    match: ["/make", "/drinks", "/recipes", "/calculator", "/production"],
+  },
+  {
+    label: "Buy",
+    href: "/buy",
+    match: ["/buy", "/erp", "/finances/ingredients"],
+  },
+  {
+    label: "Sell",
+    href: "/sell",
+    match: ["/sell", "/sales", "/finances/pricing", "/finances/rrp"],
+  },
+  {
+    label: "Analyse",
+    href: "/analyse",
+    match: [
+      "/analyse",
+      "/dashboard",
+      "/strategy",
+      "/finances/pnl",
+      "/finances/profitability",
+      "/finances",
+    ],
+  },
 ];
-
-const SPEED_RAIL_TRUTHY = new Set(["1", "true", "TRUE", "yes", "on"]);
-const ERP_SECTION: NavSection = { label: "ERP", href: "/erp", match: ["/erp"] };
 
 export default function Nav() {
   const path = usePathname();
-  const erpVisible = SPEED_RAIL_TRUTHY.has(
-    process.env.NEXT_PUBLIC_SPEED_RAIL_ENABLED ?? "",
-  );
-  const sections = erpVisible ? [...NAV_SECTIONS, ERP_SECTION] : NAV_SECTIONS;
+  // Longest match wins, so /finances/ingredients lands on Buy rather than on
+  // Analyse's catch-all /finances.
+  const best = NAV_SECTIONS.flatMap((s) =>
+    s.match
+      .filter((m) => path === m || path.startsWith(m + "/"))
+      .map((m) => ({ href: s.href, len: m.length })),
+  ).sort((a, b) => b.len - a.len)[0];
+  const sections = NAV_SECTIONS;
 
   return (
     <nav
@@ -97,7 +131,7 @@ export default function Nav() {
           }}
         >
           {sections.map((s) => {
-            const active = s.match.some((m) => path === m || path.startsWith(m + "/"));
+            const active = best?.href === s.href;
             return (
               <NavLink key={s.href} href={s.href} active={active}>
                 {s.label}

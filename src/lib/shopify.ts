@@ -111,7 +111,6 @@ async function fetchOrdersForYear(year: number): Promise<ShopifyOrder[]> {
   const pageInfo: string | null = null
   const url = `orders.json?status=any&created_at_min=${since}&created_at_max=${before}&limit=250&fields=id,name,created_at,email,total_price,financial_status,fulfillment_status,line_items`
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const endpoint = pageInfo ? `orders.json?page_info=${pageInfo}&limit=250` : url
     const data = await shopifyFetch<{ orders: ShopifyOrder[] }>(endpoint)

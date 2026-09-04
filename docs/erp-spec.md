@@ -1,3 +1,11 @@
+> **SUPERSEDED — 4 September 2026.**
+> This document is no longer the statement of scope. Back Bar's scope was cut to
+> **costing and pricing only** until March 2027; see [`roadmap.md`](roadmap.md).
+> Most of what follows — inbounds, inventory lots, production runs, bottle
+> serials, price lists, quotes, the channel-mix dashboard — is **parked**, and
+> was never built. It is kept here because it is a good design reference for
+> whenever those are unparked, not because it describes the plan.
+
 # Back Bar ERP — Spec v0.2
 
 **Codename:** Speed Rail

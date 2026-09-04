@@ -17,7 +17,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const CLIENT_ID = process.env.QB_CLIENT_ID!
-const CLIENT_SECRET = process.env.QB_CLIENT_SECRET!
 const REDIRECT_URI = 'https://admin.myattsfields.com/api/qb-callback'
 
 // Step 1: Redirect to Intuit OAuth

@@ -32,13 +32,16 @@ You only do this once. Neon is the company that runs the database that holds all
 The "terminal" is a window where you type commands.
 
 1. Open the **Terminal** app on your Mac (⌘+Space, type `Terminal`, hit Enter).
-2. Speed Rail lives on a feature branch in a *worktree* (a separate copy of the repo) until it's merged. Move into that worktree:
+2. Move into the project folder:
    ```
-   cd ~/code/myattsfields/back-bar/.claude/worktrees/xenodochial-heisenberg-d6e7c4
+   cd ~/code/myattsfields/back-bar
    ```
    (Press Enter after every command in this guide.)
 
-   > **Don't use `~/code/myattsfields/back-bar` directly** for Speed Rail — that's the main checkout and doesn't have the ERP code yet. After slice 2 lands as a draft PR, the worktree path may change; if it does, I'll tell you.
+   > **Corrected 4 Sept 2026.** This guide used to send you into a *worktree* — a
+   > separate copy of the repo — because the ERP was on an unmerged branch. It has
+   > been on `main` since July. Use the main folder above; if you have the old
+   > worktree path in a note somewhere, throw it away.
 3. Confirm you're in the right place — type:
    ```
    ls
@@ -55,7 +58,7 @@ The "terminal" is a window where you type commands.
    ```
    This makes a private copy of the template settings file. The `.env.local` file is your secrets file — never commit it, never share it.
 
-   > If you already had a `.env.local` in `~/code/myattsfields/back-bar` (the main folder), it doesn't carry over — the worktree has its own. Easiest path: pull all Vercel values in one shot in the next step, then just add the three Neon-related lines.
+   > If you already have a working `.env.local`, you can skip to step C4 and just check the three Neon-related lines are present.
 
 2. Pull all the existing Vercel-managed env values (auth password, QuickBooks tokens, etc.) into the new file:
    ```
@@ -63,15 +66,11 @@ The "terminal" is a window where you type commands.
    ```
    This gives you a starting point with the QB and auth lines already filled in. (If `vercel` isn't installed: `npm i -g vercel` then run the command. The first time you run any `vercel` command it'll ask you to log in and link the project — say yes to both.)
 
-   > **If you see** `Your codebase isn't linked to a project on Vercel`: this is a worktree-only thing — the main repo is linked but the worktree isn't yet. Quickest fix is to copy the link folder from the main repo:
-   > ```
-   > cp -r ~/code/myattsfields/back-bar/.vercel .
-   > ```
-   > Then re-run `vercel env pull .env.local`. (Or run `vercel link` and answer Yes to everything, picking `back-bar` as the project.)
+   > **If you see** `Your codebase isn't linked to a project on Vercel`: run `vercel link` and answer Yes to everything, picking `back-bar` as the project. Then re-run `vercel env pull .env.local`.
 
 3. Open `.env.local` in a text editor. Either:
    - In Terminal: `open .env.local` (opens in TextEdit), or
-   - In Finder: navigate to the worktree folder and double-click the file. (If you don't see it, it's hidden — press ⌘+Shift+. in Finder to show hidden files.)
+   - In Finder: navigate to the project folder and double-click the file. (If you don't see it, it's hidden — press ⌘+Shift+. in Finder to show hidden files.)
 
 4. Add three new lines at the bottom (or fill them in if `vercel env pull` already inserted blank versions):
    ```
@@ -81,7 +80,12 @@ The "terminal" is a window where you type commands.
    ```
    The `DATABASE_URL` value is the Neon string you copied in step A4. The other two are literally `1`.
 
-5. Save and close the file. The QuickBooks and auth lines stay alongside the Neon ones — env files just hold key=value pairs and don't care which group is which.
+5. **You also need `AUTH_SECRET`, or the login screen will throw an error.** It lives in a different file, so copy it across:
+   ```
+   grep '^AUTH_SECRET=' .env.production.local >> .env.local
+   ```
+
+6. Save and close the file. The QuickBooks and auth lines stay alongside the Neon ones — env files just hold key=value pairs and don't care which group is which.
 
 ---
 
@@ -133,7 +137,9 @@ Wait for a line that looks like `✓ Ready on http://localhost:3000`. Leave the 
 
 1. Open **http://localhost:3000** in a browser.
 2. You'll see the login screen. Type the Back Bar password and hit **Enter**.
-3. In the top navigation bar, you should now see **ERP** as one of the links. Click it. You're in.
+3. The top navigation has four links — **Make**, **Buy**, **Sell**, **Analyse**. Click **Buy**, then **Components**. You're in.
+
+   > **Changed 4 Sept 2026.** The nav used to read Strategy / Finances / Production / Sales / Drinks / ERP. It is now the four surfaces. The ERP landing page still exists at `/erp` and is reachable from **Buy**.
 
 ---
 
@@ -142,11 +148,11 @@ Wait for a line that looks like `✓ Ready on http://localhost:3000`. Leave the 
 Do this in order. After every step, glance at the screen and confirm what's described.
 
 ### 1. Read the landing page
-- You should see the **ERP** title, the slice roadmap, and three module rows under "Slice 1 — Foundations".
-- Each row has a count: Suppliers `0`, Components `20`, Settings `3`. (Components = 20 because the seed loaded them.)
+- Go to `/erp`. You should see three module rows under "The component master": Suppliers, Components, Settings.
+- Each row has a count. On a freshly seeded database that is Suppliers `0`, Components `20`, Settings `3`. On the real database Components reads `110`.
 
 ### 2. Add a supplier
-- Click **Suppliers** (in the sub-nav under "ERP").
+- Click **Suppliers** (in the sub-nav under the ERP heading).
 - The page says "0 on file" and shows an empty state. Click **Add the first one**.
 - Fill in:
   - Name: `Bimber`

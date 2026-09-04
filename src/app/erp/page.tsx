@@ -39,13 +39,14 @@ export default async function ErpHome() {
           lineHeight: 1.5,
         }}
       >
-        One source of truth for what we make, what we make it from, what it costs, and what we
-        have. The spine, in slices.
+        The component master and the costing settings underneath every price in the
+        business. Scope was cut to costing and pricing on 4 September 2026, so this
+        is the bedrock, not a spine still being assembled in slices.
       </p>
 
       <section style={{ marginBottom: 48 }}>
         <h2 style={{ fontSize: 11, color: COLOR.muted, marginBottom: 16, ...smallCaps }}>
-          Slice 1 — Foundations
+          The component master
         </h2>
         <ul
           style={{
@@ -58,7 +59,7 @@ export default async function ErpHome() {
           <ModuleRow
             href="/erp/suppliers"
             title="Suppliers"
-            gloss="Where everything we buy comes from."
+            gloss="Where everything we buy comes from. Nothing entered yet — this becomes useful when inbounds are unparked."
             count={`${data.suppliers}`}
           />
           <ModuleRow
@@ -76,9 +77,9 @@ export default async function ErpHome() {
         </ul>
       </section>
 
-      <section>
+      <section style={{ marginBottom: 48 }}>
         <h2 style={{ fontSize: 11, color: COLOR.muted, marginBottom: 16, ...smallCaps }}>
-          Coming next
+          Built, and living elsewhere in the app
         </h2>
         <ul
           style={{
@@ -88,12 +89,56 @@ export default async function ErpHome() {
             borderTop: `1px solid ${COLOR.rule}`,
           }}
         >
+          <ModuleRow
+            href="/drinks"
+            title="Recipes (BOM)"
+            gloss="27 drinks, 40 recipes, percentages validated to sum to 100."
+            count="Make"
+          />
+          <ModuleRow
+            href="/finances/profitability"
+            title="Cost rollup"
+            gloss="Every SKU costed line by line from latest component costs."
+            count="Analyse"
+          />
+          <ModuleRow
+            href="/finances/pricing"
+            title="Prices"
+            gloss="Agreed wholesale and RRP beside the formula rule price."
+            count="Sell"
+          />
+        </ul>
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: 11, color: COLOR.muted, marginBottom: 16, ...smallCaps }}>
+          Parked — deliberately, not forgotten
+        </h2>
+        <p
+          style={{
+            fontSize: 14,
+            color: COLOR.muted,
+            lineHeight: 1.55,
+            maxWidth: 620,
+            marginBottom: 18,
+          }}
+        >
+          Scope was cut to costing and pricing on 4 September 2026. These are not in
+          progress and nobody is working on them. The batch spreadsheet and paper
+          labels continue meanwhile. See <code>docs/roadmap.md</code>.
+        </p>
+        <ul
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            borderTop: `1px solid ${COLOR.rule}`,
+          }}
+        >
           <Pending title="Inbounds" gloss="Receive a delivery → updates cost + stock." />
-          <Pending title="Recipes (BOM)" gloss="Bill of materials per finished product." />
-          <Pending title="Cost rollup" gloss="Latest-cost unit cost for any product." />
           <Pending title="Production runs + serials" gloss="Run, consume, output batch, issue serials, print labels." />
-          <Pending title="Price lists (Owner only)" gloss="Manual per-channel price list builder + PDF." />
-          <Pending title="Dashboard" gloss="Five numbers, with % revenue by channel as the headline." />
+          <Pending title="Price lists (Owner only)" gloss="Per-channel price list builder + PDF." />
+          <Pending title="% revenue by channel" gloss="Blocked on the £92k unclassified QuickBooks bucket, not on code." />
         </ul>
       </section>
     </main>
@@ -188,7 +233,7 @@ function Pending({ title, gloss }: { title: string; gloss: string }) {
         </h3>
         <p style={{ fontSize: 13, lineHeight: 1.45 }}>{gloss}</p>
       </div>
-      <span style={{ fontSize: 11, ...smallCaps }}>Planned</span>
+      <span style={{ fontSize: 11, ...smallCaps }}>Parked</span>
     </li>
   );
 }
