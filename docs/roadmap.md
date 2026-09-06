@@ -304,11 +304,27 @@ This is the top of week 2. It needs a ruling per drink, not a bulk edit, and
 under no circumstances a copy of the computed value into the declared column —
 that single act is what `skus.declared_abv` exists to prevent.
 
-### Week 2 — Close the data gaps (18 Sept)
-Chinotto Nero's ABV. The 9 SKUs missing a declared ABV. The 6 components with no
-cost. Rule on the 8–17% water band — either fix the band or fix the recipes.
-Ends with: every active component has a price with a source, and every SKU has a
-declared ABV.
+### Week 2 — The ABV audit (18 Sept) — REPLANNED 6 Sept
+Originally "close the data gaps". Cyrus's Gate 1 rulings found something bigger,
+so the week is now one job: **give every component ABV a source.**
+
+`components.abv` has no source and no date, while `skus.declared_abv` has both —
+so Gate 1 compares a sourced figure against an unsourced one. 46 of 52 alcoholic
+components carry a round number, ten of them at exactly 40.00%, and eleven name a
+category rather than a product so cannot be checked against a bottle at all.
+
+1. Add `abv_source` and `abv_noted` to `components`, mirroring `declared_abv`.
+2. Work the verification worksheet top-down by impact; record value **and** source.
+3. Rename the eleven category-named components to name an actual product.
+4. Recompute Gate 1 against corrected ABVs — then, and only then, revisit the
+   twelve rulings in `gate1-rulings.md`.
+5. Chinotto Nero's ABV (still NULL, still in all three Clementini recipes) falls
+   out of the same pass.
+
+Carried into week 3: the 6 components with no cost, the 9 SKUs with no declared
+ABV, and a ruling on the 8–17% water band — which the Espresso Martini case shows
+is measuring the wrong thing anyway, since it counts only a component literally
+named Water and so reads 0.0% for any drink built on coffee, juice or tea.
 
 ### Week 3 — Provenance on costs (25 Sept)
 Extend the `revenue-provenance.md` rule from revenue to costing. Every cost in
